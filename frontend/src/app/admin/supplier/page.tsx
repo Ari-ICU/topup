@@ -9,8 +9,14 @@ import {
 } from 'lucide-react';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
-const generateSecret = (length = 48) => {
+const generateSecret = (length = 64) => {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    if (typeof window !== 'undefined' && window.crypto && window.crypto.getRandomValues) {
+        const array = new Uint8Array(length);
+        window.crypto.getRandomValues(array);
+        return Array.from(array, val => chars[val % chars.length]).join('');
+    }
+    // Fallback if crypto is unavailable
     return Array.from({ length }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
 };
 
