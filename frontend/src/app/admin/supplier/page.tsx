@@ -199,55 +199,55 @@ export default function SupplierApiPage() {
     // ── Code snippets (clean, no extra indentation) ───────────────────────────
     const curlExample =
         `curl -X POST "${fulfillUrl}" \\
-  -H "Content-Type: application/json" \\
-  -H "X-Supplier-Token: ${token}" \\
-  -d '{
-    "orderId": "txn_abc123",
-    "status": "success",
-    "providerRef": "FRIEND-REF-001",
-    "diamonds": 100,
-    "message": "Delivered 100 diamonds to player"
-  }'`;
+        -H "Content-Type: application/json" \\
+        -H "X-Supplier-Token: ${token}" \\
+        -d '{
+            "orderId": "txn_abc123",
+            "status": "success",
+            "providerRef": "FRIEND-REF-001",
+            "diamonds": 100,
+            "message": "Delivered 100 diamonds to player"
+        }'`;
 
     const pythonExample =
         `import requests
 
-TOKEN = "${token}"
-URL   = "${fulfillUrl}"
+        TOKEN = "${token}"
+        URL   = "${fulfillUrl}"
 
-payload = {
-    "orderId":     "txn_abc123",    # transaction ID from DAI-GAME
-    "status":      "success",        # success | failed | pending
-    "providerRef": "FRIEND-REF-001",
-    "diamonds":    100,
-    "message":     "Delivered 100 diamonds"
-}
+        payload = {
+            "orderId":     "txn_abc123",    # transaction ID from DAI-GAME
+            "status":      "success",        # success | failed | pending
+            "providerRef": "FRIEND-REF-001",
+            "diamonds":    100,
+            "message":     "Delivered 100 diamonds"
+        }
 
-response = requests.post(URL, json=payload, headers={
-    "X-Supplier-Token": TOKEN
-})
-print(response.json())`;
+        response = requests.post(URL, json=payload, headers={
+            "X-Supplier-Token": TOKEN
+        })
+        print(response.json())`;
 
     const nodeExample =
         `const TOKEN = "${token}";
-const URL   = "${fulfillUrl}";
+        const URL   = "${fulfillUrl}";
 
-fetch(URL, {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-    "X-Supplier-Token": TOKEN,
-  },
-  body: JSON.stringify({
-    orderId:     "txn_abc123",   // transaction ID from DAI-GAME
-    status:      "success",       // success | failed | pending
-    providerRef: "FRIEND-REF-001",
-    diamonds:    100,
-    message:     "Delivered 100 diamonds",
-  }),
-})
-  .then(r => r.json())
-  .then(console.log);`;
+        fetch(URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-Supplier-Token": TOKEN,
+            },
+            body: JSON.stringify({
+            orderId:     "txn_abc123",   // transaction ID from DAI-GAME
+            status:      "success",       // success | failed | pending
+            providerRef: "FRIEND-REF-001",
+            diamonds:    100,
+            message:     "Delivered 100 diamonds",
+        }),
+        })
+        .then(r => r.json())
+        .then(console.log);`;
 
     // ── Loading ───────────────────────────────────────────────────────────────
     if (isLoading) {

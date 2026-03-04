@@ -1,36 +1,44 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TopUpPay Frontend 🚀
+
+Welcome to the **TopUpPay Frontend** repository!
+
+This Next.js 15+ (App Router) codebase features a stunning customer-facing interface tailored specifically for the gaming industry along with a comprehensive Admin Dashboard. 
+
+## Highlights
+- **Stunning UI/UX**: Custom neon aesthetics, glassy components, CSS grid systems, and micro-animations via standard Tailwind 4 implementations.
+- **Robust Integration**: Custom `lib/api.ts` handler providing seamless connectivity to our custom backend and caching data intelligently.
+- **Resilience**: Features fallback component structures that prevent UI breakdown when the backend API is disconnected, making demos and load times buttery smooth.
+- **Account Verification Proxy**: Routes validation calls securely through Next.js server components to circumvent strict CORS blocking, ensuring clean gameplay account ID verifications. 
+- **Admin Capabilities**: Sort items with Drag-and-Drop UI, approve customer reviews, view diamond balances, and handle game packages effortlessly.
 
 ## Getting Started
 
-First, run the development server:
+First, install all necessary dependencies:
+
+```bash
+npm install
+```
+
+Start the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) with your browser to experience TopUpPay.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Project Architecture
+- `src/app/page.tsx`: Landing page highlighting features, games grid, and user testimonials.
+- `src/app/admin/*`: Fully functional dashboard interfaces including KPI charts, System Settings toggles, and review approvals. 
+- `src/app/topup/[gameId]/*`: High-fidelity, multi-step transaction process featuring real-time ID verification and glowing interaction patterns.
+- `src/components/*`: Reusable atomic UI components ensuring uniform styles and optimal performance across screen sizes.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Building for Production
+Ensure `.env.production` contains valid configurations (e.g. `NEXT_PUBLIC_API_URL`) before building.
 
-## Learn More
+```bash
+npm run build
+npm run start
+```
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+*This application natively mitigates client-side hydration issues through strategic Next.js `<Suspense>` layers.*
