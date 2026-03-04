@@ -96,8 +96,10 @@ async function providerVerify(
     userId: string,
     zoneId?: string
 ): Promise<VerifyResult | null> {
-    const providerUrl = process.env.TOPUP_PROVIDER_URL;
-    const providerKey = process.env.TOPUP_PROVIDER_KEY;
+    const { getSystemSettings } = await import("../lib/settings.js");
+    const settings = await getSystemSettings();
+    const providerUrl = settings.get("TOPUP_PROVIDER_URL");
+    const providerKey = settings.get("TOPUP_PROVIDER_KEY");
 
     // Skip if credentials are not set or are still at example values
     if (!providerUrl || !providerKey || providerUrl.includes("example")) {

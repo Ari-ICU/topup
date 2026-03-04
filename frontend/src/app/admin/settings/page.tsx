@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { apiRequest } from '@/lib/api';
-import { Save, CheckCircle, Settings, Users, ShieldCheck, CreditCard } from 'lucide-react';
+import { Save, CheckCircle, Settings, Users, ShieldCheck, CreditCard, Zap } from 'lucide-react';
 
 // ─── All configurable settings grouped by section ────────────────────────────
 const settingDefaults: {
@@ -96,6 +96,7 @@ const settingDefaults: {
 const groupIcons: Record<string, React.ElementType> = {
     'Friend Supplier': Users,
     'Bakong KHQR': CreditCard,
+    'MooGold Provider': Zap,
 };
 
 // --- Utils ---

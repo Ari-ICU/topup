@@ -130,6 +130,13 @@ export default function AdminDashboardPage() {
         activeGames: 0,
         globalStockDiamonds: -1,
         pendingReviews: 0,
+        recentTransactions: [] as any[],
+        chartData: [] as { date: string, amount: number }[],
+        metrics: {
+            conversionRate: '0.00%',
+            avgTicketSize: '$0.00',
+            customerLTV: '$0.00'
+        }
     });
     const [providerStatus, setProviderStatus] = useState<ProviderStatus | null>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -229,25 +236,39 @@ export default function AdminDashboardPage() {
                     </div>
 
                     <div className="relative h-[400px] w-full bg-white/[0.01] rounded-3xl border border-white/5 flex flex-col items-center justify-center p-8 text-center group/inner">
-                        <div className="relative mb-6">
-                            <div className="absolute inset-0 bg-indigo-500/20 blur-3xl rounded-full scale-150 animate-pulse" />
-                            <div className="relative w-20 h-20 rounded-[2rem] bg-indigo-500/20 flex items-center justify-center transform group-hover/inner:rotate-12 transition-transform duration-500">
-                                <TrendingUp className="w-10 h-10 text-indigo-400 drop-shadow-[0_0_10px_rgba(129,140,248,0.5)]" />
-                            </div>
-                        </div>
-                        <h4 className="text-white font-black text-xs uppercase tracking-[0.3em]">Processing Visual Data</h4>
-                        <p className="text-slate-500 text-[10px] font-bold mt-3 leading-relaxed max-w-xs">
-                            Securely fetching transaction stream from global nodes...
-                        </p>
-
-                        <div className="mt-8 flex gap-1 items-center">
-                            {[1, 2, 3, 4, 5].map(i => (
-                                <div key={i}
-                                    className="w-1 rounded-full bg-indigo-500/40"
-                                    style={{ height: `${20 + (i * 8)}px`, animationDelay: `${i * 150}ms`, animation: 'pulse 1.5s infinite' }}
-                                />
-                            ))}
-                        </div>
+                        {stats.chartData?.length > 0 ? (
+                            <>
+                                <div className="absolute inset-0 flex items-end justify-center px-10 pb-16 gap-2">
+                                    {stats.chartData.map((d, i) => {
+                                        const max = Math.max(...stats.chartData.map(c => c.amount)) || 1;
+                                        const height = (d.amount / max) * 100;
+                                        return (
+                                            <div key={d.date} className="flex-1 flex flex-col items-center">
+                                                <div
+                                                    className="w-full bg-indigo-500/30 rounded-t-lg border-t border-indigo-400 group-hover/inner:bg-indigo-500/50 transition-all duration-700"
+                                                    style={{ height: `${Math.max(10, height)}%` }}
+                                                />
+                                                <span className="text-[7px] font-black text-slate-600 mt-2 uppercase">{d.date.split('-').slice(1).join('/')}</span>
+                                            </div>
+                                        )
+                                    })}
+                                </div>
+                                <h4 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white font-black text-xs uppercase tracking-[0.3em] opacity-20 pointer-events-none">Revenue Stream Live</h4>
+                            </>
+                        ) : (
+                            <>
+                                <div className="relative mb-6">
+                                    <div className="absolute inset-0 bg-indigo-500/20 blur-3xl rounded-full scale-150 animate-pulse" />
+                                    <div className="relative w-20 h-20 rounded-[2rem] bg-indigo-500/20 flex items-center justify-center transform group-hover/inner:rotate-12 transition-transform duration-500">
+                                        <TrendingUp className="w-10 h-10 text-indigo-400 drop-shadow-[0_0_10px_rgba(129,140,248,0.5)]" />
+                                    </div>
+                                </div>
+                                <h4 className="text-white font-black text-xs uppercase tracking-[0.3em]">Processing Visual Data</h4>
+                                <p className="text-slate-500 text-[10px] font-bold mt-3 leading-relaxed max-w-xs">
+                                    Securely fetching transaction stream...
+                                </p>
+                            </>
+                        )}
                     </div>
                 </div>
 
@@ -256,24 +277,32 @@ export default function AdminDashboardPage() {
                     <div className="bg-white/[0.02] rounded-[2.5rem] border border-white/5 p-10">
                         <h3 className="text-sm font-black text-white uppercase tracking-[0.3em] mb-10">Market Metrics</h3>
                         <div className="space-y-6">
-                            <MetricItem label="Conversion Efficiency" value="3.45%" color="indigo" />
-                            <MetricItem label="Average Ticket Size" value="$12.42" color="purple" />
-                            <MetricItem label="Customer LTV" value="$245.00" color="emerald" />
+                            <MetricItem label="Conversion Efficiency" value={stats.metrics.conversionRate} color="indigo" />
+                            <MetricItem label="Average Ticket Size" value={stats.metrics.avgTicketSize} color="purple" />
+                            <MetricItem label="Customer LTV" value={stats.metrics.customerLTV} color="emerald" />
                         </div>
                     </div>
 
                     <div className="bg-white/[0.02] rounded-[2.5rem] border border-white/5 p-10 flex-1">
                         <h3 className="text-sm font-black text-white uppercase tracking-[0.3em] mb-8 italic">Recent Operations</h3>
                         <div className="space-y-4">
-                            {[1, 2, 3, 4].map((i) => (
-                                <div key={i} className="flex items-center gap-4 p-4 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors cursor-pointer group">
-                                    <div className="w-2.5 h-2.5 rounded-full bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.5)] group-hover:scale-125 transition-transform" />
-                                    <div>
-                                        <p className="text-[11px] font-black text-white uppercase tracking-widest">ORDER_FULFILLED</p>
-                                        <p className="text-[9px] text-slate-500 font-bold mt-1 uppercase tracking-tighter">ID: TX_04928 • 12m ago</p>
+                            {stats.recentTransactions?.length > 0 ? (
+                                stats.recentTransactions.map((txn) => (
+                                    <div key={txn.id} className="flex items-center gap-4 p-4 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors cursor-pointer group">
+                                        <div className={`w-2.5 h-2.5 rounded-full shadow-[0_0_10px_rgba(99,102,241,0.5)] group-hover:scale-125 transition-transform ${txn.status === 'COMPLETED' ? 'bg-emerald-500 shadow-emerald-500/50' :
+                                            txn.status === 'FAILED' ? 'bg-red-500 shadow-red-500/50' : 'bg-indigo-500'
+                                            }`} />
+                                        <div className="flex-1">
+                                            <p className="text-[11px] font-black text-white uppercase tracking-widest">{txn.status === 'COMPLETED' ? 'FULFILLED' : txn.status}</p>
+                                            <p className="text-[9px] text-slate-500 font-bold mt-1 uppercase tracking-tighter">
+                                                {txn.package?.game?.name} • {txn.package?.name} • ${txn.totalAmount}
+                                            </p>
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
+                                ))
+                            ) : (
+                                <p className="text-center text-[10px] text-slate-600 font-black tracking-widest uppercase py-10">No recent activity detected</p>
+                            )}
                         </div>
                     </div>
                 </div>

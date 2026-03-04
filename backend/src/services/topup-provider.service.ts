@@ -1,4 +1,5 @@
 import { prisma } from "../lib/prisma.js";
+import { getSystemSettings } from "../lib/settings.js";
 
 /**
  * Top-Up Provider Service
@@ -16,6 +17,8 @@ export interface TopUpRequest {
     providerSku: string;   // The provider-specific product/SKU ID
     playerId: string;      // Game user ID
     zoneId?: string;       // Optional: server/zone ID (required for MLBB etc.)
+    amount: number;        // Diamond amount to deliver
+    gameSlug: string;      // e.g. "mobile-legends"
 }
 
 export interface TopUpResult {
@@ -40,13 +43,8 @@ export interface ProviderStatus {
 }
 
 export const getProviderStatus = async (): Promise<ProviderStatus> => {
-    // Fetch settings from DB to supplement / override .env
-    const dbSettings = await prisma.systemSetting.findMany();
-    const settings: Record<string, string> = {};
-    dbSettings.forEach(s => settings[s.key] = s.value);
-
-    // Helper to get from Env OR DB
-    const getVal = (key: string) => process.env[key] || settings[key] || "";
+    const settings = await getSystemSettings();
+    const getVal = (key: string) => settings.get(key);
 
     // 1. Check MooGold
     const mooPartner = getVal("MOOGOLD_PARTNER_ID");
@@ -87,10 +85,8 @@ export const getProviderStatus = async (): Promise<ProviderStatus> => {
  * Fetches the live balance from whichever source is active.
  */
 export const getActiveProviderBalance = async (): Promise<number> => {
-    const dbSettings = await prisma.systemSetting.findMany();
-    const settings: Record<string, string> = {};
-    dbSettings.forEach(s => settings[s.key] = s.value);
-    const getVal = (key: string) => process.env[key] || settings[key] || "";
+    const settings = await getSystemSettings();
+    const getVal = (key: string) => settings.get(key);
 
     // MooGold Balance
     if (getVal("MOOGOLD_PARTNER_ID") && getVal("MOOGOLD_SECRET_KEY")) {
@@ -125,10 +121,8 @@ export const processTopUp = async (request: TopUpRequest): Promise<TopUpResult> 
     console.log(`[TopUp] Initiating top-up for TxID: ${request.transactionId}, SKU: ${request.providerSku}`);
 
     // Fetch live settings
-    const dbSettings = await prisma.systemSetting.findMany();
-    const settings: Record<string, string> = {};
-    dbSettings.forEach(s => settings[s.key] = s.value);
-    const getVal = (key: string) => process.env[key] || settings[key] || "";
+    const settings = await getSystemSettings();
+    const getVal = (key: string) => settings.get(key);
 
     // 1. MooGold Fulfillment (Primary)
     const mooPartner = getVal("MOOGOLD_PARTNER_ID");
@@ -168,8 +162,8 @@ export const processTopUp = async (request: TopUpRequest): Promise<TopUpResult> 
             transactionId: request.transactionId,
             playerId: request.playerId,
             zoneId: request.zoneId,
-            diamonds: 0,
-            game: "mobile-legends",
+            diamonds: request.amount,
+            game: request.gameSlug,
         });
         return {
             success: result.success,

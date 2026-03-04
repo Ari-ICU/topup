@@ -11,4 +11,7 @@ router.get("/:id", transactionController.getTransactionStatus);
 // Very strict: fulfillment is expensive — max 5 confirm attempts per 15 min
 router.post("/:id/confirm", heavyActionLimiter, transactionController.confirmAndFulfillTransaction);
 
+// Polling endpoint for automated payment verification
+router.post("/:id/check-payment", heavyActionLimiter, transactionController.checkPaymentAndFulfill);
+
 export default router;

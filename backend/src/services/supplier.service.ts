@@ -123,8 +123,10 @@ export const supplierPlaceOrder = async (
     payload: SupplierOrderPayload
 ): Promise<SupplierOrderResult> => {
 
-    const friendApiUrl = process.env.FRIEND_SUPPLIER_API_URL;
-    const friendApiKey = process.env.FRIEND_SUPPLIER_API_KEY;
+    const { getSystemSettings } = await import("../lib/settings.js");
+    const settings = await getSystemSettings();
+    const friendApiUrl = settings.get("FRIEND_SUPPLIER_API_URL");
+    const friendApiKey = settings.get("FRIEND_SUPPLIER_API_KEY");
 
     if (!friendApiUrl || !friendApiKey) {
         console.warn("[Supplier] ⚠️  FRIEND_SUPPLIER_API_URL or FRIEND_SUPPLIER_API_KEY not set in .env — using manual mode");
@@ -179,8 +181,10 @@ export const supplierPlaceOrder = async (
 //  MODE C: Retrieve Live Balance from Friend Supplier
 // ============================================================================
 export const getSupplierBalance = async (): Promise<number> => {
-    const friendApiUrl = process.env.FRIEND_SUPPLIER_API_URL;
-    const friendApiKey = process.env.FRIEND_SUPPLIER_API_KEY;
+    const { getSystemSettings } = await import("../lib/settings.js");
+    const settings = await getSystemSettings();
+    const friendApiUrl = settings.get("FRIEND_SUPPLIER_API_URL");
+    const friendApiKey = settings.get("FRIEND_SUPPLIER_API_KEY");
 
     if (!friendApiUrl || !friendApiKey) {
         return -1; // -1 represents unknown / manual mode

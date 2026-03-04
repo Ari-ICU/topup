@@ -6,15 +6,11 @@ import { prisma } from "../lib/prisma.js";
  * Fetch MooGold Product Catalog (extracting pids/providerSkus)
  */
 export const getMooGoldProductList = async (): Promise<any[]> => {
-    // 1. Fetch settings from DB to supplement / override .env
-    const dbSettings = await prisma.systemSetting.findMany();
-    const settings: Record<string, string> = {};
-    dbSettings.forEach(s => settings[s.key] = s.value);
+    const { getSystemSettings } = await import("../lib/settings.js");
+    const settings = await getSystemSettings();
 
-    const getVal = (key: string) => process.env[key] || settings[key] || "";
-
-    const partnerId = getVal("MOOGOLD_PARTNER_ID"); // MooGold Partner ID
-    const secretKey = getVal("MOOGOLD_SECRET_KEY"); // MooGold Secret Key
+    const partnerId = settings.get("MOOGOLD_PARTNER_ID");
+    const secretKey = settings.get("MOOGOLD_SECRET_KEY");
 
     if (!partnerId || !secretKey) {
         throw new Error("MooGold credentials (MOOGOLD_PARTNER_ID / MOOGOLD_SECRET_KEY) not found in settings.");
@@ -83,13 +79,11 @@ export const moogoldPlaceOrder = async (orderData: {
     serverId?: string;
     transactionId: string;
 }): Promise<{ success: boolean; orderId: string; message: string }> => {
-    const dbSettings = await prisma.systemSetting.findMany();
-    const settings: Record<string, string> = {};
-    dbSettings.forEach(s => settings[s.key] = s.value);
-    const getVal = (key: string) => process.env[key] || settings[key] || "";
+    const { getSystemSettings } = await import("../lib/settings.js");
+    const settings = await getSystemSettings();
 
-    const partnerId = getVal("MOOGOLD_PARTNER_ID");
-    const secretKey = getVal("MOOGOLD_SECRET_KEY");
+    const partnerId = settings.get("MOOGOLD_PARTNER_ID");
+    const secretKey = settings.get("MOOGOLD_SECRET_KEY");
 
     if (!partnerId || !secretKey) {
         throw new Error("MooGold credentials missing.");
@@ -160,13 +154,11 @@ export const moogoldPlaceOrder = async (orderData: {
  * Fetch Reseller Balance from MooGold
  */
 export const getMooGoldBalance = async (): Promise<number> => {
-    const dbSettings = await prisma.systemSetting.findMany();
-    const settings: Record<string, string> = {};
-    dbSettings.forEach(s => settings[s.key] = s.value);
-    const getVal = (key: string) => process.env[key] || settings[key] || "";
+    const { getSystemSettings } = await import("../lib/settings.js");
+    const settings = await getSystemSettings();
 
-    const partnerId = getVal("MOOGOLD_PARTNER_ID");
-    const secretKey = getVal("MOOGOLD_SECRET_KEY");
+    const partnerId = settings.get("MOOGOLD_PARTNER_ID");
+    const secretKey = settings.get("MOOGOLD_SECRET_KEY");
 
     if (!partnerId || !secretKey) return 0;
 

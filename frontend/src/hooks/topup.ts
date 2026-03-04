@@ -106,7 +106,33 @@ export function useTransaction() {
     const [isLoading, setIsLoading] = useState(false);
     const [status, setStatus] = useState<TransactionStatus>("IDLE");
     const [error, setError] = useState<string | null>(null);
+    const [transactionId, setTransactionId] = useState<string | null>(null);
     const [paymentData, setPaymentData] = useState<{ qrCode: string; md5: string } | null>(null);
+
+    // ── Polling logic for Bakong/KHQR ──────────────────────────────────────────
+    useEffect(() => {
+        if (status !== "PROCESSING" || !transactionId) return;
+
+        console.log(`[useTransaction] Starting polling for TxID: ${transactionId}`);
+
+        const pollInterval = setInterval(async () => {
+            try {
+                const res = await apiRequest<any>(`/transactions/${transactionId}/check-payment`, {
+                    method: "POST"
+                });
+
+                if (res.status === "COMPLETED") {
+                    console.log(`[useTransaction] ✅ Payment confirmed for ${transactionId}`);
+                    setStatus("COMPLETED");
+                    clearInterval(pollInterval);
+                }
+            } catch (err) {
+                console.warn("[useTransaction] Polling check failed (will retry):", err);
+            }
+        }, 4000); // Poll every 4 seconds
+
+        return () => clearInterval(pollInterval);
+    }, [status, transactionId]);
 
     const submit = async (params: {
         packageId: string;
@@ -117,6 +143,7 @@ export function useTransaction() {
         setIsLoading(true);
         setStatus("PENDING");
         setError(null);
+        setTransactionId(null);
 
         try {
             const data = await apiRequest<any>("/transactions", {
@@ -127,6 +154,8 @@ export function useTransaction() {
                     paymentMethod: params.paymentMethod.toUpperCase(),
                 }),
             });
+
+            setTransactionId(data.id);
 
             if (data.paymentData) {
                 setPaymentData(data.paymentData);
@@ -146,7 +175,8 @@ export function useTransaction() {
         setStatus("IDLE");
         setError(null);
         setPaymentData(null);
+        setTransactionId(null);
     };
 
-    return { isLoading, status, error, paymentData, submit, reset, setPaymentData, setStatus };
+    return { isLoading, status, error, paymentData, transactionId, submit, reset, setPaymentData, setStatus };
 }
