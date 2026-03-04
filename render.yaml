@@ -7,13 +7,12 @@ services:
     env: node
     rootDir: backend
     # Only rebuild if files inside the backend/ directory change
-    # This prevents frontend changes from triggering backend redeploys
     buildFilter:
       ignoredPaths:
         - frontend/**
         - docs/**
         - nginx/**
-    plan: starter
+    plan: free # 🎁 Free for testing
     buildCommand: npm install && npx prisma generate && npm run build
     startCommand: npx prisma migrate deploy && npm start
     envVars:
@@ -35,15 +34,13 @@ services:
         sync: false
       - key: BAKONG_MERCHANT_NAME
         value: "TopUpPay"
-      - key: BAKONG_MERCHANT_CITY
-        value: "Phnom Penh"
-      - key: BAKONG_ACQUIRING_BANK
-        value: "ABA Bank"
       - key: MOOGOLD_TEST_MODE
-        value: "false"
+        value: "true" # 🧪 Testing mode enabled by default for free tier
+      - key: MOOGOLD_TEST_OUTCOME
+        value: "success"
 
 databases:
   - name: topup-db
-    plan: starter
+    plan: free # 🎁 Free for testing
     databaseName: topup_db
     user: topup_admin
