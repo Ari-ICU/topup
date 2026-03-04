@@ -1,0 +1,191 @@
+'use client';
+
+import { useState, useEffect, useCallback } from 'react';
+import { apiRequest } from '@/lib/api';
+import { Receipt, Clock, CheckCircle, XCircle, RefreshCw } from 'lucide-react';
+
+type TransactionStatus = 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED' | 'EXPIRED';
+
+interface Transaction {
+    id: string;
+    status: TransactionStatus;
+    paymentMethod: string;
+    totalAmount: string;
+    createdAt: string;
+    playerInfo: { playerId?: string; zoneId?: string };
+    package: {
+        name: string;
+        game: { name: string };
+    };
+    user?: { name?: string; email?: string } | null;
+}
+
+const StatusBadge = ({ status }: { status: TransactionStatus }) => {
+    const config: Record<TransactionStatus, { label: string; class: string; glow: string; icon: React.ElementType }> = {
+        PENDING: { label: 'PENDING', class: 'text-amber-400 bg-amber-500/10 border-amber-500/20', glow: 'bg-amber-500/20', icon: Clock },
+        PROCESSING: { label: 'PROCESSING', class: 'text-indigo-400 bg-indigo-500/10 border-indigo-500/20', glow: 'bg-indigo-500/20', icon: RefreshCw },
+        COMPLETED: { label: 'COMPLETED', class: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20', glow: 'bg-emerald-500/20', icon: CheckCircle },
+        FAILED: { label: 'FAILED', class: 'text-red-400 bg-red-500/10 border-red-500/20', glow: 'bg-red-500/20', icon: XCircle },
+        EXPIRED: { label: 'EXPIRED', class: 'text-slate-500 bg-slate-500/10 border-slate-500/20', glow: 'bg-slate-500/10', icon: Clock },
+    };
+    const { label, class: cls, glow, icon: Icon } = config[status] ?? config.PENDING;
+    return (
+        <div className="relative group/badge inline-block">
+            <div className={`absolute inset-0 blur-md rounded-full transition-opacity opacity-0 group-hover/badge:opacity-100 ${glow}`} />
+            <span className={`relative inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-[0.15em] border transition-all ${cls}`}>
+                <Icon className={`w-3 h-3 ${status === 'PROCESSING' ? 'animate-spin' : ''}`} />
+                {label}
+            </span>
+        </div>
+    );
+};
+
+export default function AdminTransactionsPage() {
+    const [transactions, setTransactions] = useState<Transaction[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    const fetchTransactions = useCallback(async () => {
+        setIsLoading(true);
+        try {
+            const data = await apiRequest<Transaction[]>('/admin/transactions');
+            setTransactions(data ?? []);
+        } catch (error) {
+            console.error('Failed to fetch transactions', error);
+            setTransactions([]);
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        fetchTransactions();
+    }, [fetchTransactions]);
+
+    const handleUpdateStatus = async (id: string, status: TransactionStatus) => {
+        try {
+            await apiRequest(`/admin/transactions/${id}/status`, {
+                method: 'PUT',
+                body: JSON.stringify({ status }),
+            });
+            setTransactions((prev) =>
+                prev.map((t) => (t.id === id ? { ...t, status } : t))
+            );
+        } catch (error) {
+            console.error('Failed to update status', error);
+        }
+    };
+
+    return (
+        <div className="space-y-8 animate-fade-in">
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+                <div>
+                    <h1 className="text-3xl font-black text-white tracking-tight italic uppercase">Market Operations</h1>
+                    <p className="text-[11px] text-slate-500 font-black tracking-[0.2em] uppercase mt-2">
+                        Real-time ledger of global top-up acquisitions
+                    </p>
+                </div>
+                <button
+                    onClick={fetchTransactions}
+                    className="group px-8 py-4 bg-white/5 hover:bg-white/10 border border-white/5 rounded-[2rem] text-[10px] font-black text-white uppercase tracking-[0.2em] transition-all hover:-translate-y-1 active:scale-95 flex items-center gap-3"
+                >
+                    <RefreshCw className={`w-4 h-4 text-indigo-400 ${isLoading ? 'animate-spin' : ''}`} />
+                    Sync Ledger
+                </button>
+            </div>
+
+            {/* Table Container */}
+            <div className="relative bg-white/[0.02] rounded-[2.5rem] border border-white/5 overflow-hidden">
+                {isLoading ? (
+                    <div className="p-24 text-center">
+                        <div className="w-12 h-12 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-6" />
+                        <p className="text-slate-500 font-black text-xs uppercase tracking-[0.3em]">Querying Operation Logs...</p>
+                    </div>
+                ) : (
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left">
+                            <thead className="bg-white/[0.03]">
+                                <tr className="text-[10px] font-black text-slate-500 uppercase tracking-[0.25em]">
+                                    <th className="px-8 py-6">Operation ID</th>
+                                    <th className="px-8 py-6">Target Asset</th>
+                                    <th className="px-8 py-6">User Identity</th>
+                                    <th className="px-8 py-6">Protocol</th>
+                                    <th className="px-8 py-6 text-right">Value</th>
+                                    <th className="px-8 py-6 text-center">Current Status</th>
+                                    <th className="px-8 py-6 text-right">Control</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-white/5">
+                                {transactions.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={7} className="px-8 py-24 text-center">
+                                            <div className="w-16 h-16 bg-white/5 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                                                <Receipt className="w-8 h-8 text-slate-700" />
+                                            </div>
+                                            <p className="text-white font-black text-sm uppercase tracking-widest">No Operational Data</p>
+                                            <p className="text-slate-600 text-[10px] font-bold mt-2 uppercase tracking-tight">Market activity will be logged here in real-time.</p>
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    transactions.map((txn) => (
+                                        <tr key={txn.id} className="group hover:bg-white/[0.03] transition-all duration-300">
+                                            <td className="px-8 py-6">
+                                                <div className="flex flex-col">
+                                                    <span className="font-mono text-[10px] text-indigo-400 bg-indigo-500/5 px-2.5 py-1 rounded border border-indigo-500/10 self-start">
+                                                        {txn.id.substring(0, 14)}
+                                                    </span>
+                                                    <span className="text-[9px] text-slate-600 font-bold mt-2 uppercase tracking-tighter">
+                                                        {new Date(txn.createdAt).toLocaleTimeString()}
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td className="px-8 py-6">
+                                                <p className="text-sm font-black text-white italic tracking-tight">{txn.package?.game?.name}</p>
+                                                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-0.5">{txn.package?.name}</p>
+                                            </td>
+                                            <td className="px-8 py-6">
+                                                <p className="text-xs font-black text-slate-300 tabular-nums tracking-widest">{txn.playerInfo?.playerId ?? 'ANONYMOUS'}</p>
+                                                {txn.playerInfo?.zoneId && <p className="text-[9px] text-slate-600 font-bold uppercase tracking-widest mt-1">Zone: {txn.playerInfo.zoneId}</p>}
+                                            </td>
+                                            <td className="px-8 py-6">
+                                                <span className="text-[10px] font-black text-indigo-400 bg-indigo-500/5 px-2.5 py-1 rounded-full border border-indigo-500/10 uppercase tracking-widest">
+                                                    {txn.paymentMethod}
+                                                </span>
+                                            </td>
+                                            <td className="px-8 py-6 text-right">
+                                                <span className="text-base font-black text-white tabular-nums drop-shadow-sm">${Number(txn.totalAmount).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                                            </td>
+                                            <td className="px-8 py-6 text-center">
+                                                <StatusBadge status={txn.status} />
+                                            </td>
+                                            <td className="px-8 py-6 text-right">
+                                                <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                                                    {txn.status === 'PENDING' && (
+                                                        <>
+                                                            <button
+                                                                onClick={() => handleUpdateStatus(txn.id, 'COMPLETED')}
+                                                                className="text-[9px] font-black uppercase tracking-[0.2em] bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 py-2 px-4 rounded-xl border border-emerald-500/20 transition-all active:scale-95"
+                                                            >
+                                                                Release
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleUpdateStatus(txn.id, 'FAILED')}
+                                                                className="text-[9px] font-black uppercase tracking-[0.2em] bg-red-500/10 hover:bg-red-500/20 text-red-500 py-2 px-4 rounded-xl border border-red-500/20 transition-all active:scale-95"
+                                                            >
+                                                                Reject
+                                                            </button>
+                                                        </>
+                                                    )}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}

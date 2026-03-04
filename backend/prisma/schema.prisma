@@ -1,0 +1,91 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String        @id @default(cuid())
+  email        String?       @unique
+  name         String?
+  createdAt    DateTime      @default(now())
+  transactions Transaction[]
+}
+
+model Game {
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  name        String
+  iconUrl     String?
+  bannerUrl   String?
+  inputConfig Json
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  sortOrder   Int       @default(0)
+  packages    Package[]
+}
+
+model Package {
+  id           String        @id @default(cuid())
+  gameId       String
+  name         String
+  amount       Int
+  price        Decimal       @db.Decimal(10, 2)
+  providerSku  String
+  points       Int           @default(0)
+  description  String?
+  isWeeklyPass Boolean       @default(false)
+  sortOrder    Int           @default(0)
+  game         Game          @relation(fields: [gameId], references: [id])
+  transactions Transaction[]
+}
+
+model GlobalStock {
+  id        String   @id @default("GLOBAL")
+  diamonds  Int      @default(0)
+  updatedAt DateTime @updatedAt
+}
+
+model Transaction {
+  id            String            @id @default(cuid())
+  userId        String?
+  packageId     String
+  status        TransactionStatus @default(PENDING)
+  paymentMethod String
+  paymentRef    String?           @unique
+  providerRef   String?           @unique
+  playerInfo    Json
+  totalAmount   Decimal           @db.Decimal(10, 2)
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  package       Package           @relation(fields: [packageId], references: [id])
+  user          User?             @relation(fields: [userId], references: [id])
+}
+
+model SystemSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  name       String
+  gameName   String
+  rating     Int
+  comment    String
+  isApproved Boolean  @default(false)
+  createdAt  DateTime @default(now())
+}
+
+enum TransactionStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  EXPIRED
+}
