@@ -126,13 +126,16 @@ export default function TopupPage() {
     const isReadyForOrders = systemStatus?.isReady || systemStatus?.isTestMode;
     const selectedPkg = game?.packages.find((p) => p.id === selectedPackage);
 
+    // Flowchart Enforcer: Only allow package selection if verified
+    const isStep2Enabled = verifyStatus === "success" || verifyStatus === "format-ok";
+
     // Sold-out helper: a package is sold out when globalStockDiamonds is 0
     // (or less than the package amount). -1 means unlimited stock.
     const globalStock = game?.globalStockDiamonds ?? 0;
     const isPackageSoldOut = (pkgAmount: number) =>
         globalStock !== -1 && globalStock < pkgAmount;
 
-    const isFormValid = !!(userId && selectedPackage && selectedPayment && (!game?.inputConfig?.zoneId || zoneId)) && isReadyForOrders;
+    const isFormValid = !!(userId && selectedPackage && selectedPayment && (!game?.inputConfig?.zoneId || zoneId)) && isReadyForOrders && isStep2Enabled;
 
     // ── Handlers ───────────────────────────────────────────────────────────────
     const handlePlayerIdChange = (value: string) => {
@@ -319,7 +322,7 @@ export default function TopupPage() {
                         </div>
 
                         {/* Step 2: Package Selection (MooGold Style: prominent selection) */}
-                        <div className="glass-card p-6 md:p-10 rounded-[32px] md:rounded-[42px] border-white/5 relative overflow-hidden shadow-2xl bg-white/5 backdrop-blur-xl">
+                        <div className={`glass-card p-6 md:p-10 rounded-[32px] md:rounded-[42px] border-white/5 relative overflow-hidden shadow-2xl bg-white/5 backdrop-blur-xl transition-all duration-500 ${!isStep2Enabled ? 'opacity-50 grayscale select-none pointer-events-none' : ''}`}>
                             <div className="absolute -right-20 -top-20 w-80 h-80 bg-purple-500/5 rounded-full blur-[100px]" />
 
                             <div className="flex items-center gap-3 px-5 py-3 rounded-2xl md:rounded-[2rem] bg-indigo-600/90 mb-8 border border-white/10 shadow-lg backdrop-blur-sm self-start inline-flex">
@@ -398,7 +401,7 @@ export default function TopupPage() {
                         </div>
 
                         {/* Step 3: Payment Method */}
-                        <div className="glass-card p-6 md:p-10 rounded-[32px] md:rounded-[42px] border-white/5 relative overflow-hidden shadow-2xl bg-white/5 backdrop-blur-xl">
+                        <div className={`glass-card p-6 md:p-10 rounded-[32px] md:rounded-[42px] border-white/5 relative overflow-hidden shadow-2xl bg-white/5 backdrop-blur-xl transition-all duration-500 ${!isStep2Enabled ? 'opacity-50 grayscale select-none pointer-events-none' : ''}`}>
                             <div className="absolute -left-20 -bottom-20 w-80 h-80 bg-emerald-500/5 rounded-full blur-[100px]" />
 
                             <div className="flex items-center gap-3 px-5 py-3 rounded-2xl md:rounded-[2rem] bg-emerald-600/90 mb-10 border border-white/10 shadow-lg backdrop-blur-sm self-start inline-flex group/header">
