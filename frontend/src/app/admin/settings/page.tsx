@@ -47,6 +47,22 @@ const settingDefaults: {
             hint: 'This is the URL your friend calls to confirm diamond delivery. Copy this and send it to them.',
         },
 
+        {
+            group: 'MooGold Provider',
+            key: 'MOOGOLD_PARTNER_ID',
+            label: 'Partner ID',
+            placeholder: 'e.g. 123456',
+            hint: 'Your Account Partner ID from MooGold Dashboard',
+        },
+        {
+            group: 'MooGold Provider',
+            key: 'MOOGOLD_SECRET_KEY',
+            label: 'API Secret Key',
+            placeholder: 'e.g. moogold_key_123',
+            type: 'password',
+            hint: 'Used to securely fetch the product catalog',
+        },
+
         // ── Bakong KHQR ──────────────────────────────────────────────────────────
         {
             group: 'Bakong KHQR',

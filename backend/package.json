@@ -17,6 +17,7 @@
   "dependencies": {
     "@prisma/client": "^6.4.1",
     "@types/jsonwebtoken": "^9.0.10",
+    "axios": "^1.13.6",
     "bakong-khqr": "^1.0.20",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",

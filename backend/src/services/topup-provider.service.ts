@@ -29,7 +29,7 @@ export interface TopUpResult {
 // Provider Status — used by admin dashboard to show warnings
 // ============================================================================
 
-export type ProviderName = "FriendSupplier" | "None";
+export type ProviderName = "MooGold" | "FriendSupplier" | "None";
 
 export interface ProviderStatus {
     activeProvider: ProviderName;
@@ -48,7 +48,20 @@ export const getProviderStatus = async (): Promise<ProviderStatus> => {
     // Helper to get from Env OR DB
     const getVal = (key: string) => process.env[key] || settings[key] || "";
 
-    // Friend Supplier — requires at minimum a shared secret
+    // 1. Check MooGold
+    const mooPartner = getVal("MOOGOLD_PARTNER_ID");
+    const mooKey = getVal("MOOGOLD_SECRET_KEY");
+    if (mooPartner && mooKey) {
+        return {
+            activeProvider: "MooGold",
+            isTestMode: false,
+            isReady: true,
+            missingFields: [],
+            warning: null,
+        };
+    }
+
+    // 2. Check Friend Supplier
     const friendSecret = getVal("FRIEND_SUPPLIER_SECRET");
     if (friendSecret) {
         return {
@@ -65,20 +78,29 @@ export const getProviderStatus = async (): Promise<ProviderStatus> => {
         activeProvider: "None",
         isTestMode: false,
         isReady: false,
-        missingFields: ["FRIEND_SUPPLIER_SECRET"],
-        warning: "🚫 Friend Supplier is not configured. Please set FRIEND_SUPPLIER_SECRET in the Settings page.",
+        missingFields: ["MOOGOLD_PARTNER_ID", "FRIEND_SUPPLIER_SECRET"],
+        warning: "🚫 No top-up provider is configured. Please set MooGold or Friend Supplier in settings.",
     };
 };
 
 /**
  * Fetches the live balance from whichever source is active.
- * Friend Supplier API (if configured with URL+Key) or falls back to local GlobalStock DB.
  */
 export const getActiveProviderBalance = async (): Promise<number> => {
     const dbSettings = await prisma.systemSetting.findMany();
     const settings: Record<string, string> = {};
     dbSettings.forEach(s => settings[s.key] = s.value);
     const getVal = (key: string) => process.env[key] || settings[key] || "";
+
+    // MooGold Balance
+    if (getVal("MOOGOLD_PARTNER_ID") && getVal("MOOGOLD_SECRET_KEY")) {
+        try {
+            const { getMooGoldBalance } = await import("./moogold.service.js");
+            return await getMooGoldBalance();
+        } catch {
+            // fall through
+        }
+    }
 
     // Friend Supplier with API URL — fetch live balance
     if (getVal("FRIEND_SUPPLIER_API_URL") && getVal("FRIEND_SUPPLIER_API_KEY")) {
@@ -96,7 +118,7 @@ export const getActiveProviderBalance = async (): Promise<number> => {
 };
 
 // ============================================================================
-// Main dispatcher — uses Friend Supplier only
+// Main dispatcher
 // ============================================================================
 
 export const processTopUp = async (request: TopUpRequest): Promise<TopUpResult> => {
@@ -108,7 +130,36 @@ export const processTopUp = async (request: TopUpRequest): Promise<TopUpResult> 
     dbSettings.forEach(s => settings[s.key] = s.value);
     const getVal = (key: string) => process.env[key] || settings[key] || "";
 
-    // 🤝 Friend Supplier (with API endpoint)
+    // 1. MooGold Fulfillment (Primary)
+    const mooPartner = getVal("MOOGOLD_PARTNER_ID");
+    const mooKey = getVal("MOOGOLD_SECRET_KEY");
+    if (mooPartner && mooKey && request.providerSku) {
+        const { moogoldPlaceOrder } = await import("./moogold.service.js");
+        const result = await moogoldPlaceOrder({
+            productId: request.providerSku,
+            playerId: request.playerId,
+            serverId: request.zoneId,
+            transactionId: request.transactionId
+        });
+
+        if (result.success) {
+            return {
+                success: true,
+                providerRef: result.orderId,
+                message: result.message,
+                provider: "MooGold"
+            };
+        }
+        // If MooGold fails but it was supposed to be the provider, we return failure
+        return {
+            success: false,
+            providerRef: result.orderId || "",
+            message: result.message,
+            provider: "MooGold"
+        };
+    }
+
+    // 2. 🤝 Friend Supplier (with API endpoint)
     const friendUrl = getVal("FRIEND_SUPPLIER_API_URL");
     const friendKey = getVal("FRIEND_SUPPLIER_API_KEY");
     if (friendUrl && friendKey) {
@@ -128,8 +179,7 @@ export const processTopUp = async (request: TopUpRequest): Promise<TopUpResult> 
         };
     }
 
-    // 🤝 Friend Supplier — callback / manual mode (secret set but no outbound API)
-    // Order is logged and admin confirms delivery manually via the admin dashboard.
+    // 3. 🤝 Friend Supplier — callback / manual mode
     const friendSecret = getVal("FRIEND_SUPPLIER_SECRET");
     if (friendSecret) {
         console.log(`[FriendSupplier] Manual/Callback mode — TxID ${request.transactionId} queued for friend delivery.`);
@@ -145,7 +195,7 @@ export const processTopUp = async (request: TopUpRequest): Promise<TopUpResult> 
     const status = await getProviderStatus();
     console.error(`[TopUp] ❌ BLOCKED: No provider configured. ${status.warning}`);
     throw new Error(
-        "NO_PROVIDER: Friend Supplier is not configured. " +
-        "Please add FRIEND_SUPPLIER_SECRET in the Settings page."
+        "NO_PROVIDER: No top-up provider is configured. " +
+        "Please add credentials in the Settings page."
     );
 };

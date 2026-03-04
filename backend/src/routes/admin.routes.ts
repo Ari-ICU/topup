@@ -19,6 +19,7 @@ import {
     updateGlobalStock,
     syncProviderStock,
     getProviderStatusEndpoint,
+    getMooGoldProducts,
 } from "../controllers/admin.controller.js";
 import {
     getAllReviews,
@@ -75,5 +76,8 @@ router.get("/provider-status", getProviderStatusEndpoint);
 
 // Sync local stock with provider (populates globalStock table)
 router.post("/global-stock/sync", syncProviderStock);
+
+// MooGold catalog proxy
+router.get("/moogold/products", getMooGoldProducts);
 
 export default router;

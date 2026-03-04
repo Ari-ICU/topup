@@ -80,7 +80,7 @@ export default function Home() {
             {/* Left: Text content */}
             <div className="z-10 flex flex-col items-center text-center lg:w-1/2 lg:items-start lg:text-left animate-fade-in-up">
               <div className={`section-label mb-6 ${lang === 'km' ? 'khmer-text' : ''}`}>
-                <Zap className="w-3.5 h-3.5" />
+                {/* <Zap className="w-3.5 h-3.5" /> */}
                 {tr(t.hero.badge, lang)}
               </div>
 
@@ -159,30 +159,6 @@ export default function Home() {
                     <div className={`text-sm font-bold text-white ${lang === 'km' ? 'khmer-text' : ''}`}>{tr(t.stats.deliveryTimeBadge, lang)}</div>
                   </div>
                 </div>
-              </div>
-            </div>
-          </div>
-
-          {/* ===== STATS BANNER ===== */}
-          <div className="relative w-full border-y border-[rgba(124,58,237,0.15)] py-8 px-6 lg:px-16">
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-900/10 via-transparent to-cyan-900/10" />
-            <div className="relative mx-auto max-w-7xl">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-                {[
-                  { value: "500K+", label: tr(t.stats.happyPlayers, lang), color: "text-purple-400" },
-                  { value: "2M+", label: tr(t.stats.transactionsDone, lang), color: "text-cyan-400" },
-                  { value: "50+", label: tr(t.stats.gamesAvailable, lang), color: "text-amber-400" },
-                  { value: "<5s", label: tr(t.stats.deliveryTime, lang), color: "text-emerald-400" },
-                ].map((stat) => (
-                  <div key={stat.label} className="stat-card">
-                    <div className={`text-2xl lg:text-3xl font-display font-bold ${stat.color} mb-1`}>
-                      {stat.value}
-                    </div>
-                    <div className={`text-xs text-slate-500 uppercase tracking-wider font-semibold ${lang === 'km' ? 'khmer-text' : ''}`}>
-                      {stat.label}
-                    </div>
-                  </div>
-                ))}
               </div>
             </div>
           </div>
@@ -349,78 +325,6 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ===== CTA SECTION ===== */}
-        <section className="w-full py-32 px-6 lg:px-16 relative overflow-hidden group">
-          {/* Deep background with multi-layered gradients */}
-          <div className="absolute inset-0 bg-[#07060e]" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(124,58,237,0.25)_0%,transparent_60%)] opacity-70" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom,rgba(6,182,212,0.15)_0%,transparent_50%)] opacity-50" />
-
-          {/* Cyber grid with mask */}
-          <div className="absolute inset-0 grid-lines opacity-20 [mask-image:radial-gradient(ellipse_at_center,black_70%,transparent_100%)] pointer-events-none" />
-
-          {/* Animated glowing lines */}
-          <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-purple-500/50 to-transparent shadow-[0_0_15px_rgba(124,58,237,0.5)]" />
-          <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent shadow-[0_0_15px_rgba(6,182,212,0.3)]" />
-
-          {/* Large Decorative Glow Orbs */}
-          <div className="absolute top-1/2 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-[120px] pointer-events-none group-hover:bg-purple-600/15 transition-all duration-1000" />
-          <div className="absolute top-1/2 right-1/4 translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-cyan-600/10 rounded-full blur-[100px] pointer-events-none group-hover:bg-cyan-600/15 transition-all duration-1000" />
-
-          <div className="relative max-w-4xl mx-auto text-center flex flex-col items-center">
-            {/* Animated label */}
-            <div className={`section-label mb-8 mx-auto w-fit animate-bounce-slow ${lang === 'km' ? 'khmer-text' : ''}`}>
-              <Zap className="w-4 h-4 text-amber-400 fill-amber-400/20" />
-              <span className="text-white">{tr(t.cta.badge, lang)}</span>
-            </div>
-
-            <h2 className="font-display text-4xl sm:text-6xl lg:text-8xl font-black text-white mb-8 tracking-tighter leading-[0.9] uppercase overflow-hidden">
-              <span className={`block animate-fade-in-up ${lang === 'km' ? 'khmer-text leading-tight' : ''}`}>{tr(t.cta.title1, lang)}</span>
-              <span className={`gradient-text drop-shadow-[0_0_30px_rgba(168,85,247,0.4)] block animate-fade-in-up delay-100 ${lang === 'km' ? 'mt-4 khmer-text leading-tight' : 'mt-2'}`}>
-                {tr(t.cta.title2, lang)}
-              </span>
-            </h2>
-
-            <p className={`text-xl text-slate-400 mb-12 max-w-2xl mx-auto leading-relaxed animate-fade-in-up delay-200 ${lang === 'km' ? 'khmer-text' : ''}`}>
-              {tr(t.cta.desc, lang)}
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-6 justify-center w-full sm:w-auto animate-fade-in-up delay-300">
-              <a
-                href="#games"
-                className="btn-primary px-12 py-5 text-lg rounded-2xl justify-center shadow-2xl shadow-purple-500/20 hover:shadow-purple-500/40 group/btn"
-              >
-                <Gamepad2 className="w-6 h-6 group-hover/btn:rotate-12 transition-transform" />
-                <span className={lang === 'km' ? 'khmer-text font-bold' : ''}>{tr(t.cta.browseAll, lang)}</span>
-                <ChevronRight className="w-5 h-5 opacity-50" />
-              </a>
-              <a
-                href="#benefits"
-                className="btn-outline px-12 py-5 text-lg rounded-2xl justify-center backdrop-blur-sm border-purple-500/20 hover:border-purple-500/60 hover:bg-purple-500/5 group/btn"
-              >
-                <span className={lang === 'km' ? 'khmer-text font-bold' : ''}>{tr(t.cta.learnMore, lang)}</span>
-                <ArrowRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" />
-              </a>
-            </div>
-
-            {/* Platform availability indicators */}
-            <div className="mt-20 flex items-center justify-center gap-10 opacity-40 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-700">
-              <div className="flex items-center gap-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
-                <span className={`text-[10px] uppercase font-bold tracking-[0.25em] text-slate-300 ${lang === 'km' ? 'khmer-text text-[12px]' : ''}`}>{tr(t.stats.platforms.ios, lang)}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
-                <span className={`text-[10px] uppercase font-bold tracking-[0.25em] text-slate-300 ${lang === 'km' ? 'khmer-text text-[12px]' : ''}`}>{tr(t.stats.platforms.android, lang)}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
-                <span className={`text-[10px] uppercase font-bold tracking-[0.25em] text-slate-300 ${lang === 'km' ? 'khmer-text text-[12px]' : ''}`}>{tr(t.stats.platforms.pc, lang)}</span>
-              </div>
-            </div>
-          </div>
-        </section>
-
         {/* ===== FOOTER ===== */}
         <footer className="w-full border-t border-[rgba(124,58,237,0.15)] bg-[#05040b] px-6 pt-20 pb-10 lg:px-16 relative overflow-hidden">
           {/* Footer Glow */}
@@ -449,24 +353,15 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Links Columns */}
-              <div className="grid grid-cols-2 sm:grid-cols-2 gap-12 lg:gap-24">
-                <div className="flex flex-col gap-4">
-                  <h4 className={`text-xs uppercase font-bold tracking-[0.2em] text-white/50 mb-2 ${lang === 'km' ? 'khmer-text' : ''}`}>{tr(t.footer.platform, lang)}</h4>
-                  <a href="#games" className={`text-sm text-slate-400 hover:text-purple-400 transition-colors ${lang === 'km' ? 'khmer-text' : ''}`}>{tr(t.footer.gamesList, lang)}</a>
-                  <a href="#benefits" className={`text-sm text-slate-400 hover:text-purple-400 transition-colors ${lang === 'km' ? 'khmer-text' : ''}`}>{tr(t.footer.howWorks, lang)}</a>
-                </div>
-              </div>
-
               {/* Payment & Trusted Col */}
               <div className="flex flex-col items-start lg:items-end">
                 <h4 className={`text-xs uppercase font-bold tracking-[0.2em] text-white/50 mb-5 ${lang === 'km' ? 'khmer-text' : ''}`}>{tr(t.footer.payments, lang)}</h4>
                 <div className="flex gap-3 mb-8">
-                  <div className="h-10 w-14 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center p-2 group hover:border-purple-500/30 transition-all">
-                    <Image src="/khqr.png" alt="KHQR" width={32} height={32} className="object-contain opacity-70 group-hover:opacity-100 transition-opacity" />
+                  <div className="md:h-32 md:w-32 h-24 w-24 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center p-2 group hover:border-purple-500/30 transition-all">
+                    <Image src="/khqr.png" alt="KHQR" width={64} height={64} className="object-contain w-full h-full opacity-70 group-hover:opacity-100 transition-opacity" />
                   </div>
-                  <div className="h-10 w-14 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center p-2 group hover:border-purple-500/30 transition-all">
-                    <Image src="/aba.png" alt="ABA" width={32} height={32} className="object-contain opacity-70 group-hover:opacity-100 transition-opacity" />
+                  <div className="md:h-32 md:w-32 h-24 w-24 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center p-2 group hover:border-purple-500/30 transition-all">
+                    <Image src="/aba.png" alt="ABA" width={64} height={64} className="object-contain w-full h-full opacity-70 group-hover:opacity-100 transition-opacity" />
                   </div>
                 </div>
               </div>
@@ -476,9 +371,9 @@ export default function Home() {
 
             <div className="flex flex-col items-center justify-between gap-8 md:flex-row">
               <p className="text-xs text-slate-500">
-                © 2025 TopUp<span className="text-purple-500 font-bold">Pay</span>. <span className={lang === 'km' ? 'khmer-text' : ''}>{tr(t.footer.copyright, lang)}</span>
+                © 2025 Dai<span className="text-purple-500 font-bold">-Game</span>. <span className={lang === 'km' ? 'khmer-text' : ''}>{tr(t.footer.copyright, lang)}</span>
               </p>
-              <div className="flex gap-8">
+              <div className="flex flex-wrap gap-8 justify-center">
                 {["Twitter", "Discord", "Telegram", "Instagram"].map((social) => (
                   <a key={social} href="#" className="text-xs text-slate-500 hover:text-white transition-colors uppercase tracking-[0.2em] font-black">
                     {social}

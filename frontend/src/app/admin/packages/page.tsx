@@ -41,6 +41,11 @@ function AdminPackagesContent() {
     const searchParams = useSearchParams();
     const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
 
+    // MooGold Autocomplete states
+    const [mooGoldProducts, setMooGoldProducts] = useState<any[]>([]);
+    const [isFetchingMooGold, setIsFetchingMooGold] = useState(false);
+    const [showMooGoldDropdown, setShowMooGoldDropdown] = useState(false);
+
     // Sync local search with URL
     useEffect(() => {
         const q = searchParams.get('q');
@@ -81,7 +86,7 @@ function AdminPackagesContent() {
         amount: '',
         points: '0',
         price: '',
-        providerCode: 'SMILE_ONE',
+        providerCode: 'MOOGOLD',
         providerSku: '',
         description: '',
         isWeeklyPass: false,
@@ -114,6 +119,21 @@ function AdminPackagesContent() {
         fetchPackages();
         fetchGames();
     }, [fetchPackages, fetchGames]);
+
+    const handleFetchMooGoldProducts = async () => {
+        setIsFetchingMooGold(true);
+        try {
+            const data = await apiRequest<any[]>('/admin/moogold/products');
+            setMooGoldProducts(data || []);
+            setShowMooGoldDropdown(true);
+            showToast('MooGold catalog fetched successfully!', 'success');
+        } catch (err: any) {
+            console.error('Failed to fetch MooGold products', err);
+            showToast(err.message || 'Failed to sync with MooGold', 'error');
+        } finally {
+            setIsFetchingMooGold(false);
+        }
+    };
 
     const handleSubmitPackage = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -159,7 +179,7 @@ function AdminPackagesContent() {
             setEditingPackageId(null);
             setIsDuplicating(false);
             setIsFormDropdownOpen(false);
-            setFormData({ name: '', gameId: '', amount: '', points: '0', price: '', providerCode: 'SMILE_ONE', providerSku: '', description: '', isWeeklyPass: false, sortOrder: '0' });
+            setFormData({ name: '', gameId: '', amount: '', points: '0', price: '', providerCode: 'MOOGOLD', providerSku: '', description: '', isWeeklyPass: false, sortOrder: '0' });
         } catch (err: any) {
             console.error('Failed to save package', err);
             showToast(err.message || 'Failed to save package', 'error');
@@ -175,7 +195,7 @@ function AdminPackagesContent() {
             amount: pkg.amount.toString(),
             points: pkg.points.toString(),
             price: pkg.price.toString(),
-            providerCode: 'SMILE_ONE',
+            providerCode: 'MOOGOLD',
             providerSku: pkg.providerSku || '',
             description: pkg.description || '',
             isWeeklyPass: pkg.isWeeklyPass || false,
@@ -195,7 +215,7 @@ function AdminPackagesContent() {
             amount: pkg.amount.toString(),
             points: pkg.points.toString(),
             price: pkg.price.toString(),
-            providerCode: 'SMILE_ONE',
+            providerCode: 'MOOGOLD',
             providerSku: pkg.providerSku || '',
             description: pkg.description || '',
             isWeeklyPass: pkg.isWeeklyPass || false,
@@ -310,7 +330,7 @@ function AdminPackagesContent() {
                         setEditingPackageId(null);
                         setIsDuplicating(false);
                         setIsFormDropdownOpen(false);
-                        setFormData({ name: '', gameId: '', amount: '', points: '0', price: '', providerCode: 'SMILE_ONE', providerSku: '', description: '', isWeeklyPass: false, sortOrder: '0' });
+                        setFormData({ name: '', gameId: '', amount: '', points: '0', price: '', providerCode: 'MOOGOLD', providerSku: '', description: '', isWeeklyPass: false, sortOrder: '0' });
                         setShowForm((s) => !s);
                     }}
                     className="group relative px-10 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-[2.5rem] overflow-hidden shadow-[0_20px_40px_-10px_rgba(99,102,241,0.5)] transition-all hover:-translate-y-1 active:scale-95 flex items-center gap-4"
@@ -536,9 +556,56 @@ function AdminPackagesContent() {
                                         <input required type="number" step="0.01" value={formData.price} onChange={e => setFormData({ ...formData, price: e.target.value })} className="w-full px-6 py-4 md:py-5 bg-white/5 border border-white/5 rounded-2xl md:rounded-[2rem] text-emerald-400 font-bold text-sm" />
                                     </div>
                                 </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Internal SKU</label>
-                                    <input required type="text" value={formData.providerSku} onChange={e => setFormData({ ...formData, providerSku: e.target.value })} className="w-full px-8 py-5 bg-white/5 border border-white/5 rounded-[2rem] text-indigo-400 font-mono text-[11px] uppercase placeholder-slate-700" placeholder="e.g. mlbb_weekly_pass" />
+                                <div className="space-y-2 relative">
+                                    <div className="flex justify-between items-center">
+                                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Internal SKU (Provider ID)</label>
+                                        <button
+                                            type="button"
+                                            onClick={handleFetchMooGoldProducts}
+                                            disabled={isFetchingMooGold}
+                                            className="text-[9px] font-black uppercase text-indigo-400 hover:text-indigo-300 transition-colors bg-indigo-500/10 px-3 py-1.5 rounded-lg disabled:opacity-50"
+                                        >
+                                            {isFetchingMooGold ? "SYNCING..." : "SYNC FROM MOOGOLD"}
+                                        </button>
+                                    </div>
+                                    <input
+                                        required
+                                        type="text"
+                                        value={formData.providerSku}
+                                        onChange={e => {
+                                            setFormData({ ...formData, providerSku: e.target.value });
+                                            setShowMooGoldDropdown(false);
+                                        }}
+                                        onFocus={() => {
+                                            if (mooGoldProducts.length > 0) setShowMooGoldDropdown(true);
+                                        }}
+                                        className="w-full px-8 py-5 bg-white/5 border border-white/5 rounded-[2rem] text-indigo-400 font-mono text-[11px] uppercase placeholder-slate-700"
+                                        placeholder="e.g. mlbb_weekly_pass"
+                                    />
+                                    {showMooGoldDropdown && mooGoldProducts.length > 0 && (
+                                        <div className="absolute z-50 top-full mt-2 w-full bg-[#0a0a0f] border border-white/10 rounded-2xl shadow-2xl py-2 max-h-48 overflow-y-auto backdrop-blur-3xl custom-scrollbar">
+                                            {mooGoldProducts.map((p, idx) => (
+                                                <button
+                                                    key={idx}
+                                                    type="button"
+                                                    onClick={() => {
+                                                        const pSku = p.product_id || p.pid || '';
+                                                        setFormData({
+                                                            ...formData,
+                                                            providerSku: pSku.toString(),
+                                                            price: p.price || formData.price,
+                                                            name: formData.name || p.product_name || p.title || formData.name
+                                                        });
+                                                        setShowMooGoldDropdown(false);
+                                                    }}
+                                                    className="w-full text-left px-4 py-3 text-[10px] font-bold uppercase tracking-wider hover:bg-white/5 text-slate-400 hover:text-white border-b border-white/5 last:border-0 flex justify-between group"
+                                                >
+                                                    <span className="truncate mr-4">{p.product_name || p.title || `Product ${p.product_id || p.pid}`}</span>
+                                                    <span className="text-indigo-400 group-hover:text-indigo-300 shrink-0">{p.product_id || p.pid}</span>
+                                                </button>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
                                 <div className="space-y-4">
                                     <label className="flex items-center gap-4 p-5 bg-white/[0.02] border border-white/5 rounded-[2rem] cursor-pointer hover:bg-white/[0.05] transition-all group">
