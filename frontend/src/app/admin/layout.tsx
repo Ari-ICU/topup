@@ -106,9 +106,9 @@ export default function AdminLayout({
             )}
 
             {/* Sidebar */}
-            <aside className={`fixed inset-y-0 left-0 z-50 w-72 bg-[#0d0c16]/80 backdrop-blur-2xl border-r border-white/5 flex flex-col transform transition-transform duration-500 ease-in-out lg:relative lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+            <aside className={`fixed inset-y-0 left-0 z-50 w-72 bg-[#0d0c16]/80 backdrop-blur-2xl border-r border-white/5 flex flex-col transform transition-transform duration-500 ease-in-out lg:relative lg:h-screen lg:shrink-0 lg:translate-x-0 overflow-y-auto custom-scrollbar ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
                 {/* Logo Section */}
-                <div className="p-8 border-b border-white/5 flex justify-between items-center">
+                <div className="p-8 border-b border-white/5 flex justify-between items-center shrink-0">
                     <div className="flex items-center gap-4">
                         <div className="w-11 h-11 rounded-xl overflow-hidden border border-purple-500/20 shadow-lg flex items-center justify-center relative bg-slate-900 group">
                             <Image src="/package-logo.png" alt="Dai-Game" fill className="object-cover transition-transform duration-500 group-hover:scale-110" />
@@ -127,7 +127,7 @@ export default function AdminLayout({
                 </div>
 
                 {/* Navigation */}
-                <div className="flex-1 overflow-y-auto px-4 py-8 custom-scrollbar">
+                <div className="flex-1 px-4 py-8">
                     <nav className="space-y-1.5">
                         <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.25em] px-4 mb-4">Core</p>
                         <SidebarItem icon={LayoutDashboard} label="Dashboard" href="/admin" isActive={pathname === '/admin'} onClick={closeSidebar} />
@@ -145,7 +145,7 @@ export default function AdminLayout({
                 </div>
 
                 {/* Footer / User */}
-                <div className="p-6 border-t border-white/5 bg-white/[0.02]">
+                <div className="p-6 border-t border-white/5 bg-white/[0.02] shrink-0">
                     <button
                         onClick={handleLogout}
                         className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:text-red-400 hover:bg-red-500/5 transition-all duration-300"
