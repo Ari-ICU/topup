@@ -135,6 +135,8 @@ function LoginForm() {
     );
 }
 
+export const dynamic = 'force-dynamic';
+
 export default function AdminLoginPage() {
     return (
         <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden bg-[#07060e]">
