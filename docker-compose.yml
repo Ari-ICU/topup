@@ -1,0 +1,52 @@
+services:
+  db:
+    image: postgres:17-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: topup_db
+    ports:
+      - "5050:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "4000:4000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:password@db:5432/topup_db?schema=public
+      - PORT=4000
+      - NODE_ENV=development
+      - BAKONG_ACCOUNT_ID=thoeurnratha@devb
+      - BAKONG_MERCHANT_NAME=TopUpPay Sandbox
+      - BAKONG_MERCHANT_CITY=Phnom Penh
+      - BAKONG_ACQUIRING_BANK=ABA Bank
+    depends_on:
+      - db
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      # Browser-side (user's machine → host:4000)
+      - NEXT_PUBLIC_API_URL=http://localhost:4000/api
+      # Server-side (Next.js container → backend container via Docker network)
+      - BACKEND_API_URL=http://backend:4000/api
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+
+volumes:
+  postgres_data:

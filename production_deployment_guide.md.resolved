@@ -1,0 +1,238 @@
+# 🚀 TopUpPay — Production Deployment Guide
+
+> **Stack:** Next.js 16 + Express 4 + PostgreSQL 17 + Nginx + Docker
+
+---
+
+## Architecture Overview
+
+```
+                     ┌─────────────────────────────────────┐
+Internet ──HTTPS──►  │          Nginx (port 443)           │
+                     │  - SSL termination (Let's Encrypt)  │
+                     │  - Gzip compression                 │
+                     │  - Rate limiting                    │
+                     │  - Security headers (HSTS, CSP)     │
+                     └────────────┬──────────┬────────────┘
+                                  │          │
+                           /api/* │          │ /*
+                                  ▼          ▼
+                     ┌──────────────┐  ┌──────────────┐
+                     │   Backend    │  │   Frontend   │
+                     │  Express:4000│  │  Next.js:3000│
+                     └──────┬───────┘  └──────────────┘
+                            │
+                            ▼
+                     ┌──────────────┐
+                     │  PostgreSQL  │
+                     │  (internal)  │
+                     └──────────────┘
+```
+
+---
+
+## 1. Server Requirements
+
+| Resource | Minimum | Recommended |
+|----------|---------|-------------|
+| CPU      | 1 vCPU  | 2 vCPU      |
+| RAM      | 2 GB    | 4 GB        |
+| Storage  | 20 GB   | 40 GB SSD   |
+| OS       | Ubuntu 22.04 LTS | Ubuntu 22.04 LTS |
+
+**Providers:** DigitalOcean Droplet, AWS EC2 t3.small, Vultr, Hetzner
+
+---
+
+## 2. Server Initial Setup
+
+```bash
+# Update system
+sudo apt update && sudo apt upgrade -y
+
+# Install Docker
+curl -fsSL https://get.docker.com | sh
+sudo usermod -aG docker $USER
+newgrp docker
+
+# Install Docker Compose
+sudo apt install docker-compose-plugin -y
+
+# Install Certbot (for SSL)
+sudo apt install certbot -y
+```
+
+---
+
+## 3. Clone & Configure
+
+```bash
+# Clone your repo
+git clone https://github.com/YOUR_USERNAME/top-up.git
+cd top-up
+
+# Copy env template and fill in real values
+cp env.production.example .env.production
+nano .env.production
+```
+
+### Required values in [.env.production](file:///Users/thoeurnratha/Documents/web-development/top-up/frontend/.env.production)
+
+| Variable | Where to get |
+|----------|-------------|
+| `DB_PASSWORD` | Generate: `openssl rand -base64 32` |
+| `BAKONG_ACCOUNT_ID` | [NBC Bakong portal](https://bakong.nbc.org.kh/) |
+| `NEXT_PUBLIC_API_URL` | `https://YOUR_DOMAIN.com/api` |
+| `ALLOWED_ORIGINS` | `https://YOUR_DOMAIN.com` |
+| `TOPUP_PROVIDER_*` | Your reseller agreement |
+
+---
+
+## 4. SSL Certificate
+
+```bash
+# Point your domain DNS A record to the server IP first!
+
+# Get Let's Encrypt certificate
+sudo certbot certonly --standalone \
+  -d YOUR_DOMAIN.com \
+  -d www.YOUR_DOMAIN.com \
+  --email YOUR_EMAIL@gmail.com \
+  --agree-tos
+
+# Copy certs to nginx/ssl/
+sudo mkdir -p nginx/ssl
+sudo cp /etc/letsencrypt/live/YOUR_DOMAIN.com/fullchain.pem nginx/ssl/
+sudo cp /etc/letsencrypt/live/YOUR_DOMAIN.com/privkey.pem nginx/ssl/
+sudo chmod 644 nginx/ssl/*.pem
+```
+
+---
+
+## 5. Edit Nginx Config
+
+Replace `YOUR_DOMAIN.com` in [nginx/nginx.conf](file:///Users/thoeurnratha/Documents/web-development/top-up/nginx/nginx.conf):
+
+```bash
+sed -i 's/YOUR_DOMAIN.com/topuppay.com/g' nginx/nginx.conf
+```
+
+---
+
+## 6. Deploy
+
+```bash
+# Build and start all services
+docker compose -f docker-compose.prod.yml --env-file .env.production up -d --build
+
+# Check all containers are healthy
+docker compose -f docker-compose.prod.yml ps
+
+# View logs
+docker compose -f docker-compose.prod.yml logs -f
+```
+
+### Expected output
+```
+NAME         STATUS
+db           healthy
+backend      healthy
+frontend     healthy
+nginx        running
+```
+
+---
+
+## 7. Seed the Database (First Deploy Only)
+
+```bash
+# Run seed script inside backend container
+docker compose -f docker-compose.prod.yml exec backend \
+  node -e "
+const { PrismaClient } = require('@prisma/client');
+const p = new PrismaClient();
+// Add your seed logic here
+"
+```
+
+Or use Prisma Studio:
+```bash
+docker compose -f docker-compose.prod.yml exec backend npx prisma studio
+```
+
+---
+
+## 8. Auto-Renew SSL
+
+```bash
+# Add to crontab (auto-renew every 60 days)
+sudo crontab -e
+# Add this line:
+0 0 1 * * certbot renew --quiet && cp /etc/letsencrypt/live/YOUR_DOMAIN.com/*.pem /path/to/top-up/nginx/ssl/ && docker compose -f /path/to/top-up/docker-compose.prod.yml restart nginx
+```
+
+---
+
+## 9. Updates & Redeployment
+
+```bash
+# Pull latest code
+git pull origin main
+
+# Rebuild and redeploy (zero-downtime with health checks)
+docker compose -f docker-compose.prod.yml --env-file .env.production up -d --build
+
+# Database migrations are automatically applied on container start (entrypoint.sh)
+```
+
+---
+
+## 10. Monitoring
+
+```bash
+# Check health endpoint
+curl https://YOUR_DOMAIN.com/health
+
+# Watch logs in real-time
+docker compose -f docker-compose.prod.yml logs -f backend
+
+# Container resource usage
+docker stats
+```
+
+---
+
+## Security Checklist
+
+- [x] Helmet security headers on backend
+- [x] Rate limiting (20 req/15min on transactions)
+- [x] CORS locked to production domain only
+- [x] Non-root Docker user
+- [x] HTTPS enforced (HTTP redirects to HTTPS)
+- [x] HSTS header (max-age=31536000)
+- [x] X-Frame-Options: DENY
+- [x] No X-Powered-By header
+- [x] PostgreSQL not exposed externally (internal network only)
+- [x] Secrets in [.env.production](file:///Users/thoeurnratha/Documents/web-development/top-up/frontend/.env.production) (never in git)
+- [x] Input size limit (10KB max body)
+- [ ] Set up Sentry for error tracking (optional)
+- [ ] Set up UptimeRobot/Better Uptime for monitoring (optional)
+
+---
+
+## Production Credentials to Obtain
+
+### 1. Bakong KHQR (Real Production)
+Apply at: **https://bakong.nbc.org.kh/**
+- Contact NBC Cambodia for merchant credentials
+- Sandbox: `yourname@devb` → Production: `yourstore@yourbank`
+
+### 2. Top-up Provider (Real Games)
+Options:
+- **Codashop Reseller Program** — https://codashop.com/become-a-partner
+- **UniPin Reseller** — https://unipin.com/business
+- **Razer Gold** — https://razer.com/gold/merchants
+- **Direct from publishers** (Garena, Moonton, etc.) — requires business registration
+
+> [!IMPORTANT]
+> Without a real reseller agreement, game credits cannot be delivered. The current code uses API placeholders. You MUST sign up with a provider before going live.
