@@ -13,21 +13,27 @@ export const getAllActiveGames = async () => {
 };
 
 export const getGameBySlugDetails = async (slug: string) => {
-    const game = await prisma.game.findUnique({
-        where: { slug },
-        include: {
-            packages: {
-                orderBy: [
-                    { sortOrder: 'asc' },
-                    { price: "asc" }
-                ],
+    const [game, globalStock] = await Promise.all([
+        prisma.game.findUnique({
+            where: { slug },
+            include: {
+                packages: {
+                    orderBy: [
+                        { sortOrder: 'asc' },
+                        { price: "asc" }
+                    ],
+                },
             },
-        },
-    });
+        }),
+        prisma.globalStock.findUnique({ where: { id: "GLOBAL" } }),
+    ]);
 
     if (!game) {
         throw new Error("Game not found");
     }
 
-    return game;
+    // -1 means unlimited; 0 or missing means out of stock
+    const globalStockDiamonds = globalStock?.diamonds ?? 0;
+
+    return { ...game, globalStockDiamonds };
 };

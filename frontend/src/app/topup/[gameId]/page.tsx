@@ -125,6 +125,13 @@ export default function TopupPage() {
     // Derived values
     const isReadyForOrders = systemStatus?.isReady || systemStatus?.isTestMode;
     const selectedPkg = game?.packages.find((p) => p.id === selectedPackage);
+
+    // Sold-out helper: a package is sold out when globalStockDiamonds is 0
+    // (or less than the package amount). -1 means unlimited stock.
+    const globalStock = game?.globalStockDiamonds ?? 0;
+    const isPackageSoldOut = (pkgAmount: number) =>
+        globalStock !== -1 && globalStock < pkgAmount;
+
     const isFormValid = !!(userId && selectedPackage && selectedPayment && (!game?.inputConfig?.zoneId || zoneId)) && isReadyForOrders;
 
     // ── Handlers ───────────────────────────────────────────────────────────────
@@ -260,50 +267,68 @@ export default function TopupPage() {
                             </div>
 
                             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-                                {game.packages.map((pkg) => (
-                                    <button
-                                        key={pkg.id}
-                                        onClick={() => setSelectedPackage(pkg.id)}
-                                        className={`group relative flex items-center md:flex-col md:justify-center gap-2 p-2 md:p-4 rounded-3xl border-2 transition-all duration-500 overflow-visible md:min-h-[100px]
-                                            ${selectedPackage === pkg.id
-                                                ? "border-purple-500 bg-purple-500/15 shadow-[0_20px_40px_rgba(168,85,247,0.25)] scale-[1.02]"
-                                                : "border-white/10 bg-[#0d0b1d] hover:border-white/20 hover:bg-[#15122b] md:hover:-translate-y-2"
-                                            }`}
-                                    >
-                                        <div className="absolute -top-2.5 -right-1 z-30">
-                                            <div className="px-2 py-0.5 md:px-3 md:py-1 rounded-xl bg-[#ef4444] text-white text-[8px] md:text-[10px] font-black uppercase tracking-tighter shadow-[0_5px_15px_rgba(239,68,68,0.4)] border border-white/10 flex items-center gap-1">
-                                                {pkg.points || 0}
-                                                <span className={`${lang === 'km' ? 'khmer-text' : ''} text-[7px] md:text-[8px] opacity-90`}>{lang === 'km' ? 'ពិសិដ្ឋ' : 'PTS'}</span>
-                                            </div>
-                                        </div>
+                                {game.packages.map((pkg) => {
+                                    const soldOut = isPackageSoldOut(pkg.amount);
+                                    return (
+                                        <button
+                                            key={pkg.id}
+                                            onClick={() => !soldOut && setSelectedPackage(pkg.id)}
+                                            disabled={soldOut}
+                                            className={`group relative flex items-center md:flex-col md:justify-center gap-2 p-2 md:p-4 rounded-3xl border-2 transition-all duration-500 overflow-visible md:min-h-[100px]
+                                                ${soldOut
+                                                    ? "border-white/5 bg-[#0d0b1d]/60 opacity-60 cursor-not-allowed"
+                                                    : selectedPackage === pkg.id
+                                                        ? "border-purple-500 bg-purple-500/15 shadow-[0_20px_40px_rgba(168,85,247,0.25)] scale-[1.02]"
+                                                        : "border-white/10 bg-[#0d0b1d] hover:border-white/20 hover:bg-[#15122b] md:hover:-translate-y-2"
+                                                }`}
+                                        >
+                                            {/* Sold Out overlay */}
+                                            {soldOut && (
+                                                <div className="absolute inset-0 z-20 flex items-center justify-center rounded-3xl bg-black/40 backdrop-blur-[2px]">
+                                                    <span className="px-2 py-1 rounded-lg bg-red-600/90 text-white text-[8px] md:text-[10px] font-black uppercase tracking-widest border border-red-400/30 shadow-lg">
+                                                        {lang === 'km' ? 'អស់ស្តុក' : 'SOLD OUT'}
+                                                    </span>
+                                                </div>
+                                            )}
 
-                                        <div className="relative w-10 h-10 md:w-20 md:h-20 shrink-0 overflow-hidden rounded-2xl bg-white/5 p-2 transition-transform duration-500 group-hover:scale-110">
-                                            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-transparent opacity-50 group-hover:opacity-100" />
-                                            <Image
-                                                src={game.iconUrl || "/package-logo.png"}
-                                                alt={pkg.name}
-                                                fill
-                                                className="relative z-10 object-contain p-2 drop-shadow-[0_0_15px_rgba(168,85,247,0.4)]"
-                                                unoptimized={true}
-                                            />
-                                        </div>
+                                            {/* Points badge — hide when sold out */}
+                                            {!soldOut && (
+                                                <div className="absolute -top-2.5 -right-1 z-30">
+                                                    <div className="px-2 py-0.5 md:px-3 md:py-1 rounded-xl bg-[#ef4444] text-white text-[8px] md:text-[10px] font-black uppercase tracking-tighter shadow-[0_5px_15px_rgba(239,68,68,0.4)] border border-white/10 flex items-center gap-1">
+                                                        {pkg.points || 0}
+                                                        <span className={`${lang === 'km' ? 'khmer-text' : ''} text-[7px] md:text-[8px] opacity-90`}>{lang === 'km' ? 'ពិសិដ្ឋ' : 'PTS'}</span>
+                                                    </div>
+                                                </div>
+                                            )}
 
-                                        <div className="flex flex-col items-center justify-center flex-1 min-w-0 text-center px-1">
-                                            <div className=" font-black text-white italic tracking-tighter leading-none mb-0.5">
-                                                <span className="text-[10px] md:text-xs mr-0.5 font-sans opacity-60">$</span>
-                                                {Number(pkg.price).toFixed(2)}
+                                            <div className="relative w-10 h-10 md:w-20 md:h-20 shrink-0 overflow-hidden rounded-2xl bg-white/5 p-2 transition-transform duration-500 group-hover:scale-110">
+                                                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-transparent opacity-50 group-hover:opacity-100" />
+                                                <Image
+                                                    src={game.iconUrl || "/package-logo.png"}
+                                                    alt={pkg.name}
+                                                    fill
+                                                    className="relative z-10 object-contain p-2 drop-shadow-[0_0_15px_rgba(168,85,247,0.4)]"
+                                                    unoptimized={true}
+                                                />
                                             </div>
-                                            <div className={`text-[8px] md:text-xs font-black text-slate-400 leading-none uppercase italic tracking-tighter mt-1 w-full flex items-center justify-center gap-0.5 ${lang === 'km' ? 'khmer-text' : ''}`}>
-                                                <span className="max-w-full">{pkg.name}</span>
-                                                <span className="shrink-0">{pkg.name.toLowerCase().includes('pass') ? '🎟️' : '💎'}</span>
-                                            </div>
-                                        </div>
 
-                                        {selectedPackage === pkg.id && (
-                                            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1/2 h-1 bg-purple-500 blur-[2px] rounded-full" />
-                                        )}
-                                    </button>
-                                ))}
+                                            <div className="flex flex-col items-center justify-center flex-1 min-w-0 text-center px-1">
+                                                <div className=" font-black text-white italic tracking-tighter leading-none mb-0.5">
+                                                    <span className="text-[10px] md:text-xs mr-0.5 font-sans opacity-60">$</span>
+                                                    {Number(pkg.price).toFixed(2)}
+                                                </div>
+                                                <div className={`text-[8px] md:text-xs font-black text-slate-400 leading-none uppercase italic tracking-tighter mt-1 w-full flex items-center justify-center gap-0.5 ${lang === 'km' ? 'khmer-text' : ''}`}>
+                                                    <span className="max-w-full">{pkg.name}</span>
+                                                    <span className="shrink-0">{pkg.name.toLowerCase().includes('pass') ? '🎟️' : '💎'}</span>
+                                                </div>
+                                            </div>
+
+                                            {selectedPackage === pkg.id && !soldOut && (
+                                                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1/2 h-1 bg-purple-500 blur-[2px] rounded-full" />
+                                            )}
+                                        </button>
+                                    );
+                                })}
                             </div>
                         </div>
 

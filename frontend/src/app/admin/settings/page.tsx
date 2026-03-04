@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { apiRequest } from '@/lib/api';
-import { Save, CheckCircle, Settings, Zap, Users, Globe, FlaskConical, ShieldCheck, CreditCard } from 'lucide-react';
+import { Save, CheckCircle, Settings, Users, ShieldCheck, CreditCard } from 'lucide-react';
 
 // ─── All configurable settings grouped by section ────────────────────────────
 const settingDefaults: {
@@ -14,32 +14,7 @@ const settingDefaults: {
     hint?: string;
     required?: boolean;
 }[] = [
-        // ── MooGold (Primary real provider) ──────────────────────────────────────
-        {
-            group: 'MooGold (Primary Provider)',
-            key: 'MOOGOLD_PARTNER_ID',
-            label: 'Partner ID',
-            placeholder: 'From MooGold Dashboard → API Settings',
-            required: true,
-            hint: 'Sign up at moogold.com → Become a Reseller',
-        },
-        {
-            group: 'MooGold (Primary Provider)',
-            key: 'MOOGOLD_API_KEY',
-            label: 'API Key',
-            placeholder: 'Your MooGold API key',
-            type: 'password',
-            required: true,
-        },
-        {
-            group: 'MooGold (Primary Provider)',
-            key: 'MOOGOLD_TEST_MODE',
-            label: 'Enable Test Mode',
-            placeholder: 'true or false',
-            hint: 'Set to true to simulate orders without spending real money',
-        },
-
-        // ── Friend Supplier (Personal reseller) ──────────────────────────────────
+        // ── Friend Supplier (Diamond reseller) ───────────────────────────────────
         {
             group: 'Friend Supplier',
             key: 'FRIEND_SUPPLIER_SECRET',
@@ -72,62 +47,27 @@ const settingDefaults: {
             hint: 'This is the URL your friend calls to confirm diamond delivery. Copy this and send it to them.',
         },
 
-        // ── Digiflazz (Fallback) ─────────────────────────────────────────────────
-        {
-            group: 'Digiflazz (Fallback)',
-            key: 'DIGIFLAZZ_USERNAME',
-            label: 'Username',
-            placeholder: 'Your Digiflazz username',
-            hint: 'Sign up at digiflazz.com',
-        },
-        {
-            group: 'Digiflazz (Fallback)',
-            key: 'DIGIFLAZZ_API_KEY',
-            label: 'API Key',
-            placeholder: 'Your Digiflazz API key',
-            type: 'password',
-        },
-
-        // ── Smile.One (Fallback) ─────────────────────────────────────────────────
-        {
-            group: 'Smile.One (Fallback)',
-            key: 'SMILE_ONE_UID',
-            label: 'UID',
-            placeholder: 'Your Smile.One UID',
-            hint: 'Sign up at smile.one',
-        },
-        {
-            group: 'Smile.One (Fallback)',
-            key: 'SMILE_ONE_EMAIL',
-            label: 'Email',
-            placeholder: 'email@example.com',
-        },
-        {
-            group: 'Smile.One (Fallback)',
-            key: 'SMILE_ONE_API_KEY',
-            label: 'API Key',
-            placeholder: 'Your Smile.One API key',
-            type: 'password',
-        },
-
         // ── Bakong KHQR ──────────────────────────────────────────────────────────
         {
             group: 'Bakong KHQR',
             key: 'BAKONG_ACCOUNT_ID',
             label: 'Account ID',
             placeholder: 'e.g. yourname@aclb',
+            required: true,
         },
         {
             group: 'Bakong KHQR',
             key: 'BAKONG_MERCHANT_NAME',
             label: 'Merchant Name',
-            placeholder: 'e.g. TopUpPay Store',
+            placeholder: 'e.g. DAI-GAME Store',
+            required: true,
         },
         {
             group: 'Bakong KHQR',
             key: 'BAKONG_MERCHANT_CITY',
             label: 'Merchant City',
             placeholder: 'e.g. Phnom Penh',
+            required: true,
         },
         {
             group: 'Bakong KHQR',
@@ -138,10 +78,7 @@ const settingDefaults: {
     ];
 
 const groupIcons: Record<string, React.ElementType> = {
-    'MooGold (Primary Provider)': Zap,
     'Friend Supplier': Users,
-    'Digiflazz (Fallback)': Globe,
-    'Smile.One (Fallback)': ShieldCheck,
     'Bakong KHQR': CreditCard,
 };
 
@@ -236,18 +173,14 @@ export default function AdminSettingsPage() {
                 </button>
             </div>
 
-            {/* Provider priority note */}
+            {/* Provider info note */}
             <div className="flex items-center gap-4 px-8 py-5 rounded-2xl border border-white/5 bg-white/[0.02] text-[10px] font-black uppercase tracking-widest text-slate-500">
                 <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                <span>Priority Order:</span>
-                <span className="text-indigo-400">MooGold</span>
-                <span className="opacity-20">→</span>
-                <span className="text-purple-400">Friend</span>
-                <span className="opacity-20">→</span>
-                <span className="text-blue-400">Digi</span>
-                <span className="opacity-20">→</span>
-                <span className="text-slate-300">Smile</span>
-                <span className="ml-auto opacity-40">System uses first verified module.</span>
+                <span>Active Providers:</span>
+                <span className="text-purple-400">Friend Supplier</span>
+                <span className="opacity-20">+</span>
+                <span className="text-cyan-400">Bakong KHQR</span>
+                <span className="ml-auto opacity-40">Diamonds via friend · Payment via Bakong QR</span>
             </div>
 
             <div className="grid grid-cols-1 gap-10">

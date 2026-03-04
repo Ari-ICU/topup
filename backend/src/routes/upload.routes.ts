@@ -26,10 +26,10 @@ router.post("/", upload.single("file"), (req, res) => {
         return res.status(400).json({ success: false, message: "No file uploaded" });
     }
 
-    // Return the URL to access the uploaded file
-    const protocol = req.protocol || "http";
-    const host = req.get("host") || "localhost:4000";
-    const fileUrl = `${protocol}://${host}/uploads/${req.file.filename}`;
+    // Return an absolute URL. Trusting the reverse proxy ensures we get the correct domain and HTTPS.
+    // Ensure `app.set("trust proxy", 1);` is configured in app.ts for this to work natively behind nginx/Cloudflare.
+    const baseUrl = process.env.API_BASE_URL || `${req.protocol}://${req.get("host")}`;
+    const fileUrl = `${baseUrl}/uploads/${req.file.filename}`;
 
     res.status(200).json({
         success: true,

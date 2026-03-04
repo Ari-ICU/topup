@@ -18,6 +18,8 @@ export interface Game {
     bannerUrl?: string;
     inputConfig: any;
     packages: GamePackage[];
+    /** Total diamonds in stock. -1 = unlimited. 0 = sold out. */
+    globalStockDiamonds?: number;
 }
 
 export interface PaymentMethod {

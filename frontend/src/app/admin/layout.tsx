@@ -4,7 +4,7 @@ import { useState, Suspense } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { LayoutDashboard, Gamepad2, Package, Receipt, Settings, LogOut, Bell, Search, Star, Menu, X } from 'lucide-react';
+import { LayoutDashboard, Gamepad2, Package, Receipt, Settings, LogOut, Bell, Search, Star, Menu, X, Users } from 'lucide-react';
 import { useAuth } from '@/context/auth-context';
 
 const SidebarItem = ({
@@ -139,6 +139,7 @@ export default function AdminLayout({
                         <SidebarItem icon={Star} label="Reviews" href="/admin/reviews" isActive={pathname === '/admin/reviews'} onClick={closeSidebar} />
 
                         <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.25em] px-4 mb-4 mt-8">System</p>
+                        <SidebarItem icon={Users} label="Supplier API" href="/admin/supplier" isActive={pathname === '/admin/supplier'} onClick={closeSidebar} />
                         <SidebarItem icon={Settings} label="Settings" href="/admin/settings" isActive={pathname === '/admin/settings'} onClick={closeSidebar} />
                     </nav>
                 </div>

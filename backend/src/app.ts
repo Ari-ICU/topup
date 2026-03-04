@@ -17,6 +17,10 @@ import {
 const app = express();
 const isProd = process.env.NODE_ENV === "production";
 
+// ─── 0. Trust Proxy (for Nginx / Cloudflare) ──────────────────────────────────
+// This is essential so req.ip and req.protocol work correctly behind a proxy
+app.set("trust proxy", 1);
+
 // ─── 1. Request ID (must be first — tags all subsequent logs) ─────────────────
 app.use(requestId);
 

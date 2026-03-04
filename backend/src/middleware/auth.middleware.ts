@@ -1,7 +1,12 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
+const isProd = process.env.NODE_ENV === "production";
 const JWT_SECRET = process.env.JWT_SECRET || "fallback-secret-for-dev-only-123";
+
+if (isProd && !process.env.JWT_SECRET) {
+    console.warn("⚠️ WARNING: JWT_SECRET is not set in production. Admin tokens are not secure!");
+}
 
 /**
  * Middleware to verify JWT token for Admin routes.

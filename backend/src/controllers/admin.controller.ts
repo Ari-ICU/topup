@@ -3,8 +3,14 @@ import jwt from "jsonwebtoken";
 import { adminService } from "../services/admin.service.js";
 import { getProviderStatus } from "../services/topup-provider.service.js";
 
+const isProd = process.env.NODE_ENV === "production";
+
 const JWT_SECRET = process.env.JWT_SECRET || "fallback-secret-for-dev-only-123";
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "admin123";
+
+if (isProd && (!process.env.JWT_SECRET || !process.env.ADMIN_PASSWORD)) {
+    console.warn("⚠️ WARNING: JWT_SECRET or ADMIN_PASSWORD is not set in production. Using insecure fallbacks is dangerous!");
+}
 
 /**
  * Handles admin login by exchanging a password for a JWT.
