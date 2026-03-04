@@ -296,7 +296,7 @@ export default function AdminDashboardPage() {
                                             <p className="text-[11px] font-black text-white uppercase tracking-widest">{txn.status === 'COMPLETED' ? 'FULFILLED' : txn.status}</p>
                                             <p className="text-[9px] text-slate-500 font-bold mt-1 uppercase tracking-tighter">
                                                 {txn.package?.game?.name} • {txn.package?.name} • ${txn.totalAmount}
-                                                {txn.playerInfo?.playerName && <span className="text-indigo-400 ml-1">• {txn.playerInfo.playerName}</span>}
+                                                {txn.playerInfo?.playerName && <span className="text-indigo-400 ml-1">• Name: {txn.playerInfo.playerName}</span>}
                                             </p>
                                         </div>
                                     </div>

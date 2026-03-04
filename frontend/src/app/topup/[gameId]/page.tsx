@@ -489,6 +489,7 @@ export default function TopupPage() {
                                             { label: tr(t.topup.game, lang), value: game.name },
                                             { label: tr(t.topup.playerId, lang), value: userId || "—" },
                                             ...(game.inputConfig?.zoneId ? [{ label: tr(t.topup.zoneIdLabel, lang), value: zoneId || "—" }] : []),
+                                            ...(verifiedName ? [{ label: "Receiver", value: verifiedName }] : []),
                                             ...(selectedPkg ? [{ label: tr(t.topup.package, lang), value: selectedPkg.name }] : []),
                                             { label: tr(t.topup.payment, lang), value: PAYMENT_METHODS.find(p => p.id === selectedPayment)?.name || "—" },
                                         ].map(({ label, value }) => (
@@ -625,6 +626,7 @@ export default function TopupPage() {
                 <KhqrModal
                     qrCode={paymentData.qrCode}
                     amount={selectedPkg ? Number(selectedPkg.price).toFixed(2) : "0.00"}
+                    playerName={verifiedName || undefined}
                     onCancel={() => { setPaymentData(null); setStatus("IDLE"); }}
                 />
             )}

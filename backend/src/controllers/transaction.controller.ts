@@ -7,6 +7,7 @@ import { sendSuccess, sendError } from "../utils/apiResponse.js";
 import { prisma } from "../lib/prisma.js";
 
 export const createTransaction = async (req: Request, res: Response) => {
+    console.log(`[Transaction] 🛒 Create Order Request:`, JSON.stringify(req.body));
     const { packageId, playerInfo, paymentMethod } = req.body;
 
     // ── Guard: block order creation if no real provider is ready ─────────────

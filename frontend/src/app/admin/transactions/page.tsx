@@ -147,7 +147,7 @@ export default function AdminTransactionsPage() {
                                                 <p className="text-xs font-black text-slate-300 tabular-nums tracking-widest">{txn.playerInfo?.playerId ?? 'ANONYMOUS'}</p>
                                                 <div className="flex flex-col gap-0.5 mt-1">
                                                     {txn.playerInfo?.playerName && (
-                                                        <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">{txn.playerInfo.playerName}</p>
+                                                        <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Name: {txn.playerInfo.playerName}</p>
                                                     )}
                                                     {txn.playerInfo?.zoneId && (
                                                         <p className="text-[9px] text-slate-600 font-bold uppercase tracking-widest">Zone: {txn.playerInfo.zoneId}</p>

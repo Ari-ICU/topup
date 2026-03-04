@@ -3,6 +3,7 @@ import QRCode from "react-qr-code";
 interface KhqrModalProps {
     qrCode: string;
     amount: string;
+    playerName?: string;
     onCancel: () => void;
 }
 
@@ -25,7 +26,7 @@ const OutlineBakongIcon = ({ className }: { className?: string }) => (
     </svg>
 );
 
-export function KhqrModal({ qrCode, amount, onCancel }: KhqrModalProps) {
+export function KhqrModal({ qrCode, amount, playerName, onCancel }: KhqrModalProps) {
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
             <div className="w-full max-w-[340px] overflow-hidden p-0 shadow-2xl animate-scale-in bg-[#131520] border-none rounded-[20px]">
@@ -40,7 +41,10 @@ export function KhqrModal({ qrCode, amount, onCancel }: KhqrModalProps) {
 
                 <div className="p-8 pb-6 flex flex-col items-center">
                     <div className="mb-6 text-center">
-                        <div className="text-slate-500 text-[10px] tracking-[0.1em] uppercase mb-2 font-bold">Total Amount</div>
+                        <div className="text-slate-500 text-[10px] tracking-[0.1em] uppercase mb-2 font-bold italic">Recipient Identity</div>
+                        {playerName ? (
+                            <div className="text-indigo-400 font-bold text-sm tracking-widest uppercase mb-1">{playerName}</div>
+                        ) : null}
                         <div className="font-display text-[32px] font-bold text-white tracking-tight leading-none">${amount}</div>
                     </div>
 
