@@ -151,7 +151,13 @@ export default function TopupPage() {
 
     const handleSubmit = () => {
         if (!selectedPackage || !selectedPayment) return;
-        submit({ packageId: selectedPackage, userId, zoneId, paymentMethod: selectedPayment });
+        submit({
+            packageId: selectedPackage,
+            userId,
+            zoneId,
+            paymentMethod: selectedPayment,
+            playerName: verifiedName || undefined
+        });
     };
 
     const handleNewTransaction = () => {

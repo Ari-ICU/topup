@@ -139,6 +139,7 @@ export function useTransaction() {
         userId: string;
         zoneId: string;
         paymentMethod: string;
+        playerName?: string;
     }) => {
         setIsLoading(true);
         setStatus("PENDING");
@@ -150,7 +151,11 @@ export function useTransaction() {
                 method: "POST",
                 body: JSON.stringify({
                     packageId: params.packageId,
-                    playerInfo: { playerId: params.userId, zoneId: params.zoneId },
+                    playerInfo: {
+                        playerId: params.userId,
+                        zoneId: params.zoneId,
+                        playerName: params.playerName
+                    },
                     paymentMethod: params.paymentMethod.toUpperCase(),
                 }),
             });

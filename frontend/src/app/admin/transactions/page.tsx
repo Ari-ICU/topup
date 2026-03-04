@@ -12,7 +12,7 @@ interface Transaction {
     paymentMethod: string;
     totalAmount: string;
     createdAt: string;
-    playerInfo: { playerId?: string; zoneId?: string };
+    playerInfo: { playerId?: string; zoneId?: string; playerName?: string };
     package: {
         name: string;
         game: { name: string };
@@ -145,7 +145,14 @@ export default function AdminTransactionsPage() {
                                             </td>
                                             <td className="px-8 py-6">
                                                 <p className="text-xs font-black text-slate-300 tabular-nums tracking-widest">{txn.playerInfo?.playerId ?? 'ANONYMOUS'}</p>
-                                                {txn.playerInfo?.zoneId && <p className="text-[9px] text-slate-600 font-bold uppercase tracking-widest mt-1">Zone: {txn.playerInfo.zoneId}</p>}
+                                                <div className="flex flex-col gap-0.5 mt-1">
+                                                    {txn.playerInfo?.playerName && (
+                                                        <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">{txn.playerInfo.playerName}</p>
+                                                    )}
+                                                    {txn.playerInfo?.zoneId && (
+                                                        <p className="text-[9px] text-slate-600 font-bold uppercase tracking-widest">Zone: {txn.playerInfo.zoneId}</p>
+                                                    )}
+                                                </div>
                                             </td>
                                             <td className="px-8 py-6">
                                                 <span className="text-[10px] font-black text-indigo-400 bg-indigo-500/5 px-2.5 py-1 rounded-full border border-indigo-500/10 uppercase tracking-widest">
