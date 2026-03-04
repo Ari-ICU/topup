@@ -1,8 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Enable standalone output for Docker production builds
-  output: "standalone",
+  // NOTE: 'output: standalone' is removed — it breaks Vercel deploys.
+  // It is only needed for self-hosted Docker deployments.
 
   // Security headers
   async headers() {
