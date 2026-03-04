@@ -253,7 +253,72 @@ export default function TopupPage() {
                     {/* LEFT SIDE: Steps */}
                     <div className="lg:col-span-2 space-y-8">
 
-                        {/* Step 1: Package Selection (MooGold Style: prominent selection) */}
+                        {/* Step 1: Account Info (MooGold Style: card-style inputs) */}
+                        <div className="glass-card p-6 md:p-10 rounded-[32px] md:rounded-[42px] border-white/5 relative overflow-hidden group shadow-2xl bg-white/5 backdrop-blur-xl">
+                            <div className="absolute -right-20 -top-20 w-80 h-80 bg-purple-500/5 rounded-full blur-[100px]" />
+
+                            <div className="flex items-center gap-3 px-5 py-3 rounded-2xl md:rounded-[2rem] bg-purple-600/90 mb-8 border border-white/10 shadow-lg backdrop-blur-sm self-start inline-flex group/header">
+                                <div className="h-10 w-10 flex-shrink-0 flex items-center justify-center bg-purple-700/50 rounded-xl border border-white/20 overflow-hidden shadow-inner group-hover/header:rotate-12 transition-transform">
+                                    <User className="w-5 h-5 text-white" />
+                                </div>
+                                <h2 className={`font-display text-white font-black tracking-tight uppercase italic ${lang === 'km' ? 'khmer-text text-md' : 'text-md'}`}>
+                                    1. {tr(t.topup.step1title, lang)}
+                                </h2>
+                            </div>
+
+                            <div className={`grid ${game.inputConfig?.zoneId ? 'grid-cols-5' : 'grid-cols-1'} gap-4 md:gap-8 mt-6`}>
+                                <div className={`space-y-3 md:space-y-4 ${game.inputConfig?.zoneId ? 'col-span-3' : ''}`}>
+                                    <label className="flex items-center gap-2 text-[10px] font-black text-slate-500 uppercase tracking-[0.25em] ml-2">
+                                        <Hash className="w-4 h-4 text-purple-500" />
+                                        {tr(t.topup.playerIdLabel, lang)}
+                                    </label>
+                                    <div className="relative group/input">
+                                        <div className="absolute inset-0 bg-purple-500/10 blur-xl opacity-0 group-focus-within/input:opacity-100 transition-opacity" />
+                                        <input
+                                            type="text"
+                                            value={userId}
+                                            onChange={(e) => handlePlayerIdChange(e.target.value)}
+                                            placeholder="e.g. 12345678"
+                                            className="relative w-full bg-[#0a0a14]/60 border-2 border-slate-800/60 rounded-[24px] md:rounded-3xl px-6 py-5 text-white font-black text-[10px] md:text-[16px] focus:border-purple-500/50 focus:bg-[#0f0f1d] transition-all outline-none placeholder:text-slate-800 shadow-inner"
+                                        />
+                                    </div>
+                                </div>
+                                {game.inputConfig?.zoneId && (
+                                    <div className="space-y-3 md:space-y-4 col-span-2">
+                                        <label className="flex items-center gap-2 text-[10px] font-black text-slate-500 uppercase tracking-[0.25em] ml-2">
+                                            <Hash className="w-4 h-4 text-purple-500" />
+                                            {tr(t.topup.zoneIdLabel, lang)}
+                                        </label>
+                                        <div className="relative group/input">
+                                            <div className="absolute inset-0 bg-purple-500/10 blur-xl opacity-0 group-focus-within/input:opacity-100 transition-opacity" />
+                                            <input
+                                                type="text"
+                                                value={zoneId}
+                                                onChange={(e) => { setZoneId(e.target.value); resetVerify(); }}
+                                                placeholder="e.g. 1234"
+                                                className="relative w-full bg-[#0a0a14]/60 border-2 border-slate-800/60 rounded-[24px] md:rounded-3xl px-6 py-5 text-white font-black text-[10px] md:text-[16px] focus:border-purple-500/50 focus:bg-[#0f0f1d] transition-all outline-none placeholder:text-slate-800 shadow-inner"
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="mt-8 flex flex-col sm:flex-row items-center gap-6">
+                                <button
+                                    onClick={handleVerify}
+                                    disabled={!userId.trim() || isVerifying}
+                                    className="w-full sm:w-auto px-10 py-5 rounded-3xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-black text-xs uppercase tracking-[0.2em] shadow-[0_20px_40px_rgba(124,58,237,0.3)] hover:shadow-purple-500/50 transition-all active:scale-95 disabled:opacity-20 flex items-center justify-center gap-3"
+                                >
+                                    {isVerifying ? <Loader2 className="w-5 h-5 animate-spin" /> : <Shield className="w-5 h-5" />}
+                                    {isVerifying ? tr(t.topup.verifyingBtn, lang) : tr(t.topup.verifyBtn, lang)}
+                                </button>
+                                <p className="text-[10px] md:text-[12px] text-slate-500 font-bold uppercase tracking-widest text-center sm:text-left">{tr(t.topup.verifyHint, lang)}</p>
+                            </div>
+
+                            <VerifyBanner status={verifyStatus} verifiedName={verifiedName} verifyError={verifyError} lang={lang} />
+                        </div>
+
+                        {/* Step 2: Package Selection (MooGold Style: prominent selection) */}
                         <div className="glass-card p-6 md:p-10 rounded-[32px] md:rounded-[42px] border-white/5 relative overflow-hidden shadow-2xl bg-white/5 backdrop-blur-xl">
                             <div className="absolute -right-20 -top-20 w-80 h-80 bg-purple-500/5 rounded-full blur-[100px]" />
 
@@ -262,7 +327,7 @@ export default function TopupPage() {
                                     <Image src="/package-logo.png" alt="" width={28} height={28} className="object-contain" />
                                 </div>
                                 <h2 className={`font-display text-white font-black tracking-tight uppercase italic ${lang === 'km' ? 'khmer-text text-md' : 'text-md'}`}>
-                                    1. {lang === 'km' ? 'ជ្រើសរើសកញ្ចប់ ពេជ្រ' : tr(t.topup.step2title, lang)}
+                                    2. {lang === 'km' ? 'ជ្រើសរើសកញ្ចប់ ពេជ្រ' : tr(t.topup.step2title, lang)}
                                 </h2>
                             </div>
 
@@ -330,71 +395,6 @@ export default function TopupPage() {
                                     );
                                 })}
                             </div>
-                        </div>
-
-                        {/* Step 2: Account Info (MooGold Style: card-style inputs) */}
-                        <div className="glass-card p-6 md:p-10 rounded-[32px] md:rounded-[42px] border-white/5 relative overflow-hidden group shadow-2xl bg-white/5 backdrop-blur-xl">
-                            <div className="absolute -right-20 -top-20 w-80 h-80 bg-purple-500/5 rounded-full blur-[100px]" />
-
-                            <div className="flex items-center gap-3 px-5 py-3 rounded-2xl md:rounded-[2rem] bg-purple-600/90 mb-8 border border-white/10 shadow-lg backdrop-blur-sm self-start inline-flex group/header">
-                                <div className="h-10 w-10 flex-shrink-0 flex items-center justify-center bg-purple-700/50 rounded-xl border border-white/20 overflow-hidden shadow-inner group-hover/header:rotate-12 transition-transform">
-                                    <User className="w-5 h-5 text-white" />
-                                </div>
-                                <h2 className={`font-display text-white font-black tracking-tight uppercase italic ${lang === 'km' ? 'khmer-text text-md' : 'text-md'}`}>
-                                    2. {tr(t.topup.step1title, lang)}
-                                </h2>
-                            </div>
-
-                            <div className={`grid ${game.inputConfig?.zoneId ? 'grid-cols-5' : 'grid-cols-1'} gap-4 md:gap-8 mt-6`}>
-                                <div className={`space-y-3 md:space-y-4 ${game.inputConfig?.zoneId ? 'col-span-3' : ''}`}>
-                                    <label className="flex items-center gap-2 text-[10px] font-black text-slate-500 uppercase tracking-[0.25em] ml-2">
-                                        <Hash className="w-4 h-4 text-purple-500" />
-                                        {tr(t.topup.playerIdLabel, lang)}
-                                    </label>
-                                    <div className="relative group/input">
-                                        <div className="absolute inset-0 bg-purple-500/10 blur-xl opacity-0 group-focus-within/input:opacity-100 transition-opacity" />
-                                        <input
-                                            type="text"
-                                            value={userId}
-                                            onChange={(e) => handlePlayerIdChange(e.target.value)}
-                                            placeholder="e.g. 12345678"
-                                            className="relative w-full bg-[#0a0a14]/60 border-2 border-slate-800/60 rounded-[24px] md:rounded-3xl px-6 py-5 text-white font-black text-[10px] md:text-[16px] focus:border-purple-500/50 focus:bg-[#0f0f1d] transition-all outline-none placeholder:text-slate-800 shadow-inner"
-                                        />
-                                    </div>
-                                </div>
-                                {game.inputConfig?.zoneId && (
-                                    <div className="space-y-3 md:space-y-4 col-span-2">
-                                        <label className="flex items-center gap-2 text-[10px] font-black text-slate-500 uppercase tracking-[0.25em] ml-2">
-                                            <Hash className="w-4 h-4 text-purple-500" />
-                                            {tr(t.topup.zoneIdLabel, lang)}
-                                        </label>
-                                        <div className="relative group/input">
-                                            <div className="absolute inset-0 bg-purple-500/10 blur-xl opacity-0 group-focus-within/input:opacity-100 transition-opacity" />
-                                            <input
-                                                type="text"
-                                                value={zoneId}
-                                                onChange={(e) => { setZoneId(e.target.value); resetVerify(); }}
-                                                placeholder="e.g. 1234"
-                                                className="relative w-full bg-[#0a0a14]/60 border-2 border-slate-800/60 rounded-[24px] md:rounded-3xl px-6 py-5 text-white font-black text-[10px] md:text-[16px] focus:border-purple-500/50 focus:bg-[#0f0f1d] transition-all outline-none placeholder:text-slate-800 shadow-inner"
-                                            />
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-
-                            <div className="mt-8 flex flex-col sm:flex-row items-center gap-6">
-                                <button
-                                    onClick={handleVerify}
-                                    disabled={!userId.trim() || isVerifying}
-                                    className="w-full sm:w-auto px-10 py-5 rounded-3xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-black text-xs uppercase tracking-[0.2em] shadow-[0_20px_40px_rgba(124,58,237,0.3)] hover:shadow-purple-500/50 transition-all active:scale-95 disabled:opacity-20 flex items-center justify-center gap-3"
-                                >
-                                    {isVerifying ? <Loader2 className="w-5 h-5 animate-spin" /> : <Shield className="w-5 h-5" />}
-                                    {isVerifying ? tr(t.topup.verifyingBtn, lang) : tr(t.topup.verifyBtn, lang)}
-                                </button>
-                                <p className="text-[10px] md:text-[12px] text-slate-500 font-bold uppercase tracking-widest text-center sm:text-left">{tr(t.topup.verifyHint, lang)}</p>
-                            </div>
-
-                            <VerifyBanner status={verifyStatus} verifiedName={verifiedName} verifyError={verifyError} lang={lang} />
                         </div>
 
                         {/* Step 3: Payment Method */}
