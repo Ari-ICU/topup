@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { apiRequest } from '@/lib/api';
 import {
     DollarSign, Package, Receipt, Users, TrendingUp,
-    Calendar, MousePointer2, Wallet, Layers, HelpCircle
+    Calendar, MousePointer2, Wallet, Layers, Gamepad2
 } from 'lucide-react';
 
 // ─── Stat Card ────────────────────────────────────────────────────────────────
@@ -43,7 +43,6 @@ export default function AdminDashboardPage() {
         cardOrders: 0,
         activeGames: 0,
         globalStockDiamonds: -1,
-        pendingReviews: 0,
         recentTransactions: [] as any[],
         chartData: [] as { month: string, topup: number, card: number }[],
     });
@@ -151,9 +150,9 @@ export default function AdminDashboardPage() {
                         textColor="text-emerald-400"
                     />
                     <StatCard
-                        title="Support Ticket"
-                        value={stats.pendingReviews.toString()}
-                        icon={HelpCircle}
+                        title="Active Games"
+                        value={stats.activeGames.toString()}
+                        icon={Gamepad2}
                         iconColor="bg-rose-500/10"
                         textColor="text-rose-400"
                     />
