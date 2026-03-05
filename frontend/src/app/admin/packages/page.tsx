@@ -20,6 +20,13 @@ interface PackageItem {
     game: string | { name?: string; slug?: string; iconUrl?: string } | unknown;
 }
 
+function formatPackageName(name: string) {
+    const copyMatch = name.match(/(?:\s*\(Copy\))+$/i);
+    if (!copyMatch) return name;
+    const count = (copyMatch[0].match(/\(Copy\)/gi) || []).length;
+    return name.replace(/(?:\s*\(Copy\))+$/i, ` (Copy) x${count}`);
+}
+
 function AdminPackagesContent() {
     const [packages, setPackages] = useState<PackageItem[]>([]);
     const [games, setGames] = useState<{ id: string; name: string }[]>([]);
@@ -451,7 +458,7 @@ function AdminPackagesContent() {
                                                                 </div>
                                                                 <div>
                                                                     <p className="text-[9px] text-indigo-400 font-black uppercase tracking-[0.2em]">{gameName}</p>
-                                                                    <p className="text-sm font-black text-white italic truncate max-w-[140px]">{pkg.name}</p>
+                                                                    <p className="text-sm font-black text-white italic truncate max-w-[140px]">{formatPackageName(pkg.name)}</p>
                                                                     {pkg.isWeeklyPass && (
                                                                         <span className="inline-block mt-1 px-2 py-0.5 rounded-lg bg-indigo-500/20 border border-indigo-500/20 text-[8px] font-black text-indigo-400 uppercase tracking-widest">Weekly Pass</span>
                                                                     )}

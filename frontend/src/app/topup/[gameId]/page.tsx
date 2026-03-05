@@ -6,7 +6,8 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import {
     ArrowLeft, Zap, Shield, Lock, HeadphonesIcon,
-    CheckCircle, CreditCard, User, Hash, Loader2, AlertCircle, Check
+    CheckCircle, CreditCard, User, Hash, Loader2, AlertCircle, Check,
+    Gamepad2, Package, ChevronRight
 } from "lucide-react";
 
 import { apiRequest } from "@/lib/api";
@@ -91,6 +92,100 @@ function VerifyBanner({
                 )}
             </div>
         </div>
+    );
+}
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+function formatPackageName(name: string) {
+    const copyMatch = name.match(/(?:\s*\(Copy\))+$/i);
+    if (!copyMatch) return name;
+    const count = (copyMatch[0].match(/\(Copy\)/gi) || []).length;
+    return name.replace(/(?:\s*\(Copy\))+$/i, ` (Copy) x${count}`);
+}
+
+// ─── How To Use Section ────────────────────────────────────────────────────────
+function HowToUseSection({ lang }: { lang: Lang }) {
+    const steps = [
+        {
+            icon: Gamepad2,
+            step: "01",
+            title: lang === 'km' ? 'ជ្រើសហ្គេម' : 'Choose Game',
+            desc: lang === 'km'
+                ? 'ស្វែងរកហ្គេមដែលមានក្នុងបញ្ជីជាង ៥០ ប្រភេទ និងជ្រើសរើសហ្គេមដែលអ្នកចង់បាន។'
+                : 'Browse our list of over 50 games and select your desired game.',
+        },
+        {
+            icon: User,
+            step: "02",
+            title: lang === 'km' ? 'បញ្ចូល Player ID' : 'Enter Player ID',
+            desc: lang === 'km'
+                ? 'បញ្ចូល Player ID និង Zone ID របស់អ្នកដើម្បីត្រៀមទទួលប្រាក់។'
+                : 'Enter your Player ID and Zone ID to prepare for receiving top-up.',
+        },
+        {
+            icon: Package,
+            step: "03",
+            title: lang === 'km' ? 'ជ្រើសកញ្ចប់' : 'Choose Package',
+            desc: lang === 'km'
+                ? 'ពិនិត្យមើលតម្លៃកញ្ចប់បញ្ចូលហ្គេម និងជ្រើសរើសកញ្ចប់ដែលអ្នកចង់បំពេញ។'
+                : 'Review the top-up package prices and select the one you want.',
+        },
+        {
+            icon: Zap,
+            step: "04",
+            title: lang === 'km' ? 'បង់ & ទទួលភ្លាម' : 'Pay & Receive',
+            desc: lang === 'km'
+                ? 'ជ្រើសរើសវិធីសាស្ត្រទូទាត់ដែលអ្នកចូលចិត្តបញ្ជាក់ ហើយទទួលបានប្រាក់របស់អ្នកភ្លាមៗ។'
+                : 'Choose your preferred payment method, confirm, and receive credits instantly.',
+        }
+    ];
+
+    return (
+        <section className="max-w-7xl mx-auto px-6 lg:px-16 mb-24 relative z-10">
+            {/* Header */}
+            <div className="flex flex-col items-center justify-center mb-12">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800/60 border border-slate-700/50 text-[10px] md:text-xs font-bold text-slate-300 tracking-wider mb-4">
+                    <ChevronRight className="w-3.5 h-3.5 text-purple-400" />
+                    <span>{lang === 'km' ? 'ដំណើរការងាយស្រួល' : 'SIMPLE PROCESS'}</span>
+                </div>
+                <h2 className={`text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-center ${lang === 'km' ? 'khmer-text !leading-[1.4]' : ''}`}>
+                    <span className="text-white">{lang === 'km' ? 'របៀប ' : 'HOW TO '}</span>
+                    <span className="text-purple-400">
+                        {lang === 'km' ? 'ប្រើប្រាស់' : 'USE'}
+                    </span>
+                </h2>
+            </div>
+
+            {/* Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {steps.map((item, idx) => (
+                    <div key={idx} className="flex flex-col items-center text-center p-8 rounded-[2rem] bg-[#0f0d1a] border border-white/5 hover:border-purple-500/20 hover:bg-[#131121] transition-colors duration-300">
+
+                        {/* Icon Container with Badge */}
+                        <div className="relative mb-8 mt-2">
+                            <div className="w-[72px] h-[72px] bg-indigo-600 rounded-2xl flex items-center justify-center shadow-lg transition-transform duration-300 hover:scale-105">
+                                <item.icon className="w-8 h-8 text-white stroke-2" />
+                            </div>
+                            {/* Orange Badge */}
+                            <div className="absolute -top-2.5 -right-2.5 w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center text-white text-[11px] font-bold shadow-md border-2 border-[#0f0d1a]">
+                                {idx + 1}
+                            </div>
+                        </div>
+
+                        {/* Text */}
+                        <div className="text-[11px] font-bold text-slate-500 tracking-[0.2em] uppercase mb-4">
+                            STEP {item.step}
+                        </div>
+                        <h3 className={`text-lg font-bold text-white mb-3 ${lang === 'km' ? 'khmer-text' : ''}`}>
+                            {item.title}
+                        </h3>
+                        <p className={`text-sm text-slate-400 leading-relaxed ${lang === 'km' ? 'khmer-text' : ''}`}>
+                            {item.desc}
+                        </p>
+                    </div>
+                ))}
+            </div>
+        </section>
     );
 }
 
@@ -322,11 +417,11 @@ export default function TopupPage() {
                         <div className="glass-card p-4 md:p-8 rounded-[32px] md:rounded-[42px] border-white/5 relative overflow-hidden group shadow-2xl bg-white/5 backdrop-blur-xl">
                             <div className="absolute -right-20 -top-20 w-80 h-80 bg-purple-500/5 rounded-full blur-[100px]" />
 
-                            <div className="flex items-center gap-3 px-5 py-3 rounded-2xl md:rounded-[2rem] bg-purple-600/90 mb-8 border border-white/10 shadow-lg backdrop-blur-sm self-start inline-flex group/header">
+                            <div className="flex items-center gap-3 px-2 md:px-5 py-2 md:py-3 rounded-2xl md:rounded-[2rem] bg-purple-600/90 mb-8 border border-white/10 shadow-lg backdrop-blur-sm self-start inline-flex group/header">
                                 <div className="h-10 w-10 flex-shrink-0 flex items-center justify-center bg-purple-700/50 rounded-xl border border-white/20 overflow-hidden shadow-inner group-hover/header:rotate-12 transition-transform">
                                     <User className="w-5 h-5 text-white" />
                                 </div>
-                                <h2 className={`font-display text-white font-black tracking-tight uppercase italic ${lang === 'km' ? 'khmer-text text-md' : 'text-md'}`}>
+                                <h2 className={`font-display text-white font-black tracking-tight uppercase italic ${lang === 'km' ? 'khmer-text text-xs md:text-xl' : 'text-xs md:text-xl'}`}>
                                     1. {tr(t.topup.step1title, lang)}
                                 </h2>
                             </div>
@@ -344,7 +439,7 @@ export default function TopupPage() {
                                             value={userId}
                                             onChange={(e) => handlePlayerIdChange(e.target.value)}
                                             placeholder="e.g. 12345678"
-                                            className="relative w-full bg-[#0a0a14]/60 border-2 border-slate-800/60 rounded-[24px] md:rounded-3xl px-6 py-5 text-white font-black text-[10px] md:text-[16px] focus:border-purple-500/50 focus:bg-[#0f0f1d] transition-all outline-none placeholder:text-slate-800 shadow-inner"
+                                            className="relative w-full bg-[#0a0a14]/60 border-2 border-slate-800/60 rounded-[24px] md:rounded-3xl px-4 md:px-6 py-2 md:py-5 text-white font-black text-[10px] md:text-[16px] focus:border-purple-500/50 focus:bg-[#0f0f1d] transition-all outline-none placeholder:text-slate-800 shadow-inner"
                                         />
                                     </div>
                                 </div>
@@ -361,7 +456,7 @@ export default function TopupPage() {
                                                 value={zoneId}
                                                 onChange={(e) => { setZoneId(e.target.value); resetVerify(); }}
                                                 placeholder="e.g. 1234"
-                                                className="relative w-full bg-[#0a0a14]/60 border-2 border-slate-800/60 rounded-[24px] md:rounded-3xl px-6 py-5 text-white font-black text-[10px] md:text-[16px] focus:border-purple-500/50 focus:bg-[#0f0f1d] transition-all outline-none placeholder:text-slate-800 shadow-inner"
+                                                className="relative w-full bg-[#0a0a14]/60 border-2 border-slate-800/60 rounded-[24px] md:rounded-3xl px-4 md:px-6 py-2 md:py-5 text-white font-black text-[10px] md:text-[16px] focus:border-purple-500/50 focus:bg-[#0f0f1d] transition-all outline-none placeholder:text-slate-800 shadow-inner"
                                             />
                                         </div>
                                     </div>
@@ -387,11 +482,11 @@ export default function TopupPage() {
                         <div className="glass-card p-4 md:p-8 rounded-[32px] md:rounded-[42px] border-white/5 relative overflow-hidden shadow-2xl bg-white/5 backdrop-blur-xl">
                             <div className="absolute -right-20 -top-20 w-80 h-80 bg-purple-500/5 rounded-full blur-[100px]" />
 
-                            <div className="flex items-center gap-3 px-5 py-3 rounded-2xl md:rounded-[2rem] bg-indigo-600/90 mb-8 border border-white/10 shadow-lg backdrop-blur-sm self-start inline-flex">
+                            <div className="flex items-center gap-3 px-2 py-2 md:px-5 md:py-3 rounded-2xl md:rounded-[2rem] bg-indigo-600/90 mb-8 border border-white/10 shadow-lg backdrop-blur-sm self-start inline-flex">
                                 <div className="h-10 w-10 flex-shrink-0 flex items-center justify-center bg-indigo-700/50 rounded-xl border border-white/20 overflow-hidden shadow-inner">
                                     <Image src="/package-logo.png" alt="" width={28} height={28} className="object-contain" />
                                 </div>
-                                <h2 className={`font-display text-white font-black tracking-tight uppercase italic ${lang === 'km' ? 'khmer-text text-md' : 'text-md'}`}>
+                                <h2 className={`font-display text-white font-black tracking-tight uppercase italic ${lang === 'km' ? 'khmer-text md:text-xl text-xs' : 'md:text-xl text-xs'}`}>
                                     2. {lang === 'km' ? 'ជ្រើសរើសកញ្ចប់ ពេជ្រ' : tr(t.topup.step2title, lang)}
                                 </h2>
                             </div>
@@ -399,6 +494,7 @@ export default function TopupPage() {
                             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
                                 {game.packages.map((pkg) => {
                                     const soldOut = isPackageSoldOut(pkg.amount);
+                                    const formattedPkgName = formatPackageName(pkg.name);
                                     return (
                                         <button
                                             key={pkg.id}
@@ -425,7 +521,7 @@ export default function TopupPage() {
                                                 <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-transparent opacity-50 group-hover:opacity-100" />
                                                 <Image
                                                     src={game.iconUrl || "/package-logo.png"}
-                                                    alt={pkg.name}
+                                                    alt={formattedPkgName}
                                                     fill
                                                     className="relative z-10 object-contain p-2 drop-shadow-[0_0_15px_rgba(168,85,247,0.4)]"
                                                     unoptimized={true}
@@ -438,8 +534,8 @@ export default function TopupPage() {
                                                     {Number(pkg.price).toFixed(2)}
                                                 </div>
                                                 <div className={`text-[8px] md:text-xs font-black text-slate-400 leading-none uppercase italic tracking-tighter mt-1 w-full flex items-center justify-center gap-0.5 ${lang === 'km' ? 'khmer-text' : ''}`}>
-                                                    <span className="max-w-full">{pkg.name}</span>
-                                                    <span className="shrink-0">{pkg.name.toLowerCase().includes('pass') ? '🎟️' : '💎'}</span>
+                                                    <span className="max-w-full">{formattedPkgName}</span>
+                                                    <span className="shrink-0">{formattedPkgName.toLowerCase().includes('pass') ? '🎟️' : '💎'}</span>
                                                 </div>
                                             </div>
 
@@ -456,29 +552,29 @@ export default function TopupPage() {
                         <div className="glass-card p-4 md:p-8 rounded-[32px] md:rounded-[42px] border-white/5 relative overflow-hidden shadow-2xl bg-white/5 backdrop-blur-xl">
                             <div className="absolute -left-20 -bottom-20 w-80 h-80 bg-emerald-500/5 rounded-full blur-[100px]" />
 
-                            <div className="flex items-center gap-3 px-5 py-3 rounded-2xl md:rounded-[2rem] bg-emerald-600/90 mb-10 border border-white/10 shadow-lg backdrop-blur-sm self-start inline-flex group/header">
+                            <div className="flex items-center gap-3 px-2 py-2 md:px-5 md:py-3 rounded-2xl md:rounded-[2rem] bg-emerald-600/90 mb-10 border border-white/10 shadow-lg backdrop-blur-sm self-start inline-flex group/header">
                                 <div className="h-10 w-10 flex items-center justify-center bg-emerald-700/50 rounded-xl border border-white/20 overflow-hidden shadow-inner group-hover/header:scale-110 transition-transform">
                                     <CreditCard className="w-5 h-5 text-white" />
                                 </div>
-                                <h2 className={`font-display text-white font-black tracking-tight uppercase italic ${lang === 'km' ? 'khmer-text text-md' : 'text-md'}`}>
+                                <h2 className={`font-display text-white font-black tracking-tight uppercase italic ${lang === 'km' ? 'khmer-text md:text-xl text-xs' : 'md:text-xl text-xs'}`}>
                                     3. {tr(t.topup.step3title, lang)}
                                 </h2>
                             </div>
 
-                            <div className="flex flex-col gap-4 mt-8">
+                            <div className="flex flex-col gap-4">
                                 {PAYMENT_METHODS.map((pm) => {
                                     const isSelected = selectedPayment === pm.id;
                                     return (
                                         <button
                                             key={pm.id}
                                             onClick={() => setSelectedPayment(pm.id)}
-                                            className={`group relative flex items-center p-4 rounded-2xl border-2 transition-all duration-500 outline-none overflow-hidden text-left
+                                            className={`group relative flex items-center md:p-4 p-2 rounded-2xl border-2 transition-all duration-500 outline-none overflow-hidden text-left
                                                 ${isSelected
                                                     ? "border-[#22c55e] bg-white/5 shadow-[0_0_20px_rgba(34,197,94,0.1)]"
                                                     : "border-white/5 bg-slate-900/40 hover:border-white/20"
                                                 }`}
                                         >
-                                            <div className="relative h-14 w-14 md:h-16 md:w-16 rounded-xl overflow-hidden bg-white/5 p-2 shrink-0">
+                                            <div className="relative h-12 w-12 md:h-16 md:w-16 rounded-xl overflow-hidden bg-white/5 p-2 shrink-0">
                                                 <Image
                                                     src={pm.icon}
                                                     alt={pm.name}
@@ -491,7 +587,7 @@ export default function TopupPage() {
                                                 <div className="font-display font-black text-lg md:text-xl text-white tracking-tight leading-none">
                                                     {pm.name}
                                                 </div>
-                                                <p className="text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-widest mt-1">
+                                                <p className="text-[8px] md:text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">
                                                     {pm.desc}
                                                 </p>
                                             </div>
@@ -534,7 +630,7 @@ export default function TopupPage() {
                                             { label: tr(t.topup.playerId, lang), value: userId || "—" },
                                             ...(game.inputConfig?.zoneId ? [{ label: tr(t.topup.zoneIdLabel, lang), value: zoneId || "—" }] : []),
                                             ...(verifiedName ? [{ label: "Receiver", value: verifiedName }] : []),
-                                            ...(selectedPkg ? [{ label: tr(t.topup.package, lang), value: selectedPkg.name }] : []),
+                                            ...(selectedPkg ? [{ label: tr(t.topup.package, lang), value: formatPackageName(selectedPkg.name) }] : []),
                                             { label: tr(t.topup.payment, lang), value: PAYMENT_METHODS.find(p => p.id === selectedPayment)?.name || "—" },
                                         ].map(({ label, value }) => (
                                             <div key={label} className="flex justify-between items-end gap-4 group">
@@ -706,6 +802,8 @@ export default function TopupPage() {
                     </div>
                 </div>
             </main>
+
+            <HowToUseSection lang={lang} />
 
             {/* Global Modals */}
             {paymentData && status === "PROCESSING" && (
