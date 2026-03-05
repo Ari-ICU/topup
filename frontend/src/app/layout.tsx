@@ -29,6 +29,47 @@ export const metadata: Metadata = {
   description:
     "បញ្ចូលហ្គេមភ្លាមៗ — Mobile Legends, Free Fire, PUBG និង ហ្គេម 50+ ទៀត។ ការទូទាត់តាម KHQR / ABA · Get instant game credits. Secure, lightning-fast delivery.",
   keywords: "game top up, mobile legends diamonds, free fire diamonds, pubg uc, instant game credits, ហ្គេម, បញ្ចូលហ្គេម",
+  icons: {
+    icon: "/package-logo.png?v=2",
+    shortcut: "/package-logo.png?v=2",
+    apple: "/package-logo.png?v=2",
+  },
+  openGraph: {
+    title: "DAI-GAME | បញ្ចូលហ្គេមភ្លាមៗ · Instant Game Credits",
+    description: "បញ្ចូលហ្គេមភ្លាមៗ — Mobile Legends, Free Fire, PUBG និង ហ្គេម 50+ ទៀត។ ការទូទាត់តាម KHQR / ABA",
+    url: "https://daigame.net",
+    siteName: "DAI-GAME",
+    images: [
+      {
+        url: "/package-logo.png",
+        width: 800,
+        height: 600,
+        alt: "DAI-GAME Top up center",
+      },
+    ],
+    locale: "km_KH",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "DAI-GAME | បញ្ចូលហ្គេមភ្លាមៗ",
+    description: "Get instant game credits. Secure, lightning-fast delivery. KHQR supported.",
+    images: ["/package-logo.png"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  alternates: {
+    canonical: "https://daigame.net",
+  },
 };
 
 export default function RootLayout({
