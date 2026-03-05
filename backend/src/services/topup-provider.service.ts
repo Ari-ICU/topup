@@ -1,5 +1,7 @@
 import { prisma } from "../lib/prisma.js";
 import { getSystemSettings } from "../lib/settings.js";
+import { getMooGoldBalance, moogoldPlaceOrder } from "./moogold.service.js";
+import { getSupplierBalance, supplierPlaceOrder } from "./supplier.service.js";
 
 /**
  * Top-Up Provider Service
@@ -91,7 +93,6 @@ export const getActiveProviderBalance = async (): Promise<number> => {
     // MooGold Balance
     if (getVal("MOOGOLD_PARTNER_ID") && getVal("MOOGOLD_SECRET_KEY")) {
         try {
-            const { getMooGoldBalance } = await import("./moogold.service.js");
             return await getMooGoldBalance();
         } catch {
             // fall through
@@ -101,7 +102,6 @@ export const getActiveProviderBalance = async (): Promise<number> => {
     // Friend Supplier with API URL — fetch live balance
     if (getVal("FRIEND_SUPPLIER_API_URL") && getVal("FRIEND_SUPPLIER_API_KEY")) {
         try {
-            const { getSupplierBalance } = await import("./supplier.service.js");
             return await getSupplierBalance();
         } catch {
             // fall through to local DB
@@ -128,7 +128,6 @@ export const processTopUp = async (request: TopUpRequest): Promise<TopUpResult> 
     const mooPartner = getVal("MOOGOLD_PARTNER_ID");
     const mooKey = getVal("MOOGOLD_SECRET_KEY");
     if (mooPartner && mooKey && request.providerSku) {
-        const { moogoldPlaceOrder } = await import("./moogold.service.js");
         const result = await moogoldPlaceOrder({
             productId: request.providerSku,
             playerId: request.playerId,
@@ -157,7 +156,6 @@ export const processTopUp = async (request: TopUpRequest): Promise<TopUpResult> 
     const friendUrl = getVal("FRIEND_SUPPLIER_API_URL");
     const friendKey = getVal("FRIEND_SUPPLIER_API_KEY");
     if (friendUrl && friendKey) {
-        const { supplierPlaceOrder } = await import("./supplier.service.js");
         const result = await supplierPlaceOrder({
             transactionId: request.transactionId,
             playerId: request.playerId,

@@ -35,7 +35,6 @@ model Package {
   amount       Int
   price        Decimal       @db.Decimal(10, 2)
   providerSku  String
-  points       Int           @default(0)
   description  String?
   isWeeklyPass Boolean       @default(false)
   sortOrder    Int           @default(0)
@@ -72,15 +71,6 @@ model SystemSetting {
   updatedAt DateTime @updatedAt
 }
 
-model Review {
-  id         String   @id @default(cuid())
-  name       String
-  gameName   String
-  rating     Int
-  comment    String
-  isApproved Boolean  @default(false)
-  createdAt  DateTime @default(now())
-}
 
 enum TransactionStatus {
   PENDING

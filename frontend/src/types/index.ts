@@ -5,7 +5,6 @@ export interface GamePackage {
     name: string;
     amount: number;
     price: number;
-    points: number;
     description?: string;
     isWeeklyPass: boolean;
 }

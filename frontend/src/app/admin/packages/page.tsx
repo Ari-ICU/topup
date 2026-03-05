@@ -13,7 +13,6 @@ interface PackageItem {
     gameId?: string;
     name: string;
     amount: number;
-    points: number;
     price: number | string;
     description?: string;
     isWeeklyPass: boolean;
@@ -84,7 +83,6 @@ function AdminPackagesContent() {
         name: '',
         gameId: '',
         amount: '',
-        points: '0',
         price: '',
         providerCode: 'MOOGOLD',
         providerSku: '',
@@ -140,7 +138,7 @@ function AdminPackagesContent() {
 
         // Ensure a game is selected before submitting
         if (!formData.gameId) {
-            showToast('Deployment protocol blocked: Select a central Game Sector node before initializing asset.', 'warning');
+            showToast('Please select a game before creating the package.', 'warning');
             return;
         }
 
@@ -150,7 +148,6 @@ function AdminPackagesContent() {
                 name: formData.name,
                 gameId: formData.gameId,
                 amount: parseInt(formData.amount, 10),
-                points: parseInt(formData.points, 10) || 0,
                 price: parseFloat(formData.price),
                 providerCode: formData.providerCode,
                 providerSku: formData.providerSku || `${formData.gameId}_${formData.amount}`,
@@ -179,7 +176,7 @@ function AdminPackagesContent() {
             setEditingPackageId(null);
             setIsDuplicating(false);
             setIsFormDropdownOpen(false);
-            setFormData({ name: '', gameId: '', amount: '', points: '0', price: '', providerCode: 'MOOGOLD', providerSku: '', description: '', isWeeklyPass: false, sortOrder: '0' });
+            setFormData({ name: '', gameId: '', amount: '', price: '', providerCode: 'MOOGOLD', providerSku: '', description: '', isWeeklyPass: false, sortOrder: '0' });
         } catch (err: any) {
             console.error('Failed to save package', err);
             showToast(err.message || 'Failed to save package', 'error');
@@ -193,7 +190,6 @@ function AdminPackagesContent() {
             name: pkg.name,
             gameId: pkg.gameId || '',
             amount: pkg.amount.toString(),
-            points: pkg.points.toString(),
             price: pkg.price.toString(),
             providerCode: 'MOOGOLD',
             providerSku: pkg.providerSku || '',
@@ -213,7 +209,6 @@ function AdminPackagesContent() {
             name: `${pkg.name} (Copy)`,
             gameId: pkg.gameId || '',
             amount: pkg.amount.toString(),
-            points: pkg.points.toString(),
             price: pkg.price.toString(),
             providerCode: 'MOOGOLD',
             providerSku: pkg.providerSku || '',
@@ -319,9 +314,9 @@ function AdminPackagesContent() {
             {/* Header */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-8">
                 <div>
-                    <h1 className="text-3xl font-black text-white tracking-tight italic uppercase">Asset Inventory</h1>
+                    <h1 className="text-3xl font-black text-white tracking-tight italic uppercase">Packages</h1>
                     <p className="text-[11px] text-slate-500 font-black tracking-[0.2em] uppercase mt-2">
-                        Configure and deploy currency acquisition nodes
+                        Manage your game top-up packages
                     </p>
                 </div>
 
@@ -330,14 +325,14 @@ function AdminPackagesContent() {
                         setEditingPackageId(null);
                         setIsDuplicating(false);
                         setIsFormDropdownOpen(false);
-                        setFormData({ name: '', gameId: '', amount: '', points: '0', price: '', providerCode: 'MOOGOLD', providerSku: '', description: '', isWeeklyPass: false, sortOrder: '0' });
+                        setFormData({ name: '', gameId: '', amount: '', price: '', providerCode: 'MOOGOLD', providerSku: '', description: '', isWeeklyPass: false, sortOrder: '0' });
                         setShowForm((s) => !s);
                     }}
                     className="group relative px-10 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-[2.5rem] overflow-hidden shadow-[0_20px_40px_-10px_rgba(99,102,241,0.5)] transition-all hover:-translate-y-1 active:scale-95 flex items-center gap-4"
                 >
                     <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
                     <Plus className="w-5 h-5 text-white" />
-                    <span className="text-xs font-black text-white uppercase tracking-[0.3em]">Initialize Asset</span>
+                    <span className="text-xs font-black text-white uppercase tracking-[0.3em]">Add Package</span>
                 </button>
             </div>
 
@@ -349,7 +344,7 @@ function AdminPackagesContent() {
                     </div>
                     <input
                         type="text"
-                        placeholder="Search global operations..."
+                        placeholder="Search packages..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="w-full pl-14 pr-8 py-4 bg-white/5 border border-white/5 rounded-2xl text-white text-[13px] font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-white/10 transition-all placeholder:text-slate-700"
@@ -367,7 +362,7 @@ function AdminPackagesContent() {
                             <div className="flex items-center gap-3">
                                 <Gamepad2 className={`w-4 h-4 transition-colors ${isFilterDropdownOpen ? 'text-indigo-400' : 'text-slate-500 group-hover:text-indigo-400'}`} />
                                 <span className="text-[11px] font-black text-white uppercase tracking-widest truncate max-w-[120px]">
-                                    {filterGameId === 'all' ? 'ALL SECTORS' : games.find(g => g.id === filterGameId)?.name || 'SELECT SECTOR'}
+                                    {filterGameId === 'all' ? 'ALL GAMES' : games.find(g => g.id === filterGameId)?.name || 'SELECT GAME'}
                                 </span>
                             </div>
                             <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform duration-300 ${isFilterDropdownOpen ? 'rotate-180 text-indigo-400' : ''}`} />
@@ -380,7 +375,7 @@ function AdminPackagesContent() {
                                         onClick={() => { setFilterGameId('all'); setIsFilterDropdownOpen(false); }}
                                         className={`w-full text-left px-6 py-4 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all mb-1 ${filterGameId === 'all' ? 'bg-indigo-500 text-white' : 'text-slate-400 hover:bg-white/10 hover:text-white'}`}
                                     >
-                                        ALL SECTORS
+                                        ALL GAMES
                                     </button>
                                     <div className="h-px bg-white/5 my-2 mx-4" />
                                     {games.map(game => (
@@ -403,7 +398,7 @@ function AdminPackagesContent() {
             {isLoading ? (
                 <div className="p-24 text-center">
                     <div className="w-12 h-12 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-6" />
-                    <p className="text-slate-500 font-black text-xs uppercase tracking-[0.3em]">Querying Asset Nodes...</p>
+                    <p className="text-slate-500 font-black text-xs uppercase tracking-[0.3em]">Loading Packages...</p>
                 </div>
             ) : (
                 <DragDropContext onDragEnd={handleDragEnd}>
@@ -417,7 +412,7 @@ function AdminPackagesContent() {
                                 {filteredPackages.length === 0 ? (
                                     <div className="col-span-full p-32 text-center bg-white/[0.01] rounded-[3rem] border border-dashed border-white/5">
                                         <Gift className="w-16 h-16 text-slate-800 mx-auto mb-6" />
-                                        <p className="text-white font-black text-sm uppercase tracking-widest">No matching assets</p>
+                                        <p className="text-white font-black text-sm uppercase tracking-widest">No packages found</p>
                                         <p className="text-slate-600 text-[10px] font-bold mt-2 uppercase tracking-tight italic">Adjust filters to broaden discovery range</p>
                                     </div>
                                 ) : (
@@ -463,15 +458,12 @@ function AdminPackagesContent() {
                                                                 </div>
                                                             </div>
                                                             <div className="flex items-center gap-3 pr-8">
-                                                                <div className="bg-white/5 px-3 py-1.5 rounded-xl border border-white/5">
-                                                                    <span className="text-[10px] font-black text-slate-500 tracking-tighter tabular-nums">{pkg.points} pts</span>
-                                                                </div>
                                                             </div>
                                                         </div>
 
                                                         <div className="flex items-end justify-between mb-8">
                                                             <div>
-                                                                <p className="text-[9px] text-slate-600 font-bold uppercase tracking-widest mb-1">Yield Volume</p>
+                                                                <p className="text-[9px] text-slate-600 font-bold uppercase tracking-widest mb-1">Amount</p>
                                                                 <p className="text-2xl font-black text-white italic tracking-tighter tabular-nums drop-shadow-sm">{pkg.amount.toLocaleString()}</p>
                                                                 {pkg.description && (
                                                                     <p className="text-[9px] text-slate-500 font-medium mt-1 italic">{pkg.description}</p>
@@ -484,13 +476,13 @@ function AdminPackagesContent() {
                                                         </div>
 
                                                         <div className="grid grid-cols-3 gap-3">
-                                                            <button onClick={() => handleEditClick(pkg)} className="h-12 flex items-center justify-center bg-white/5 hover:bg-indigo-500/20 text-indigo-400 rounded-2xl border border-white/5 transition-all active:scale-95" title="Edit Metadata">
+                                                            <button onClick={() => handleEditClick(pkg)} className="h-12 flex items-center justify-center bg-white/5 hover:bg-indigo-500/20 text-indigo-400 rounded-2xl border border-white/5 transition-all active:scale-95" title="Edit Package">
                                                                 <Edit2 className="w-4 h-4" />
                                                             </button>
-                                                            <button onClick={() => handleDuplicateClick(pkg)} className="h-12 flex items-center justify-center bg-white/5 hover:bg-purple-500/20 text-purple-400 rounded-2xl border border-white/5 transition-all active:scale-95" title="Duplicate Node">
+                                                            <button onClick={() => handleDuplicateClick(pkg)} className="h-12 flex items-center justify-center bg-white/5 hover:bg-purple-500/20 text-purple-400 rounded-2xl border border-white/5 transition-all active:scale-95" title="Duplicate Package">
                                                                 <Copy className="w-4 h-4" />
                                                             </button>
-                                                            <button onClick={() => handleDeletePackage(pkg.id)} className="h-12 flex items-center justify-center bg-white/5 hover:bg-red-500/20 text-red-500 rounded-2xl border border-white/5 transition-all active:scale-95" title="Purge Node">
+                                                            <button onClick={() => handleDeletePackage(pkg.id)} className="h-12 flex items-center justify-center bg-white/5 hover:bg-red-500/20 text-red-500 rounded-2xl border border-white/5 transition-all active:scale-95" title="Delete Package">
                                                                 <Trash2 className="w-4 h-4" />
                                                             </button>
                                                         </div>
@@ -516,21 +508,21 @@ function AdminPackagesContent() {
                         </button>
                         <div className="mb-8 md:mb-10">
                             <h2 className="text-3xl font-black text-white italic tracking-tight uppercase">
-                                {editingPackageId ? "Modify Asset" : (isDuplicating ? "Replicate Asset" : "Deploy Asset")}
+                                {editingPackageId ? "Edit Package" : (isDuplicating ? "Duplicate Package" : "Add Package")}
                             </h2>
-                            <p className="text-[10px] text-slate-500 font-black tracking-[0.2em] uppercase mt-2">Operational Node Configuration</p>
+                            <p className="text-[10px] text-slate-500 font-black tracking-[0.2em] uppercase mt-2">Package Details</p>
                         </div>
                         <form onSubmit={handleSubmitPackage} className="space-y-8">
                             <div className="space-y-6">
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Visible Asset Identity</label>
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Package Name</label>
                                     <input required type="text" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} className="w-full px-8 py-5 bg-white/5 border border-white/5 rounded-[2rem] text-white font-bold text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30 transition-all" />
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Core System Binding</label>
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Select Game</label>
                                     <div className="relative" ref={formDropdownRef}>
                                         <button type="button" onClick={() => setIsFormDropdownOpen(!isFormDropdownOpen)} className="w-full px-8 py-5 bg-white/5 border border-white/5 rounded-[2rem] text-white flex items-center justify-between hover:bg-white/10 transition-all font-bold text-sm uppercase">
-                                            <span className={(formData.gameId ? "text-white" : "text-slate-700")}>{games.find(g => g.id === formData.gameId)?.name || "Select operation sector..."}</span>
+                                            <span className={(formData.gameId ? "text-white" : "text-slate-700")}>{games.find(g => g.id === formData.gameId)?.name || "Select a game..."}</span>
                                             <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform duration-500 ${isFormDropdownOpen ? "rotate-180 text-indigo-400" : ""}`} />
                                         </button>
                                         {isFormDropdownOpen && (
@@ -542,14 +534,10 @@ function AdminPackagesContent() {
                                         )}
                                     </div>
                                 </div>
-                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Volume</label>
+                                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Amount</label>
                                         <input required type="number" value={formData.amount} onChange={e => setFormData({ ...formData, amount: e.target.value })} className="w-full px-6 py-4 md:py-5 bg-white/5 border border-white/5 rounded-2xl md:rounded-[2rem] text-white font-bold text-sm" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Points</label>
-                                        <input required type="number" value={formData.points} onChange={e => setFormData({ ...formData, points: e.target.value })} className="w-full px-6 py-4 md:py-5 bg-white/5 border border-white/5 rounded-2xl md:rounded-[2rem] text-purple-400 font-bold text-sm" />
                                     </div>
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Price (USD)</label>
@@ -616,19 +604,19 @@ function AdminPackagesContent() {
                                             className="w-5 h-5 rounded-lg border-2 border-white/10 bg-slate-900 text-indigo-500 focus:ring-offset-0 focus:ring-0"
                                         />
                                         <div className="flex flex-col">
-                                            <span className="text-[11px] font-black text-white uppercase tracking-wider">Weekly Pass Protocol</span>
-                                            <span className="text-[9px] text-slate-500 font-bold uppercase tracking-tight italic">Enables daily claim rewards UI</span>
+                                            <span className="text-[11px] font-black text-white uppercase tracking-wider">Weekly Pass</span>
+                                            <span className="text-[9px] text-slate-500 font-bold uppercase tracking-tight italic">Enable daily rewards for this package</span>
                                         </div>
                                     </label>
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Operational Description</label>
+                                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Description</label>
                                         <input type="text" value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} className="w-full px-8 py-4 bg-white/5 border border-white/5 rounded-[2rem] text-slate-400 text-sm italic" placeholder="e.g. 80 Instant + 20 Daily x 7 Days" />
                                     </div>
                                 </div>
                             </div>
                             <div className="flex gap-6 pt-6">
                                 <button type="button" onClick={() => setShowForm(false)} className="flex-1 py-5 rounded-[2.5rem] bg-white/5 text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] transition-all hover:bg-white/10 hover:text-white">Cancel</button>
-                                <button disabled={isSaving} type="submit" className="flex-[2] py-5 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-[2.5rem] text-[10px] font-black text-white uppercase tracking-[0.3em] disabled:opacity-50 shadow-[0_20px_40px_-10px_rgba(99,102,241,0.5)] transition-all hover:-translate-y-1">{isSaving ? 'Deploying...' : 'Submit Deployment'}</button>
+                                <button disabled={isSaving} type="submit" className="flex-[2] py-5 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-[2.5rem] text-[10px] font-black text-white uppercase tracking-[0.3em] disabled:opacity-50 shadow-[0_20px_40px_-10px_rgba(99,102,241,0.5)] transition-all hover:-translate-y-1">{isSaving ? 'Saving...' : 'Save Package'}</button>
                             </div>
                         </form>
                     </div>
@@ -642,7 +630,7 @@ export default function AdminPackagesPage() {
         <Suspense fallback={
             <div className="p-24 text-center">
                 <div className="w-12 h-12 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-6" />
-                <p className="text-slate-500 font-black text-xs uppercase tracking-[0.3em]">Loading Protocol...</p>
+                <p className="text-slate-500 font-black text-xs uppercase tracking-[0.3em]">Loading...</p>
             </div>
         }>
             <AdminPackagesContent />

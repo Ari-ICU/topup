@@ -11,6 +11,9 @@
  */
 
 import { createRequire } from "module";
+import axios from "axios";
+import { getSystemSettings } from "../lib/settings.js";
+
 const require = createRequire(import.meta.url);
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const { BakongKHQR, MerchantInfo, khqrData } = require("bakong-khqr") as any;
@@ -22,8 +25,6 @@ interface GenerateKHQRProps {
     transactionId: string;
     currency?: "USD" | "KHR";
 }
-
-import { getSystemSettings } from "../lib/settings.js";
 
 export const generateTransactionKHQR = async ({
     amount,
@@ -93,7 +94,6 @@ export const checkBakongTransactionStatus = async (md5: string): Promise<{
         // Note: Production usually requires a Bearer token or certificate.
         // For sandbox/public checks, sometimes it's open or uses basic auth with merchant credentials.
         // We'll use axios to call the Bakong endpoint.
-        const axios = (await import("axios")).default;
 
         const response = await axios.post("https://api-bakong.nbc.gov.kh/v1/check_transaction_by_md5", {
             md5: md5

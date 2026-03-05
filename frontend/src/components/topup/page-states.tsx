@@ -1,14 +1,18 @@
 import { Zap } from "lucide-react";
 
+import { LoadingText } from "@/components/ui/loading-text";
+
 export function TopupPageLoader() {
     return (
-        <div className="flex min-h-screen items-center justify-center hero-bg">
-            <div className="flex flex-col items-center gap-4">
-                <div className="relative">
-                    <div className="h-16 w-16 rounded-2xl border-2 border-purple-600 border-t-transparent animate-spin" />
-                    <Zap className="absolute inset-0 m-auto h-6 w-6 text-purple-400" />
+        <div className="flex min-h-screen items-center justify-center hero-bg overflow-hidden">
+            <div className="relative">
+                {/* Background decorative orbs */}
+                <div className="absolute inset-0 m-auto w-[300px] h-[300px] bg-purple-600/10 rounded-full blur-[100px] animate-pulse" />
+                <div className="absolute inset-0 m-auto w-[200px] h-[200px] bg-cyan-500/10 rounded-full blur-[80px] animate-pulse delay-500" />
+
+                <div className="relative z-10">
+                    <LoadingText />
                 </div>
-                <p className="text-slate-400 text-sm font-medium animate-pulse">Loading game details...</p>
             </div>
         </div>
     );

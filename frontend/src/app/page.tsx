@@ -16,9 +16,12 @@ import {
   Lock,
   HeadphonesIcon,
   ArrowRight,
+  User,
   Package,
   AlertCircle,
-  Loader2
+  Loader2,
+  Facebook,
+  Send
 } from "lucide-react";
 import { ReviewList } from "@/components/review/review-list";
 import { ReviewForm } from "@/components/review/review-form";
@@ -184,83 +187,6 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ===== BENEFITS / WHY US SECTION ===== */}
-        <section className="w-full section-darker py-24 px-6 lg:px-16 relative">
-          <div className="absolute inset-0 grid-lines opacity-20 pointer-events-none" />
-          <div className="relative mx-auto max-w-7xl">
-            <div className="mb-16 text-center">
-              <div className={`section-label mb-4 mx-auto w-fit ${lang === 'km' ? 'khmer-text' : ''}`}>
-                <Shield className="w-3.5 h-3.5" />
-                {tr(t.benefits.badge, lang)}
-              </div>
-              <h2 className="font-display text-4xl lg:text-5xl font-bold text-white mb-4 tracking-wide">
-                {tr(t.benefits.title1, lang)} <span className="gradient-text">{tr(t.benefits.title2, lang)}</span> {tr(t.benefits.title3, lang)}
-              </h2>
-              <p className={`text-slate-400 max-w-2xl mx-auto ${lang === 'km' ? 'khmer-text text-base' : ''}`}>
-                {tr(t.benefits.desc, lang)}
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {[
-                {
-                  icon: Zap,
-                  title: tr(t.benefits.cards.fast.title, lang),
-                  description: tr(t.benefits.cards.fast.desc, lang),
-                  badge: tr(t.benefits.cards.fast.badge, lang),
-                  badgeClass: "badge-gold",
-                  iconBg: "from-amber-500 to-orange-600",
-                },
-                {
-                  icon: Lock,
-                  title: tr(t.benefits.cards.secure.title, lang),
-                  description: tr(t.benefits.cards.secure.desc, lang),
-                  badge: tr(t.benefits.cards.secure.badge, lang),
-                  badgeClass: "badge-cyan",
-                  iconBg: "from-cyan-500 to-blue-600",
-                },
-                {
-                  icon: HeadphonesIcon,
-                  title: tr(t.benefits.cards.support.title, lang),
-                  description: tr(t.benefits.cards.support.desc, lang),
-                  badge: tr(t.benefits.cards.support.badge, lang),
-                  badgeClass: "badge-success",
-                  iconBg: "from-emerald-500 to-teal-600",
-                },
-                {
-                  icon: TrendingUp,
-                  title: tr(t.benefits.cards.prices.title, lang),
-                  description: tr(t.benefits.cards.prices.desc, lang),
-                  badge: tr(t.benefits.cards.prices.badge, lang),
-                  badgeClass: "badge-gold",
-                  iconBg: "from-pink-500 to-rose-600",
-                },
-                {
-                  icon: Clock,
-                  title: tr(t.benefits.cards.always.title, lang),
-                  description: tr(t.benefits.cards.always.desc, lang),
-                  badge: tr(t.benefits.cards.always.badge, lang),
-                  badgeClass: "badge-cyan",
-                  iconBg: "from-violet-500 to-purple-600",
-                },
-              ].map((benefit, idx) => (
-                <div
-                  key={idx}
-                  className="glass-card p-7 group hover:-translate-y-1 hover:border-purple-500/40 transition-all duration-300 hover:shadow-xl hover:shadow-purple-900/30"
-                >
-                  <div className={`mb-5 inline-flex h-13 w-13 items-center justify-center rounded-xl bg-gradient-to-br ${benefit.iconBg} shadow-lg group-hover:scale-110 transition-transform duration-300`}
-                    style={{ height: '52px', width: '52px' }}>
-                    <benefit.icon className="w-6 h-6 text-white" />
-                  </div>
-                  <div className={`badge ${benefit.badgeClass} mb-4 ${lang === 'km' ? 'khmer-text' : ''}`}>{benefit.badge}</div>
-                  <h3 className={`mb-3 ${lang === 'km' ? 'khmer-text font-bold text-lg' : 'font-display text-xl'} font-bold text-white tracking-wide`}>{benefit.title}</h3>
-                  <p className={`text-slate-400 text-sm leading-relaxed ${lang === 'km' ? 'khmer-text' : ''}`}>{benefit.description}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
         {/* ===== HOW IT WORKS ===== */}
         <section id="benefits" className="w-full section-dark py-24 px-6 lg:px-16 relative">
           <div className="absolute inset-0 grid-lines opacity-30 pointer-events-none" />
@@ -274,53 +200,42 @@ export default function Home() {
                 {tr(t.howItWorks.title1, lang)} <span className="gradient-text">{tr(t.howItWorks.title2, lang)}</span>
               </h2>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-8 relative">
-              {/* Connector line */}
-              <div className="absolute top-10 left-[12.5%] right-[12.5%] h-px bg-gradient-to-r from-transparent via-purple-600/40 to-transparent hidden md:block" />
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-12 relative z-10">
+              {/* Futuristic Connector line */}
+              <div className="absolute top-[60px] left-[10%] right-[10%] h-px bg-gradient-to-r from-transparent via-purple-500/30 to-transparent hidden md:block" />
 
               {t.howItWorks.steps.map((stepData, idx) => {
-                const icons = [Gamepad2, Users, Package, Zap];
+                const icons = [Gamepad2, User, Package, Zap];
                 const Icon = icons[idx];
                 return (
-                  <div key={idx} className="flex flex-col items-center text-center relative">
-                    <div className="relative mb-6">
-                      <div className="h-20 w-20 rounded-2xl bg-gradient-to-br from-purple-600 to-indigo-700 flex items-center justify-center shadow-2xl shadow-purple-900/50 animate-pulse-glow">
-                        <Icon className="w-9 h-9 text-white" />
+                  <div
+                    key={idx}
+                    className="flex flex-col items-center text-center animate-fade-in-up"
+                    style={{ animationDelay: `${idx * 0.1}s`, animationFillMode: 'both' }}
+                  >
+                    <div className="step-box group flex flex-col items-center w-full">
+                      <div className="step-icon-container group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
+                        <Icon className="w-9 h-9 text-white group-hover:drop-shadow-[0_0_15px_rgba(255,255,255,0.4)]" />
+                        <div className="step-number-badge font-display">
+                          {idx + 1}
+                        </div>
                       </div>
-                      <div className="absolute -top-2 -right-2 h-7 w-7 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg">
-                        <span className="text-xs font-black text-white">{idx + 1}</span>
+
+                      <div className="text-[10px] font-black font-mono text-purple-400 tracking-[0.3em] mb-4 opacity-60 uppercase">
+                        STEP 0{idx + 1}
                       </div>
+
+                      <h3 className={`font-display text-xl md:text-2xl font-black text-white mb-4 tracking-tight leading-none ${lang === 'km' ? 'khmer-text' : ''}`}>
+                        {tr(stepData.title, lang)}
+                      </h3>
+
+                      <p className={`text-slate-400 text-sm leading-relaxed ${lang === 'km' ? 'khmer-text' : ''}`}>
+                        {tr(stepData.desc, lang)}
+                      </p>
                     </div>
-                    <div className="text-xs font-mono text-purple-500 tracking-widest mb-2 uppercase">0{idx + 1}</div>
-                    <h3 className={`font-display text-xl font-bold text-white mb-3 tracking-wide ${lang === 'km' ? 'khmer-text' : ''}`}>{tr(stepData.title, lang)}</h3>
-                    <p className={`text-slate-400 text-sm leading-relaxed max-w-xs ${lang === 'km' ? 'khmer-text' : ''}`}>{tr(stepData.desc, lang)}</p>
                   </div>
                 )
               })}
-            </div>
-          </div>
-        </section>
-
-        {/* ===== TESTIMONIALS ===== */}
-        <section id="testimonials" className="w-full section-darker py-24 px-6 lg:px-16">
-          <div className="mx-auto max-w-7xl">
-            <div className="mb-16 text-center">
-              <div className={`section-label mb-4 mx-auto w-fit ${lang === 'km' ? 'khmer-text' : ''}`}>
-                <Star className="w-3.5 h-3.5 fill-current" />
-                {tr(t.reviews.badge, lang)}
-              </div>
-              <h2 className="font-display text-4xl lg:text-5xl font-bold text-white mb-4 tracking-wide text-glow-purple">
-                {tr(t.reviews.title1, lang)} <span className="gradient-text">{tr(t.reviews.title2, lang)}</span> {tr(t.reviews.title3, lang)}
-              </h2>
-              <p className={`text-slate-400 max-w-xl mx-auto mb-12 ${lang === 'km' ? 'khmer-text' : ''}`}>
-                {tr(t.reviews.desc, lang)}
-              </p>
-
-              <div className="max-w-3xl mx-auto mb-16">
-                <ReviewForm />
-              </div>
-
-              <ReviewList />
             </div>
           </div>
         </section>
@@ -334,13 +249,18 @@ export default function Home() {
             <div className="flex flex-col lg:flex-row justify-between gap-16 mb-16">
               {/* Brand Column */}
               <div className="max-w-sm">
-                <Link href="/" className="flex items-center gap-3 mb-6 group w-fit">
-                  <div className="relative h-12 w-12 rounded-2xl overflow-hidden shadow-2xl border border-purple-500/30">
+                <Link href="/" className="flex items-center gap-4 mb-10 group w-fit">
+                  <div className="relative h-16 w-16 rounded-[2rem] overflow-hidden shadow-2xl border border-purple-500/20 group-hover:scale-110 transition-transform duration-500">
                     <Image src="/package-logo.png" alt="Dai-Game" fill className="object-cover" />
                   </div>
-                  <span className="font-display text-2xl font-black italic tracking-tighter text-white">
-                    DAI<span className="text-purple-400">-GAME</span>
-                  </span>
+                  <div className="flex flex-col">
+                    <span className="font-display text-4xl font-black italic tracking-tighter text-white leading-none">
+                      DAI<span className="text-purple-400"> GAME</span>
+                    </span>
+                    <span className="text-xs font-black uppercase tracking-[0.4em] text-slate-500 mt-2 pl-1">
+                      TOP-UP CENTER
+                    </span>
+                  </div>
                 </Link>
                 <p className={`text-sm text-slate-400 leading-relaxed mb-6 ${lang === 'km' ? 'khmer-text' : ''}`}>
                   {tr(t.footer.desc, lang)}
@@ -369,16 +289,19 @@ export default function Home() {
 
             <div className="h-px w-full bg-gradient-to-r from-transparent via-white/5 to-transparent mb-10" />
 
-            <div className="flex flex-col items-center justify-between gap-8 md:flex-row">
-              <p className="text-xs text-slate-500">
-                © 2025 Dai<span className="text-purple-500 font-bold">-Game</span>. <span className={lang === 'km' ? 'khmer-text' : ''}>{tr(t.footer.copyright, lang)}</span>
-              </p>
-              <div className="flex flex-wrap gap-8 justify-center">
-                {["Twitter", "Discord", "Telegram", "Instagram"].map((social) => (
-                  <a key={social} href="#" className="text-xs text-slate-500 hover:text-white transition-colors uppercase tracking-[0.2em] font-black">
-                    {social}
-                  </a>
-                ))}
+            <div className="flex flex-col items-center justify-between gap-8 md:flex-row pb-12">
+              <div className="flex items-center gap-4">
+                <a href="#" className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-500 hover:text-white hover:bg-blue-600/20 hover:border-blue-600/40 transition-all group" title="Facebook">
+                  <Facebook className="w-5 h-5 transition-transform group-hover:scale-110" />
+                </a>
+                <a href="#" className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-500 hover:text-white hover:bg-white/10 hover:border-white/20 transition-all group" title="TikTok">
+                  <svg className="w-5 h-5 transition-transform group-hover:scale-110" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19.589 6.686a4.793 4.793 0 0 1-3.77-4.245V2h-3.445v13.672a2.896 2.896 0 0 1-5.201 1.743l-.002-.001.002.001a2.895 2.895 0 0 1 3.183-4.51v-3.5a6.329 6.329 0 0 0-5.394 10.692 6.33 6.33 0 0 0 10.857-4.424V8.617a8.171 8.171 0 0 0 4.773 1.574V6.686z" />
+                  </svg>
+                </a>
+                <a href="#" className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-500 hover:text-white hover:bg-sky-500/20 hover:border-sky-500/40 transition-all group" title="Telegram">
+                  <Send className="w-5 h-5 transition-transform group-hover:scale-110" />
+                </a>
               </div>
             </div>
           </div>

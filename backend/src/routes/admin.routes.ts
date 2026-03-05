@@ -20,11 +20,6 @@ import {
     syncProviderStock,
     getProviderStatusEndpoint,
 } from "../controllers/admin.controller.js";
-import {
-    getAllReviews,
-    approveReview,
-    deleteReview
-} from "../controllers/review.controller.js";
 import { adminLimiter } from "../middleware/rateLimit.middleware.js";
 import { adminAuth } from "../middleware/auth.middleware.js";
 
@@ -65,10 +60,6 @@ router.get("/settings", getSettings);
 router.put("/settings", updateSettings);
 router.post("/global-stock", updateGlobalStock);
 
-// Reviews Management
-router.get("/reviews", getAllReviews);
-router.put("/reviews/:id/approve", approveReview);
-router.delete("/reviews/:id", deleteReview);
 
 // Provider Status — for admin dashboard health warning
 router.get("/provider-status", getProviderStatusEndpoint);

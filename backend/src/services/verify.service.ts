@@ -9,6 +9,8 @@
  *  3. Local format validation as final fallback — never blocks a purchase
  */
 
+import { getSystemSettings } from "../lib/settings.js";
+
 export interface VerifyResult {
     verified: boolean;
     playerName?: string;
@@ -96,7 +98,6 @@ async function providerVerify(
     userId: string,
     zoneId?: string
 ): Promise<VerifyResult | null> {
-    const { getSystemSettings } = await import("../lib/settings.js");
     const settings = await getSystemSettings();
     const providerUrl = settings.get("TOPUP_PROVIDER_URL");
     const providerKey = settings.get("TOPUP_PROVIDER_KEY");

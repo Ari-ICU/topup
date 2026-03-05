@@ -16,7 +16,6 @@ export const adminService = {
     getOverview: async () => {
         const totalTransactions = await prisma.transaction.count();
         const activeGamesCount = await prisma.game.count({ where: { isActive: true } });
-        const pendingReviewsCount = await prisma.review.count({ where: { isApproved: false } });
 
         // Sum of completed transactions
         const result = await prisma.transaction.aggregate({
@@ -34,7 +33,6 @@ export const adminService = {
             transactions: totalTransactions,
             activeGames: activeGamesCount,
             globalStockDiamonds,
-            pendingReviews: pendingReviewsCount
         };
     },
 
@@ -187,7 +185,11 @@ export const adminService = {
         // Find existing transaction to get package and player info
         const transaction = await prisma.transaction.findUnique({
             where: { id },
-            include: { package: true }
+            include: {
+                package: {
+                    include: { game: true }
+                }
+            }
         });
 
         if (!transaction) throw new Error("Transaction not found");
@@ -201,6 +203,8 @@ export const adminService = {
                     providerSku: transaction.package.providerSku,
                     playerId: playerInfo.playerId || playerInfo.userId || "",
                     zoneId: playerInfo.zoneId,
+                    amount: transaction.package.amount,
+                    gameSlug: transaction.package.game.slug,
                 });
 
                 // Save reference from provider

@@ -5,6 +5,7 @@ import {
     SupplierFulfillmentPayload,
 } from "../services/supplier.service.js";
 import { sendSuccess, sendError } from "../utils/apiResponse.js";
+import { prisma } from "../lib/prisma.js";
 
 // ============================================================================
 //  Supplier Controller
@@ -19,7 +20,6 @@ import { sendSuccess, sendError } from "../utils/apiResponse.js";
 
 // Helper to get secret from DB or Env
 const getSecret = async (): Promise<string> => {
-    const { prisma } = await import("../lib/prisma.js");
     const setting = await prisma.systemSetting.findUnique({
         where: { key: "FRIEND_SUPPLIER_SECRET" }
     });

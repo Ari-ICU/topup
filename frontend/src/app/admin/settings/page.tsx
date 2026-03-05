@@ -167,7 +167,7 @@ export default function AdminSettingsPage() {
     }
 
     return (
-        <div className="space-y-12 animate-fade-in max-w-6xl pb-20">
+        <div className="space-y-12 animate-fade-in max-w-full pb-20">
             {/* Header */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
                 <div>

@@ -60,9 +60,9 @@ export default function AdminReviewsPage() {
             {/* Header */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-8">
                 <div>
-                    <h1 className="text-3xl font-black text-white tracking-tight italic uppercase">Opinion Protocol</h1>
+                    <h1 className="text-3xl font-black text-white tracking-tight italic uppercase">Reviews</h1>
                     <p className="text-[11px] text-slate-500 font-black tracking-[0.2em] uppercase mt-2">
-                        Audit and moderate incoming user feedback streams
+                        Moderate and manage user reviews
                     </p>
                 </div>
             </div>
@@ -75,7 +75,7 @@ export default function AdminReviewsPage() {
                             <MessageSquare className="w-7 h-7" />
                         </div>
                         <div>
-                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none mb-2">Aggregate Ops</p>
+                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none mb-2">Total Reviews</p>
                             <p className="text-3xl font-black text-white italic tabular-nums">{reviews.length}</p>
                         </div>
                     </div>
@@ -86,7 +86,7 @@ export default function AdminReviewsPage() {
                             <CheckCircle className="w-7 h-7" />
                         </div>
                         <div>
-                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none mb-2">Verified Transmission</p>
+                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none mb-2">Approved</p>
                             <p className="text-3xl font-black text-white italic tabular-nums">{reviews.filter(r => r.isApproved).length}</p>
                         </div>
                     </div>
@@ -97,7 +97,7 @@ export default function AdminReviewsPage() {
                             <Clock className="w-7 h-7" />
                         </div>
                         <div>
-                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none mb-2">Pending Validation</p>
+                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none mb-2">Pending</p>
                             <p className="text-3xl font-black text-white italic tabular-nums">{reviews.filter(r => !r.isApproved).length}</p>
                         </div>
                     </div>

@@ -1,4 +1,5 @@
 import { prisma } from "../lib/prisma.js";
+import { getSystemSettings } from "../lib/settings.js";
 
 // ============================================================================
 //  Friend Supplier Service
@@ -123,7 +124,6 @@ export const supplierPlaceOrder = async (
     payload: SupplierOrderPayload
 ): Promise<SupplierOrderResult> => {
 
-    const { getSystemSettings } = await import("../lib/settings.js");
     const settings = await getSystemSettings();
     const friendApiUrl = settings.get("FRIEND_SUPPLIER_API_URL");
     const friendApiKey = settings.get("FRIEND_SUPPLIER_API_KEY");
@@ -181,7 +181,6 @@ export const supplierPlaceOrder = async (
 //  MODE C: Retrieve Live Balance from Friend Supplier
 // ============================================================================
 export const getSupplierBalance = async (): Promise<number> => {
-    const { getSystemSettings } = await import("../lib/settings.js");
     const settings = await getSystemSettings();
     const friendApiUrl = settings.get("FRIEND_SUPPLIER_API_URL");
     const friendApiKey = settings.get("FRIEND_SUPPLIER_API_KEY");

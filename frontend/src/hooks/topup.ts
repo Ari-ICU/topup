@@ -118,7 +118,8 @@ export function useTransaction() {
         const pollInterval = setInterval(async () => {
             try {
                 const res = await apiRequest<any>(`/transactions/${transactionId}/check-payment`, {
-                    method: "POST"
+                    method: "POST",
+                    body: JSON.stringify({ md5: paymentData?.md5 })
                 });
 
                 if (res.status === "COMPLETED") {
@@ -132,7 +133,7 @@ export function useTransaction() {
         }, 4000); // Poll every 4 seconds
 
         return () => clearInterval(pollInterval);
-    }, [status, transactionId]);
+    }, [status, transactionId, paymentData]);
 
     const submit = async (params: {
         packageId: string;

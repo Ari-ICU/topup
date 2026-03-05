@@ -4,7 +4,7 @@ import { useState, Suspense } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { LayoutDashboard, Gamepad2, Package, Receipt, Settings, LogOut, Bell, Search, Star, Menu, X, Users } from 'lucide-react';
+import { LayoutDashboard, Gamepad2, Package, Receipt, Settings, LogOut, Bell, Search, Star, Menu, X, Users, Key } from 'lucide-react';
 import { useAuth } from '@/context/auth-context';
 
 const SidebarItem = ({
@@ -59,7 +59,7 @@ function AdminSearchBar() {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-indigo-400 transition-colors" />
             <input
                 type="text"
-                placeholder="Search nodes..."
+                placeholder="Search..."
                 value={searchQuery}
                 onChange={handleSearch}
                 className="w-full pl-11 pr-4 py-2 bg-white/5 border border-white/5 rounded-xl md:rounded-2xl text-sm text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white/[0.08] transition-all"
@@ -140,6 +140,7 @@ export default function AdminLayout({
 
                         <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.25em] px-4 mb-4 mt-8">System</p>
                         <SidebarItem icon={Users} label="Supplier API" href="/admin/supplier" isActive={pathname === '/admin/supplier'} onClick={closeSidebar} />
+                        <SidebarItem icon={Key} label="Api Key" href="/admin/api-key" isActive={pathname === '/admin/api-key'} onClick={closeSidebar} />
                         <SidebarItem icon={Settings} label="Settings" href="/admin/settings" isActive={pathname === '/admin/settings'} onClick={closeSidebar} />
                     </nav>
                 </div>
@@ -189,7 +190,7 @@ export default function AdminLayout({
                             <div className="flex items-center space-x-3 md:space-x-4 pl-4 md:pl-6 border-l border-white/5">
                                 <div className="text-right hidden sm:block">
                                     <p className="text-sm font-black text-white leading-none whitespace-nowrap">Admin User</p>
-                                    <p className="text-[10px] text-slate-500 font-bold tracking-tighter mt-1 uppercase">Root Executive</p>
+                                    <p className="text-[10px] text-slate-500 font-bold tracking-tighter mt-1 uppercase">Administrator</p>
                                 </div>
                                 <div className="w-10 h-10 md:w-11 md:h-11 rounded-1.5xl md:rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-black shadow-[0_8px_20px_-6px_rgba(99,102,241,0.5)] border border-white/10 transform hover:rotate-6 transition-transform cursor-pointer shrink-0">
                                     AU

@@ -206,9 +206,9 @@ function AdminGamesContent() {
             {/* Header */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
                 <div>
-                    <h1 className="text-3xl font-black text-white tracking-tight italic uppercase">Portfolio Management</h1>
+                    <h1 className="text-3xl font-black text-white tracking-tight italic uppercase">Games</h1>
                     <p className="text-[11px] text-slate-500 font-black tracking-[0.2em] uppercase mt-2">
-                        {games.length} Interactive Titles across global regions
+                        Manage {games.length} games in your catalog
                     </p>
                 </div>
                 <button
@@ -220,7 +220,7 @@ function AdminGamesContent() {
                     className="group relative px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-[2rem] overflow-hidden shadow-[0_15px_30px_-10px_rgba(99,102,241,0.5)] transition-all hover:-translate-y-1 active:scale-95 flex items-center gap-3">
                     <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
                     <PlusCircle className="w-5 h-5 text-white" />
-                    <span className="text-xs font-black text-white uppercase tracking-[0.2em]">Deploy New Game</span>
+                    <span className="text-xs font-black text-white uppercase tracking-[0.2em]">Add New Game</span>
                 </button>
             </div>
 
@@ -232,7 +232,7 @@ function AdminGamesContent() {
                     </div>
                     <input
                         type="text"
-                        placeholder="Search global operations..."
+                        placeholder="Search games..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="w-full pl-14 pr-12 py-4 bg-white/5 border border-white/5 rounded-2xl text-white text-[13px] font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-white/10 transition-all placeholder:text-slate-700"
@@ -248,7 +248,7 @@ function AdminGamesContent() {
                 </div>
                 {searchQuery && (
                     <p className="mt-4 ml-6 text-[9px] font-black text-indigo-400/50 uppercase tracking-[0.2em] animate-pulse">
-                        ⚠️ Reordering Protocol Disabled during active search filter
+                        ⚠️ Reordering is disabled when searching
                     </p>
                 )}
             </div>
@@ -263,13 +263,13 @@ function AdminGamesContent() {
 
                         <div className="relative">
                             <h2 className="text-2xl font-black text-white italic tracking-tight mb-8">
-                                {editingGameId ? "MODIFY REPOSITORY" : "INITIALIZE NEW GAME"}
+                                {editingGameId ? "Edit Game" : "Add New Game"}
                             </h2>
 
                             <form onSubmit={handleSubmitGame} className="space-y-8">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Game Identity</label>
+                                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Game Name</label>
                                         <input
                                             required
                                             type="text"
@@ -280,7 +280,7 @@ function AdminGamesContent() {
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Slug Reference</label>
+                                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Game Slug</label>
                                         <input
                                             required
                                             type="text"
@@ -293,7 +293,7 @@ function AdminGamesContent() {
                                 </div>
 
                                 <div className="space-y-4">
-                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Visual Asset (Icon)</label>
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Game Icon</label>
                                     <div className="flex flex-col md:flex-row items-center gap-8 p-6 bg-white/[0.02] border border-white/5 rounded-3xl">
                                         <div className="relative w-24 h-24 rounded-3xl overflow-hidden border-2 border-white/10 bg-slate-900 group shrink-0">
                                             {formData.iconUrl ? (
@@ -335,8 +335,8 @@ function AdminGamesContent() {
                                                 className="w-5 h-5 rounded-lg border-2 border-white/10 bg-slate-900 text-indigo-500 focus:ring-offset-0 focus:ring-0"
                                             />
                                             <div className="flex flex-col">
-                                                <span className="text-[11px] font-black text-white uppercase tracking-wider">Player ID</span>
-                                                <span className="text-[9px] text-slate-500 font-bold uppercase tracking-tight">Standard ID</span>
+                                                <span className="text-[11px] font-black text-white uppercase tracking-wider">Player ID Label</span>
+                                                <span className="text-[9px] text-slate-500 font-bold uppercase tracking-tight">Main Identifier</span>
                                             </div>
                                         </label>
                                         <label className="flex items-center gap-4 p-5 bg-white/[0.02] border border-white/5 rounded-2xl cursor-pointer hover:bg-white/[0.05] transition-all group">
@@ -347,21 +347,21 @@ function AdminGamesContent() {
                                                 className="w-5 h-5 rounded-lg border-2 border-white/10 bg-slate-900 text-purple-500 focus:ring-offset-0 focus:ring-0"
                                             />
                                             <div className="flex flex-col">
-                                                <span className="text-[11px] font-black text-white uppercase tracking-wider">Zone ID</span>
-                                                <span className="text-[9px] text-slate-500 font-bold uppercase tracking-tight text-glow-purple">Region Code</span>
+                                                <span className="text-[11px] font-black text-white uppercase tracking-wider">Zone ID Label</span>
+                                                <span className="text-[9px] text-slate-500 font-bold uppercase tracking-tight text-glow-purple">Server/Region</span>
                                             </div>
                                         </label>
                                     </div>
                                 </div>
 
                                 <div className="flex justify-end items-center gap-6 pt-6 border-t border-white/5">
-                                    <button type="button" onClick={() => setShowForm(false)} className="text-[10px] font-black text-slate-500 uppercase tracking-[0.25em] hover:text-white transition-colors">Abort</button>
+                                    <button type="button" onClick={() => setShowForm(false)} className="text-[10px] font-black text-slate-500 uppercase tracking-[0.25em] hover:text-white transition-colors">Cancel</button>
                                     <button
                                         disabled={isSaving || isUploading}
                                         type="submit"
                                         className="px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-lg shadow-indigo-500/20 disabled:opacity-50 transition-all active:scale-95"
                                     >
-                                        {isSaving ? 'Processing...' : (editingGameId ? 'Update Game' : 'Finalize Delivery')}
+                                        {isSaving ? 'Processing...' : (editingGameId ? 'Update Game' : 'Save Game')}
                                     </button>
                                 </div>
                             </form>
@@ -375,7 +375,7 @@ function AdminGamesContent() {
                 {isLoading ? (
                     <div className="p-24 text-center">
                         <div className="w-12 h-12 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-6" />
-                        <p className="text-slate-500 font-black text-xs uppercase tracking-[0.3em]">Connecting to Central Data Node...</p>
+                        <p className="text-slate-500 font-black text-xs uppercase tracking-[0.3em]">Loading Games...</p>
                     </div>
                 ) : (
                     <div className="overflow-x-auto">
@@ -383,10 +383,10 @@ function AdminGamesContent() {
                             <thead className="bg-white/[0.03]">
                                 <tr className="text-[10px] font-black text-slate-500 uppercase tracking-[0.25em]">
                                     <th className="px-8 py-6 w-10"></th>
-                                    <th className="px-8 py-6">Identity</th>
-                                    <th className="px-8 py-6">System Slug</th>
+                                    <th className="px-8 py-6">Game</th>
+                                    <th className="px-8 py-6">Slug</th>
                                     <th className="px-8 py-6 text-center">Packages</th>
-                                    <th className="px-8 py-6 text-center">Protocol Status</th>
+                                    <th className="px-8 py-6 text-center">Status</th>
                                     <th className="px-8 py-6 text-right">Actions</th>
                                 </tr>
                             </thead>
@@ -404,8 +404,8 @@ function AdminGamesContent() {
                                                         <div className="w-16 h-16 bg-white/5 rounded-3xl flex items-center justify-center mx-auto mb-6">
                                                             <Gamepad2 className="w-8 h-8 text-slate-700" />
                                                         </div>
-                                                        <p className="text-white font-black text-sm uppercase tracking-widest">No Active Units</p>
-                                                        <p className="text-slate-600 text-[10px] font-bold mt-2 uppercase tracking-tight">Deploy your first game to start market operations.</p>
+                                                        <p className="text-white font-black text-sm uppercase tracking-widest">No games found</p>
+                                                        <p className="text-slate-600 text-[10px] font-bold mt-2 uppercase tracking-tight">Add your first game to start.</p>
                                                     </td>
                                                 </tr>
                                             ) : (
@@ -443,7 +443,7 @@ function AdminGamesContent() {
                                                                         </div>
                                                                         <div>
                                                                             <p className="text-base font-black text-white italic tracking-tight">{game.name}</p>
-                                                                            <p className="text-[9px] text-slate-500 font-bold uppercase tracking-widest mt-0.5">Global Cluster</p>
+                                                                            <p className="text-[9px] text-slate-500 font-bold uppercase tracking-widest mt-0.5">Top-up Platform</p>
                                                                         </div>
                                                                     </div>
                                                                 </td>
@@ -482,14 +482,14 @@ function AdminGamesContent() {
                                                                         <button
                                                                             onClick={() => handleEditClick(game)}
                                                                             className="w-10 h-10 flex items-center justify-center text-indigo-400 bg-indigo-500/10 hover:bg-indigo-500/20 rounded-xl border border-indigo-500/10 transition-all"
-                                                                            title="Modify Unit"
+                                                                            title="Edit Game"
                                                                         >
                                                                             <Edit2 className="w-4 h-4" />
                                                                         </button>
                                                                         <button
                                                                             onClick={() => handleDelete(game.id)}
                                                                             className="w-10 h-10 flex items-center justify-center text-red-500 bg-red-500/10 hover:bg-red-500/20 rounded-xl border border-red-500/10 transition-all"
-                                                                            title="Decommission"
+                                                                            title="Delete Game"
                                                                         >
                                                                             <Trash2 className="w-4 h-4" />
                                                                         </button>
@@ -518,7 +518,7 @@ export default function AdminGamesPage() {
         <Suspense fallback={
             <div className="p-24 text-center">
                 <div className="w-12 h-12 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-6" />
-                <p className="text-slate-500 font-black text-xs uppercase tracking-[0.3em]">Loading Protocol...</p>
+                <p className="text-slate-500 font-black text-xs uppercase tracking-[0.3em]">Loading...</p>
             </div>
         }>
             <AdminGamesContent />

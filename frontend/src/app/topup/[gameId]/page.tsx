@@ -104,6 +104,7 @@ export default function TopupPage() {
     const [zoneId, setZoneId] = useState("");
     const [selectedPackage, setSelectedPackage] = useState<string | null>(null);
     const [selectedPayment, setSelectedPayment] = useState<string | null>("bakong");
+    const [agreedToTerms, setAgreedToTerms] = useState(false);
     const [systemStatus, setSystemStatus] = useState<{ isReady: boolean; isTestMode: boolean; message: string } | null>(null);
 
     // Custom hooks
@@ -136,7 +137,7 @@ export default function TopupPage() {
         globalStock !== -1 && globalStock < pkgAmount;
 
     const isFormFilled = !!(userId && selectedPackage && selectedPayment && (!game?.inputConfig?.zoneId || zoneId)) && isReadyForOrders;
-    const isFormValid = isFormFilled && isVerified;
+    const isFormValid = isFormFilled && isVerified && agreedToTerms;
 
     // ── Handlers ───────────────────────────────────────────────────────────────
     const handlePlayerIdChange = (value: string) => {
@@ -174,21 +175,35 @@ export default function TopupPage() {
             <div className="absolute inset-0 grid-lines opacity-20 pointer-events-none" />
 
             {/* ── Navbar ────────────────────────────────────────────────────────── */}
-            <nav className="fixed top-0 z-50 flex w-full items-center justify-between px-6 py-4 lg:px-16 glass border-b border-white/5">
-                <Link href="/" className="flex items-center gap-3 group">
-                    <div className="relative h-10 w-10 rounded-xl overflow-hidden border border-purple-500/30 shadow-lg group-hover:shadow-purple-500/50 transition-all duration-300">
-                        <Image src="/package-logo.png" alt="Dai-Game" fill className="object-cover" />
+            <nav className="fixed top-0 z-50 flex w-full items-center justify-between px-6 py-3 lg:px-16 nav-premium nav-shimmer-top">
+                {/* Logo Section */}
+                <Link href="/" className="flex items-center gap-4 group shrink-0 relative py-1">
+                    <div className="relative h-14 w-14 rounded-2xl overflow-hidden shadow-[0_0_30px_rgba(124,58,237,0.3)] group-hover:shadow-purple-500/60 border border-purple-500/20 transition-all duration-500 group-hover:scale-110 group-hover:rotate-3">
+                        <Image
+                            src="/package-logo.png"
+                            alt="Dai-Game Logo"
+                            fill
+                            className="object-cover"
+                            priority
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-tr from-purple-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                     </div>
-                    <span className="font-display text-2xl font-black tracking-tighter text-white italic drop-shadow-sm group-hover:text-purple-300 transition-colors uppercase">
-                        DAI<span className="text-purple-400">-GAME</span>
-                    </span>
+                    <div className="flex flex-col">
+                        <span className="font-display text-3xl font-black italic tracking-tighter text-white group-hover:text-purple-300 transition-colors leading-none">
+                            DAI<span className="text-purple-400"> GAME</span>
+                        </span>
+                        <span className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500 mt-1 pl-1 opacity-80 group-hover:text-purple-400/60 transition-colors">
+                            TOP-UP CENTER
+                        </span>
+                    </div>
                 </Link>
+
                 <div className="flex items-center gap-6">
                     <Link
                         href="/"
-                        className="hidden md:flex items-center gap-2 text-sm font-black text-slate-400 hover:text-white transition-all uppercase tracking-widest"
+                        className="hidden md:flex items-center gap-2 text-sm font-black text-slate-400 hover:text-white transition-all uppercase tracking-widest group"
                     >
-                        <ArrowLeft className="w-4 h-4" />
+                        <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
                         {tr(t.nav.backToGames, lang)}
                     </Link>
                     <LangSwitcher />
@@ -366,16 +381,6 @@ export default function TopupPage() {
                                                 </div>
                                             )}
 
-                                            {/* Points badge — hide when sold out */}
-                                            {!soldOut && (
-                                                <div className="absolute -top-2.5 -right-1 z-30">
-                                                    <div className="px-2 py-0.5 md:px-3 md:py-1 rounded-xl bg-[#ef4444] text-white text-[8px] md:text-[10px] font-black uppercase tracking-tighter shadow-[0_5px_15px_rgba(239,68,68,0.4)] border border-white/10 flex items-center gap-1">
-                                                        {pkg.points || 0}
-                                                        <span className={`${lang === 'km' ? 'khmer-text' : ''} text-[7px] md:text-[8px] opacity-90`}>{lang === 'km' ? 'ពិសិដ្ឋ' : 'PTS'}</span>
-                                                    </div>
-                                                </div>
-                                            )}
-
                                             <div className="relative w-10 h-10 md:w-20 md:h-20 shrink-0 overflow-hidden rounded-2xl bg-white/5 p-2 transition-transform duration-500 group-hover:scale-110">
                                                 <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-transparent opacity-50 group-hover:opacity-100" />
                                                 <Image
@@ -420,41 +425,40 @@ export default function TopupPage() {
                                 </h2>
                             </div>
 
-                            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 mt-8">
+                            <div className="flex flex-col gap-4 mt-8">
                                 {PAYMENT_METHODS.map((pm) => {
                                     const isSelected = selectedPayment === pm.id;
                                     return (
                                         <button
                                             key={pm.id}
                                             onClick={() => setSelectedPayment(pm.id)}
-                                            className={`group relative flex flex-col items-center justify-center p-6 md:p-8 rounded-[2.5rem] border-2 transition-all duration-500 outline-none
+                                            className={`group relative flex items-center p-4 rounded-2xl border-2 transition-all duration-500 outline-none overflow-hidden text-left
                                                 ${isSelected
-                                                    ? "border-cyan-400/50 bg-cyan-400/5 shadow-[0_0_40px_rgba(34,211,238,0.15)] scale-[1.02]"
-                                                    : "border-white/5 bg-slate-900/20 hover:border-white/10 hover:bg-slate-900/40 md:hover:-translate-y-1.5"
+                                                    ? "border-[#22c55e] bg-white/5 shadow-[0_0_20px_rgba(34,197,94,0.1)]"
+                                                    : "border-white/5 bg-slate-900/40 hover:border-white/20"
                                                 }`}
                                         >
-                                            {isSelected && (
-                                                <div className="absolute inset-0 rounded-[2.5rem] bg-cyan-400/5 animate-pulse-glow pointer-events-none" />
-                                            )}
-
-                                            <div className={`relative h-16 w-12 md:h-20 md:w-16 rounded-full bg-gradient-to-br ${pm.color} flex items-center justify-center text-3xl md:text-4xl shadow-2xl mb-4 transition-all duration-500 group-hover:scale-110 overflow-hidden`}>
-                                                <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                                                <div className="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b from-white/20 to-transparent" />
-                                                <span className="relative z-10 drop-shadow-lg">{pm.icon}</span>
+                                            <div className="relative h-14 w-14 md:h-16 md:w-16 rounded-xl overflow-hidden bg-white/5 p-2 shrink-0">
+                                                <Image
+                                                    src={pm.icon}
+                                                    alt={pm.name}
+                                                    fill
+                                                    className="object-contain"
+                                                />
                                             </div>
 
-                                            <div className="relative z-10 text-center">
-                                                <div className={`font-black text-[10px] md:text-xs tracking-[0.2em] mb-1 transition-colors duration-300 ${isSelected ? 'text-cyan-400' : 'text-white'}`}>
-                                                    {pm.shortName}
+                                            <div className="ml-4 flex-1">
+                                                <div className="font-display font-black text-lg md:text-xl text-white tracking-tight leading-none">
+                                                    {pm.name}
                                                 </div>
-                                                <p className="text-[7px] md:text-[9px] font-black text-slate-500 uppercase tracking-widest opacity-60 italic">
-                                                    {pm.id === 'bakong' ? (lang === 'km' ? 'ទូទាត់តាម QR កូដជាតិ' : 'INSTANT SCAN') : pm.desc?.toUpperCase()}
+                                                <p className="text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-widest mt-1">
+                                                    {pm.desc}
                                                 </p>
                                             </div>
 
-                                            <div className={`absolute top-3 left-3 z-30 transition-all duration-500 ${isSelected ? 'scale-100 opacity-100' : 'scale-0 opacity-0'}`}>
-                                                <div className="h-6 w-6 md:h-8 md:w-8 bg-emerald-500 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(16,185,129,0.5)] border-2 border-[#07060e] overflow-hidden">
-                                                    <CheckCircle className="w-3 h-3 md:w-4 md:h-4 text-white animate-scale-in" />
+                                            <div className="px-4">
+                                                <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${isSelected ? 'border-[#22c55e]' : 'border-slate-700'}`}>
+                                                    {isSelected && <div className="w-3 h-3 bg-white rounded-full shadow-[0_0_10px_white]" />}
                                                 </div>
                                             </div>
                                         </button>
@@ -502,10 +506,36 @@ export default function TopupPage() {
                                     </div>
 
                                     <div className="space-y-6 pt-6 border-t border-white/10">
-                                        <div className="flex flex-col gap-1">
-                                            <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.25em] ml-1">{tr(t.topup.totalAmount, lang)}</span>
-                                            <div className="text-4xl md:text-5xl font-black text-white italic tracking-tighter gradient-text drop-shadow-2xl">
-                                                ${selectedPkg ? Number(selectedPkg.price).toFixed(2) : "0.00"}
+                                        {/* Reference Image Layout: Terms & Condition */}
+                                        <div className="space-y-3">
+                                            <h3 className="text-sm font-black text-white tracking-widest uppercase italic">
+                                                {tr(t.topup.termsTitle, lang)}
+                                            </h3>
+                                            <label className="flex items-center gap-3 cursor-pointer group select-none">
+                                                <div className="relative w-8 h-8 shrink-0">
+                                                    <input
+                                                        type="checkbox"
+                                                        className="sr-only"
+                                                        checked={agreedToTerms}
+                                                        onChange={() => setAgreedToTerms(!agreedToTerms)}
+                                                    />
+                                                    <div className={`w-full h-full rounded-lg border-2 flex items-center justify-center transition-all duration-300
+                                                        ${agreedToTerms
+                                                            ? 'border-blue-500 bg-blue-500/20 shadow-[0_0_15px_rgba(59,130,246,0.5)]'
+                                                            : 'border-slate-700 bg-white/5 group-hover:border-slate-500'
+                                                        }`}>
+                                                        {agreedToTerms && <div className="w-4 h-4 bg-white rounded-[2px]" />}
+                                                    </div>
+                                                </div>
+                                                <span className={`text-md font-black italic tracking-tight ${lang === 'km' ? 'khmer-text' : ''}`}>
+                                                    {tr(t.topup.agreeToTerms, lang)} <span className="text-[#22c55e] underline underline-offset-4 decoration-2">{lang === 'km' ? 'លក្ខខណ្ឌ' : 'Terms'}</span>
+                                                </span>
+                                            </label>
+                                        </div>
+
+                                        <div className="flex flex-col gap-1 mt-4">
+                                            <div className="text-3xl font-black text-white italic tracking-tight uppercase">
+                                                Total: {selectedPkg ? Number(selectedPkg.price).toFixed(2) : "0.00"}$
                                             </div>
                                         </div>
 
@@ -515,19 +545,31 @@ export default function TopupPage() {
                                             </div>
                                         )}
 
-                                        <button
-                                            onClick={handleSubmit}
-                                            disabled={!isFormValid || isLoading}
-                                            className="w-full relative group h-14 rounded-3xl bg-gradient-to-r from-purple-600 to-indigo-600 p-px overflow-hidden shadow-[0_20px_40px_rgba(124,58,237,0.4)] transition-all active:scale-95 disabled:opacity-20 disabled:grayscale"
-                                        >
-                                            <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                            <div className="relative h-full flex items-center justify-center gap-3 text-white">
-                                                {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Zap className="w-5 h-5 fill-current" />}
-                                                <span className="font-black text-[11px] md:text-[13px] uppercase tracking-[0.2em] md:tracking-[0.25em]">
-                                                    {isLoading ? tr(t.topup.processing, lang) : tr(t.topup.confirmPay, lang)}
-                                                </span>
-                                            </div>
-                                        </button>
+                                        <div className="relative pt-4">
+                                            <button
+                                                onClick={handleSubmit}
+                                                disabled={!isFormValid || isLoading}
+                                                className="w-full relative group h-16 transition-all active:scale-95 disabled:opacity-50 disabled:grayscale"
+                                            >
+                                                {/* Skewed background layer */}
+                                                <div className={`absolute inset-0 -skew-x-12 rounded-lg transition-all duration-500
+                                                    ${isFormValid && !isLoading
+                                                        ? 'bg-gradient-to-r from-[#22c55e] to-[#16a34a] shadow-[0_10px_30px_rgba(34,197,94,0.3)]'
+                                                        : 'bg-slate-800'
+                                                    }`}
+                                                />
+
+                                                <div className="relative h-full flex items-center justify-center gap-3 text-white">
+                                                    {isLoading ? (
+                                                        <Loader2 className="w-6 h-6 animate-spin" />
+                                                    ) : (
+                                                        <span className="font-display font-black text-2xl italic tracking-widest text-[#050505]">
+                                                            {lang === 'km' ? tr(t.topup.buyNow, lang) : 'BUY NOW'}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </button>
+                                        </div>
 
                                         {!isFormFilled ? (
                                             <p className="text-center text-[10px] text-slate-600 font-black uppercase tracking-[0.15em] animate-pulse">
@@ -536,6 +578,10 @@ export default function TopupPage() {
                                         ) : !isVerified ? (
                                             <p className="text-center text-[10px] text-amber-500 font-black uppercase tracking-[0.15em] animate-pulse">
                                                 {lang === 'km' ? 'សូមធ្វើការផ្ទៀងផ្ទាត់គណនីរបស់អ្នកសិន' : 'PLEASE VERIFY YOUR ACCOUNT TO PROCEED'}
+                                            </p>
+                                        ) : !agreedToTerms ? (
+                                            <p className="text-center text-[10px] text-blue-500 font-black uppercase tracking-[0.15em] animate-pulse">
+                                                {lang === 'km' ? 'សូមយល់ព្រមតាមលក្ខខណ្ឌសិន' : 'PLEASE AGREE TO TERMS TO PROCEED'}
                                             </p>
                                         ) : null}
                                     </div>

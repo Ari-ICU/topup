@@ -1,12 +1,12 @@
 import crypto from "crypto";
 import axios from "axios";
 import { prisma } from "../lib/prisma.js";
+import { getSystemSettings } from "../lib/settings.js";
 
 /**
  * Fetch MooGold Product Catalog (extracting pids/providerSkus)
  */
 export const getMooGoldProductList = async (): Promise<any[]> => {
-    const { getSystemSettings } = await import("../lib/settings.js");
     const settings = await getSystemSettings();
 
     const partnerId = settings.get("MOOGOLD_PARTNER_ID");
@@ -79,7 +79,6 @@ export const moogoldPlaceOrder = async (orderData: {
     serverId?: string;
     transactionId: string;
 }): Promise<{ success: boolean; orderId: string; message: string }> => {
-    const { getSystemSettings } = await import("../lib/settings.js");
     const settings = await getSystemSettings();
 
     const partnerId = settings.get("MOOGOLD_PARTNER_ID");
@@ -154,7 +153,6 @@ export const moogoldPlaceOrder = async (orderData: {
  * Fetch Reseller Balance from MooGold
  */
 export const getMooGoldBalance = async (): Promise<number> => {
-    const { getSystemSettings } = await import("../lib/settings.js");
     const settings = await getSystemSettings();
 
     const partnerId = settings.get("MOOGOLD_PARTNER_ID");

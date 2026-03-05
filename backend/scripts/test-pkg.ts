@@ -11,7 +11,6 @@ async function testCreate() {
                 providerSku: "test_sku",
                 description: "Test description",
                 isWeeklyPass: false,
-                points: 1
             }
         });
         console.log("Success:", pkg);
