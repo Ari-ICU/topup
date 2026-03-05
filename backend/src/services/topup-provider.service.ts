@@ -61,30 +61,31 @@ export const getProviderStatus = async (): Promise<ProviderStatus> => {
         };
     }
 
-    // 2. Check Friend Supplier
-    const friendSecret = getVal("FRIEND_SUPPLIER_SECRET");
-    if (friendSecret) {
+    // 2. Check Friend Supplier API
+    const supplierUrl = getVal("FRIEND_SUPPLIER_API_URL");
+    const supplierKey = getVal("FRIEND_SUPPLIER_API_KEY");
+    if (supplierUrl && supplierKey) {
         return {
             activeProvider: "FriendSupplier",
             isTestMode: false,
-            isReady: true,
+            isReady: true, // Mark as ready because we have manual mode
             missingFields: [],
             warning: null,
         };
     }
 
-    // Nothing configured
+    // 3. Fallback to Local Wallet (FriendSupplier Manual)
     return {
-        activeProvider: "None",
+        activeProvider: "FriendSupplier",
         isTestMode: false,
-        isReady: false,
-        missingFields: ["MOOGOLD_PARTNER_ID", "FRIEND_SUPPLIER_SECRET"],
-        warning: "🚫 No top-up provider is configured. Please set MooGold or Friend Supplier in settings.",
+        isReady: true,
+        missingFields: [],
+        warning: "ℹ️ Operating in Manual Mode (Local Wallet).",
     };
 };
 
 /**
- * Fetches the money available in the active provider's wallet (MooGold / Supplier)
+ * Fetches the money available in the active provider's wallet (MooGold / Supplier / Local)
  */
 export const getProviderWalletBalance = async (): Promise<number> => {
     const settings = await getSystemSettings();
@@ -99,7 +100,7 @@ export const getProviderWalletBalance = async (): Promise<number> => {
         }
     }
 
-    // Friend Supplier Wallet
+    // Friend Supplier Wallet (API)
     if (getVal("FRIEND_SUPPLIER_API_URL") && getVal("FRIEND_SUPPLIER_API_KEY")) {
         try {
             const balance = await getSupplierBalance();
@@ -109,7 +110,9 @@ export const getProviderWalletBalance = async (): Promise<number> => {
         }
     }
 
-    return 0;
+    // Local Wallet fallback
+    const stock = await prisma.globalStock.findUnique({ where: { id: "GLOBAL" } });
+    return Number(stock?.providerBalance) || 0;
 };
 
 /**

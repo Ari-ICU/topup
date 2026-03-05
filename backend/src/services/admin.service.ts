@@ -45,7 +45,8 @@ export const adminService = {
         const providerWalletBalance = await getProviderWalletBalance();
 
         // Local Diamond Stock
-        const diamondStock = await getLocalDiamondStock();
+        const diamondStockRec = await prisma.globalStock.findUnique({ where: { id: "GLOBAL" } });
+        const diamondStock = diamondStockRec?.diamonds ?? 0;
 
         // --- Analytics Chart Data ---
         let chartData: { month: string, topup: number, card: number }[] = [];
@@ -126,6 +127,7 @@ export const adminService = {
             revenue: siteRevenue,
             providerWalletBalance,
             globalStockDiamonds: diamondStock,
+            totalTransferredRevenue: Number(diamondStockRec?.totalTransferredRevenue) || 0,
             completedOrders,
             pendingOrders,
             activeGames: activeGamesCount,
@@ -393,6 +395,39 @@ export const adminService = {
             create: { id: "GLOBAL", diamonds: balance }
         });
         return updated.diamonds;
+    },
+
+    // --- Wallet ---
+    transferRevenueToWallet: async (amount: number) => {
+        // 1. Get current revenue
+        const result = await prisma.transaction.aggregate({
+            where: { status: 'COMPLETED' },
+            _sum: { totalAmount: true }
+        });
+        const totalRevenue = Number(result._sum.totalAmount) || 0;
+
+        // 2. Get current stock record
+        const stockRec = await prisma.globalStock.upsert({
+            where: { id: "GLOBAL" },
+            update: {},
+            create: { id: "GLOBAL" }
+        });
+
+        const transferredSoFar = Number(stockRec.totalTransferredRevenue) || 0;
+        const available = totalRevenue - transferredSoFar;
+
+        if (amount > available) {
+            throw new Error(`Insufficient available revenue. Max transferrable: $${available.toFixed(2)}`);
+        }
+
+        // 3. Move money
+        return prisma.globalStock.update({
+            where: { id: "GLOBAL" },
+            data: {
+                providerBalance: { increment: amount },
+                totalTransferredRevenue: { increment: amount }
+            }
+        });
     },
 
     // --- API Keys ---

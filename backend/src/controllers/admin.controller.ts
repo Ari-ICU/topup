@@ -261,3 +261,15 @@ export const generateApiKeys = async (req: Request, res: Response) => {
         res.status(500).json({ success: false, message: error.message });
     }
 };
+export const transferToWallet = async (req: Request, res: Response) => {
+    try {
+        const { amount } = req.body;
+        if (!amount || amount <= 0) {
+            return res.status(400).json({ success: false, message: "Invalid amount" });
+        }
+        const data = await adminService.transferRevenueToWallet(amount);
+        res.json({ success: true, data, message: "Funds transferred to provider wallet" });
+    } catch (error: any) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};

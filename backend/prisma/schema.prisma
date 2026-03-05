@@ -43,9 +43,11 @@ model Package {
 }
 
 model GlobalStock {
-  id        String   @id @default("GLOBAL")
-  diamonds  Int      @default(0)
-  updatedAt DateTime @updatedAt
+  id                      String   @id @default("GLOBAL")
+  diamonds                Int      @default(0)
+  providerBalance         Decimal  @default(0) @db.Decimal(10, 2)
+  totalTransferredRevenue Decimal  @default(0) @db.Decimal(10, 2)
+  updatedAt               DateTime @updatedAt
 }
 
 model Transaction {
