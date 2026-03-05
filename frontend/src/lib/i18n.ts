@@ -7,9 +7,6 @@ export type Lang = "en" | "km";
 export const t = {
     // ── Navigation ──────────────────────────────────────────────────────────
     nav: {
-        games: { en: "Games", km: "ហ្គេម" },
-        whyUs: { en: "Why Us", km: "ហេតុអ្វីយើង" },
-        signIn: { en: "Sign In", km: "ចូលគណនី" },
         topUpNow: { en: "Top Up Now", km: "បញ្ចូលឥឡូវ" },
         backToGames: { en: "Back to Games", km: "ត្រលប់" },
     },
