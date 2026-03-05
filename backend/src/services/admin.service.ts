@@ -6,6 +6,8 @@ import {
     getLocalDiamondStock
 } from "./topup-provider.service.js";
 import { deductGlobalStock } from "./transaction.service.js";
+import { invalidateGameCache } from "./game.service.js";
+import { invalidateSettingsCache } from "../lib/settings.js";
 
 interface GameData {
     slug: string;
@@ -149,22 +151,21 @@ export const adminService = {
     },
 
     createGame: async (data: GameData) => {
-        return prisma.game.create({
-            data
-        });
+        const game = await prisma.game.create({ data });
+        await invalidateGameCache();
+        return game;
     },
 
     updateGame: async (id: string, data: Partial<GameData>) => {
-        return prisma.game.update({
-            where: { id },
-            data
-        });
+        const game = await prisma.game.update({ where: { id }, data });
+        await invalidateGameCache();
+        return game;
     },
 
     deleteGame: async (id: string) => {
-        return prisma.game.delete({
-            where: { id }
-        });
+        const game = await prisma.game.delete({ where: { id } });
+        await invalidateGameCache();
+        return game;
     },
 
     reorderGames: async (gameIds: string[]) => {
@@ -174,7 +175,9 @@ export const adminService = {
                 data: { sortOrder: index }
             })
         );
-        return prisma.$transaction(updates);
+        const result = await prisma.$transaction(updates);
+        await invalidateGameCache();
+        return result;
     },
 
     // --- Packages ---
@@ -204,12 +207,14 @@ export const adminService = {
         sortOrder: number;
     }) => {
         const { providerCode, ...packageData } = data;
-        return prisma.package.create({
+        const pkg = await prisma.package.create({
             data: packageData,
             include: {
                 game: { select: { name: true, slug: true, iconUrl: true } }
             }
         });
+        await invalidateGameCache();
+        return pkg;
     },
 
     updatePackage: async (id: string, data: {
@@ -225,13 +230,15 @@ export const adminService = {
         sortOrder?: number;
     }) => {
         const { providerCode, ...packageData } = data;
-        return prisma.package.update({
+        const pkg = await prisma.package.update({
             where: { id },
             data: packageData,
             include: {
                 game: { select: { name: true, slug: true, iconUrl: true } }
             }
         });
+        await invalidateGameCache();
+        return pkg;
     },
 
     reorderPackages: async (packageIds: string[]) => {
@@ -241,7 +248,9 @@ export const adminService = {
                 data: { sortOrder: index }
             })
         );
-        return prisma.$transaction(updates);
+        const result = await prisma.$transaction(updates);
+        await invalidateGameCache();
+        return result;
     },
 
     deletePackage: async (id: string) => {
@@ -260,7 +269,9 @@ export const adminService = {
             );
         }
 
-        return prisma.package.delete({ where: { id } });
+        const deleted = await prisma.package.delete({ where: { id } });
+        await invalidateGameCache();
+        return deleted;
     },
 
     // --- Transactions ---
@@ -339,7 +350,7 @@ export const adminService = {
     },
 
     updateSettings: async (settings: { key: string; value: string }[]) => {
-        return prisma.$transaction(
+        const result = await prisma.$transaction(
             settings.map((setting) =>
                 prisma.systemSetting.upsert({
                     where: { key: setting.key },
@@ -348,6 +359,9 @@ export const adminService = {
                 })
             )
         );
+        // Invalidate Redis cache so bakong/moogold settings are fresh immediately
+        await invalidateSettingsCache();
+        return result;
     },
 
     // --- Global Stock ---

@@ -11,6 +11,15 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  redis:
+    image: redis:7-alpine
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes # enable persistence
+
   backend:
     build:
       context: ./backend
@@ -25,11 +34,15 @@ services:
       - BAKONG_MERCHANT_NAME=TopUpPay Sandbox
       - BAKONG_MERCHANT_CITY=Phnom Penh
       - BAKONG_ACQUIRING_BANK=ABA Bank
+      - REDIS_URL=redis://redis:6379
     depends_on:
       - db
+      - redis
     volumes:
       - ./backend:/app
-      - /app/node_modules
+      # Named volume so the container's node_modules (with ioredis etc.)
+      # take priority over the host bind-mount, preventing missing-package errors.
+      - backend_node_modules:/app/node_modules
 
   frontend:
     build:
@@ -46,7 +59,10 @@ services:
       - backend
     volumes:
       - ./frontend:/app
-      - /app/node_modules
+      - frontend_node_modules:/app/node_modules
 
 volumes:
   postgres_data:
+  redis_data:
+  backend_node_modules:
+  frontend_node_modules:

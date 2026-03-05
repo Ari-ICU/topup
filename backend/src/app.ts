@@ -5,6 +5,7 @@ import morgan from "morgan";
 import helmet from "helmet";
 import router from "./routes/index.js";
 import { globalLimiter, speedLimiter } from "./middleware/rateLimit.middleware.js";
+import { isRedisAvailable } from "./lib/redis.js";
 import {
     ipBlocklist,
     blockSuspiciousAgents,
@@ -120,6 +121,7 @@ app.get("/health", (_req, res) => {
         env: process.env.NODE_ENV,
         timestamp: new Date().toISOString(),
         uptime: Math.floor(process.uptime()),
+        redis: isRedisAvailable() ? "connected" : "unavailable",
     });
 });
 

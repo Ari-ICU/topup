@@ -261,11 +261,51 @@ export default function TopupPage() {
                             <h1 className="text-5xl sm:text-7xl md:text-9xl font-black text-white italic tracking-tighter drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)] leading-tight select-none">
                                 {game.name.toUpperCase()}
                             </h1>
-                            <div className={`flex flex-wrap justify-center md:justify-start items-center gap-5 md:gap-8 text-slate-500 font-bold text-[10px] md:text-[11px] uppercase tracking-[0.25em] ${lang === 'km' ? 'khmer-text' : ''}`}>
-                                <span className="flex items-center gap-2.5 text-slate-300">✓ {tr(t.hero.official, lang).toUpperCase()}</span>
-                                <span className="flex items-center gap-2.5">✓ {tr(t.hero.secured, lang).toUpperCase()}</span>
-                                <span className="flex items-center gap-2.5 text-purple-400 font-black animate-pulse">✓ {tr(t.hero.instant, lang).toUpperCase()}</span>
+
+                            {/* ── Arrow Trust Badges (like screenshot) ── */}
+                            <div className="flex flex-wrap justify-center md:justify-start items-center gap-2 mt-2">
+                                {/* Instant Delivery badge */}
+                                <div className="relative flex items-center">
+                                    <div className="flex items-center gap-2 bg-[#22c55e] px-5 py-2 pr-7 -skew-x-12 shadow-[0_4px_20px_rgba(34,197,94,0.4)]">
+                                        <Zap className="w-4 h-4 text-black skew-x-12 fill-black shrink-0" />
+                                        <span className="font-black text-[11px] text-black uppercase tracking-widest skew-x-12 whitespace-nowrap">
+                                            {lang === 'km' ? 'ចែកជូនភ្លាមៗ' : 'INSTANT DELIVERY'}
+                                        </span>
+                                    </div>
+                                    {/* Arrow tip */}
+                                    <div className="w-0 h-0 border-t-[19px] border-b-[19px] border-l-[14px] border-t-transparent border-b-transparent border-l-[#22c55e] -ml-0.5" />
+                                </div>
+                                {/* Official Distributor badge */}
+                                <div className="relative flex items-center">
+                                    <div className="flex items-center gap-2 bg-[#22c55e] px-5 py-2 pr-7 -skew-x-12 shadow-[0_4px_20px_rgba(34,197,94,0.4)]">
+                                        <Shield className="w-4 h-4 text-black skew-x-12 shrink-0" />
+                                        <span className="font-black text-[11px] text-black uppercase tracking-widest skew-x-12 whitespace-nowrap">
+                                            {lang === 'km' ? 'អ្នកចែកចាយផ្លូវការ' : 'OFFICIAL DISTRIBUTOR'}
+                                        </span>
+                                    </div>
+                                    <div className="w-0 h-0 border-t-[19px] border-b-[19px] border-l-[14px] border-t-transparent border-b-transparent border-l-[#22c55e] -ml-0.5" />
+                                </div>
                             </div>
+
+                            {/* ── Game Description ── */}
+                            <p className={`max-w-xl text-sm md:text-base text-slate-300 leading-relaxed font-medium ${lang === 'km' ? 'khmer-text' : ''}`}>
+                                {lang === 'km' ? (
+                                    <>
+                                        វិញ្ញាបនប័ត្រ <strong className="text-white font-black">{game.name}</strong> ត្រូវតែទទួលបានភ្លាមៗ!
+                                        {' '}គ្រាន់តែបញ្ចូល <strong className="text-[#22c55e]">ID</strong> របស់អ្នក, ជ្រើសរើសកញ្ចប់ ហើយបង់ — ចែកទៅប្រាក់ភ្លាមៗ ដោយបម្រើតាមរបៀបដោយផ្ទាល់។
+                                        {' '}ព្រែននឹងបញ្ជូនទៅកាន់គណនានៃហ្គេម <strong className="text-white">{game.name}</strong> របស់អ្នករយៈពេល <strong className="text-[#22c55e]">10</strong>នាទី ដល់ <strong className="text-[#22c55e]">3</strong>ម៉ោង។
+                                    </>
+                                ) : (
+                                    <>
+                                        Top up <strong className="text-white font-black">{game.name}</strong> credits instantly and securely!
+                                        {' '}Enter your <strong className="text-[#22c55e]">Player ID</strong>, pick a package, and pay — credits land in your account in under <strong className="text-[#22c55e]">5 seconds</strong>.
+                                        {' '}We are an <strong className="text-white">official distributor</strong>, so every top-up is guaranteed.
+                                    </>
+                                )}
+                            </p>
+
+                            {/* Divider */}
+                            <div className="w-full h-px bg-gradient-to-r from-[#22c55e]/40 via-white/10 to-transparent mt-2" />
                         </div>
                     </div>
                 </div>

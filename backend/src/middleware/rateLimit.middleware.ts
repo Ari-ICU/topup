@@ -1,11 +1,15 @@
 import rateLimit from "express-rate-limit";
 import slowDown from "express-slow-down";
+import { RedisStore } from "rate-limit-redis";
+import { redis, isRedisAvailable } from "../lib/redis.js";
 
 // ============================================================================
 //  Rate Limiting Middleware
 //
 //  Strategy: Apply STRICTER limits to sensitive endpoints,
 //  and LOOSER limits to public read-only endpoints.
+//
+//  Storage: Redis store when available, in-memory fallback otherwise.
 //
 //  Tiers:
 //    1. globalLimiter       — All routes        (200 req / 15 min per IP)
@@ -17,21 +21,23 @@ import slowDown from "express-slow-down";
 
 const isProd = process.env.NODE_ENV === "production";
 
-// ─── Helper: standard rate limit error handler ───────────────────────────────
-const rateLimitHandler = (endpoint: string) =>
-    rateLimit({
-        standardHeaders: "draft-7",  // Return rate limit info in `RateLimit-*` headers
-        legacyHeaders: false,
-        skipSuccessfulRequests: false,
-        handler: (_req, res) => {
-            console.warn(`[RateLimit] 🚫 ${endpoint} — Too many requests from IP`);
-            res.status(429).json({
-                success: false,
-                message: "Too many requests. Please slow down and try again later.",
-                retryAfter: "Please wait before sending more requests.",
-            });
+// ─── Redis Store Factory ─────────────────────────────────────────────────────
+// `rate-limit-redis` uses the `sendCommand` interface so it works with ioredis.
+function makeRedisStore(prefix: string) {
+    return new RedisStore({
+        prefix: `rl:${prefix}:`,
+        // ioredis-compatible sendCommand wrapper
+        sendCommand: async (...args: string[]) => {
+            return (redis as any).call(...args);
         },
     });
+}
+
+// Returns a Redis store only when Redis is connected; otherwise returns
+// undefined so express-rate-limit falls back to its built-in memory store.
+function store(prefix: string) {
+    return isRedisAvailable() ? makeRedisStore(prefix) : undefined;
+}
 
 // ─── 1. Global limiter — applies to ALL routes ───────────────────────────────
 //   200 requests per 15 minutes per IP
@@ -40,6 +46,7 @@ export const globalLimiter = rateLimit({
     max: isProd ? 200 : 1000,   // More lenient in dev
     standardHeaders: "draft-7",
     legacyHeaders: false,
+    store: store("global"),
     message: {
         success: false,
         message: "Too many requests from this IP. Please wait 15 minutes.",
@@ -53,6 +60,7 @@ export const transactionLimiter = rateLimit({
     max: isProd ? 10 : 100,
     standardHeaders: "draft-7",
     legacyHeaders: false,
+    store: store("txn"),
     handler: (_req, res) => {
         console.warn(`[RateLimit] 🚫 Transaction creation — Too many requests`);
         res.status(429).json({
@@ -69,6 +77,7 @@ export const adminLimiter = rateLimit({
     max: isProd ? 60 : 500,
     standardHeaders: "draft-7",
     legacyHeaders: false,
+    store: store("admin"),
     handler: (_req, res) => {
         console.warn(`[RateLimit] 🚫 Admin routes — Too many requests`);
         res.status(429).json({
@@ -85,6 +94,7 @@ export const supplierLimiter = rateLimit({
     max: isProd ? 30 : 200,
     standardHeaders: "draft-7",
     legacyHeaders: false,
+    store: store("supplier"),
     handler: (_req, res) => {
         console.warn(`[RateLimit] 🚫 Supplier webhook — Too many callbacks`);
         res.status(429).json({
@@ -101,6 +111,7 @@ export const heavyActionLimiter = rateLimit({
     max: isProd ? 5 : 50,
     standardHeaders: "draft-7",
     legacyHeaders: false,
+    store: store("heavy"),
     handler: (_req, res) => {
         console.warn(`[RateLimit] 🚫 Heavy action (confirm/fulfill) — Too many requests`);
         res.status(429).json({

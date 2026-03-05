@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
+import { rGet, rSet } from "../lib/redis.js";
 
 const isProd = process.env.NODE_ENV === "production";
 const JWT_SECRET = process.env.JWT_SECRET || "fallback-secret-for-dev-only-123";
@@ -9,30 +10,63 @@ if (isProd && !process.env.JWT_SECRET) {
 }
 
 /**
+ * Blocklist key format: auth:blocklist:<jti>
+ * Set with TTL = remaining seconds until token expires.
+ */
+export async function blockToken(token: string): Promise<void> {
+    try {
+        const decoded = jwt.decode(token) as { jti?: string; exp?: number } | null;
+        if (!decoded) return;
+
+        const jti = decoded.jti || token.slice(-16); // fallback identifier
+        const exp = decoded.exp ?? 0;
+        const ttl = Math.max(exp - Math.floor(Date.now() / 1000), 1);
+
+        await rSet(`auth:blocklist:${jti}`, "1", ttl);
+        console.log(`[Auth] 🔒 Token ${jti} added to blocklist (ttl: ${ttl}s)`);
+    } catch {
+        // silently ignore block failures
+    }
+}
+
+/**
  * Middleware to verify JWT token for Admin routes.
  * Expects "Authorization: Bearer <token>"
+ *
+ * Additionally checks Redis blocklist so logged-out tokens are rejected
+ * immediately rather than waiting for their natural expiry.
  */
-export const adminAuth = (req: Request, res: Response, next: NextFunction) => {
+export const adminAuth = async (req: Request, res: Response, next: NextFunction) => {
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
         return res.status(401).json({
             success: false,
-            message: "Authentication required. Please login as admin."
+            message: "Authentication required. Please login as admin.",
         });
     }
 
     const token = authHeader.split(" ")[1];
 
     try {
-        const decoded = jwt.verify(token, JWT_SECRET);
-        // We can attach the admin info to the request if needed
+        const decoded = jwt.verify(token, JWT_SECRET) as { jti?: string; exp?: number };
+
+        // Check Redis blocklist
+        const jti = (decoded as any).jti || token.slice(-16);
+        const blocked = await rGet(`auth:blocklist:${jti}`);
+        if (blocked) {
+            return res.status(401).json({
+                success: false,
+                message: "Session has been revoked. Please login again.",
+            });
+        }
+
         (req as any).admin = decoded;
         next();
     } catch (error) {
         return res.status(401).json({
             success: false,
-            message: "Invalid or expired session. Please login again."
+            message: "Invalid or expired session. Please login again.",
         });
     }
 };
