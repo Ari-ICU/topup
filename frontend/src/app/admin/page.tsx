@@ -51,7 +51,7 @@ export default function AdminDashboardPage() {
     const fetchData = async () => {
         try {
             const overviewData = await apiRequest<typeof stats>('/admin/overview');
-            setStats(overviewData);
+            setStats(prev => ({ ...prev, ...overviewData }));
         } catch (error) {
             console.error('Failed to fetch dashboard data', error);
         } finally {

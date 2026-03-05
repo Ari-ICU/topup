@@ -33,6 +33,9 @@ export const adminService = {
             transactions: totalTransactions,
             activeGames: activeGamesCount,
             globalStockDiamonds,
+            cardOrders: 0, // Placeholder for now
+            chartData: [], // Placeholder for now
+            recentTransactions: [] // Placeholder for now
         };
     },
 

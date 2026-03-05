@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import {
     ArrowLeft, Zap, Shield, Lock, HeadphonesIcon,
-    CheckCircle, CreditCard, User, Hash, Loader2, AlertCircle
+    CheckCircle, CreditCard, User, Hash, Loader2, AlertCircle, Check
 } from "lucide-react";
 
 import { apiRequest } from "@/lib/api";
@@ -524,7 +524,7 @@ export default function TopupPage() {
                                                             ? 'border-blue-500 bg-blue-500/20 shadow-[0_0_15px_rgba(59,130,246,0.5)]'
                                                             : 'border-slate-700 bg-white/5 group-hover:border-slate-500'
                                                         }`}>
-                                                        {agreedToTerms && <div className="w-4 h-4 bg-white rounded-[2px]" />}
+                                                        {agreedToTerms && <Check className="w-5 h-5 text-white" strokeWidth={4} />}
                                                     </div>
                                                 </div>
                                                 <span className={`text-md font-black italic tracking-tight ${lang === 'km' ? 'khmer-text' : ''}`}>
