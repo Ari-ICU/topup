@@ -21,6 +21,7 @@ import {
     getProviderStatusEndpoint,
     getApiKeys,
     generateApiKeys,
+    transferRevenue,
 } from "../controllers/admin.controller.js";
 import { adminLimiter } from "../middleware/rateLimit.middleware.js";
 import { adminAuth } from "../middleware/auth.middleware.js";
@@ -72,5 +73,8 @@ router.get("/provider-status", getProviderStatusEndpoint);
 
 // Sync local stock with provider (populates globalStock table)
 router.post("/global-stock/sync", syncProviderStock);
+
+// Wallet Transfer
+router.post("/wallet/transfer", transferRevenue);
 
 export default router;

@@ -230,6 +230,19 @@ export const syncProviderStock = async (_req: Request, res: Response) => {
     }
 };
 
+export const transferRevenue = async (req: Request, res: Response) => {
+    try {
+        const { amount } = req.body;
+        if (!amount || amount <= 0) {
+            return res.status(400).json({ success: false, message: "Invalid amount" });
+        }
+        const data = await adminService.transferRevenue(amount);
+        res.json({ success: true, data, message: "Revenue transferred successfully" });
+    } catch (error: any) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
 /**
  * GET /api/admin/provider-status
  * Returns the current diamond provider configuration status.

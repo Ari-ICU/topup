@@ -400,6 +400,20 @@ export const adminService = {
         return updated.diamonds;
     },
 
+    // --- Transfer Revenue ---
+    transferRevenue: async (amount: number) => {
+        const globalStockRow = await prisma.globalStock.findUnique({ where: { id: "GLOBAL" } });
+        const currentTotal = Number(globalStockRow?.totalTransferredRevenue) || 0;
+
+        const updated = await prisma.globalStock.upsert({
+            where: { id: "GLOBAL" },
+            update: { totalTransferredRevenue: currentTotal + amount },
+            create: { id: "GLOBAL", diamonds: -1, totalTransferredRevenue: amount }
+        });
+
+        return updated;
+    },
+
     // --- API Keys ---
     getApiKeys: async () => {
         const settings = await prisma.systemSetting.findMany({
