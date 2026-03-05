@@ -84,33 +84,50 @@ export const getProviderStatus = async (): Promise<ProviderStatus> => {
 };
 
 /**
- * Fetches the live balance from whichever source is active.
+ * Fetches the money available in the active provider's wallet (MooGold / Supplier)
  */
-export const getActiveProviderBalance = async (): Promise<number> => {
+export const getProviderWalletBalance = async (): Promise<number> => {
     const settings = await getSystemSettings();
     const getVal = (key: string) => settings.get(key);
 
-    // MooGold Balance
+    // MooGold Wallet
     if (getVal("MOOGOLD_PARTNER_ID") && getVal("MOOGOLD_SECRET_KEY")) {
         try {
             return await getMooGoldBalance();
         } catch {
-            // fall through
+            return 0;
         }
     }
 
-    // Friend Supplier with API URL — fetch live balance
+    // Friend Supplier Wallet
     if (getVal("FRIEND_SUPPLIER_API_URL") && getVal("FRIEND_SUPPLIER_API_KEY")) {
         try {
-            return await getSupplierBalance();
+            const balance = await getSupplierBalance();
+            return balance === -1 ? 0 : balance;
         } catch {
-            // fall through to local DB
+            return 0;
         }
     }
 
-    // Fallback: manual stock from local GlobalStock table
+    return 0;
+};
+
+/**
+ * Fetches the manual diamond stock from local DB
+ */
+export const getLocalDiamondStock = async (): Promise<number> => {
     const localStock = await prisma.globalStock.findUnique({ where: { id: "GLOBAL" } });
     return localStock?.diamonds ?? 0;
+};
+
+/**
+ * Fetches the live balance from whichever source is active (Legacy support)
+ */
+export const getActiveProviderBalance = async (): Promise<number> => {
+    const wallet = await getProviderWalletBalance();
+    if (wallet > 0) return wallet;
+
+    return await getLocalDiamondStock();
 };
 
 // ============================================================================

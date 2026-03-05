@@ -1,5 +1,10 @@
 import { prisma } from "../lib/prisma.js";
-import { processTopUp, getActiveProviderBalance } from "./topup-provider.service.js";
+import {
+    processTopUp,
+    getActiveProviderBalance,
+    getProviderWalletBalance,
+    getLocalDiamondStock
+} from "./topup-provider.service.js";
 import { deductGlobalStock } from "./transaction.service.js";
 
 interface GameData {
@@ -14,28 +19,42 @@ interface GameData {
 export const adminService = {
     // --- Analytics ---
     getOverview: async () => {
-        const totalTransactions = await prisma.transaction.count();
         const activeGamesCount = await prisma.game.count({ where: { isActive: true } });
 
-        // Sum of completed transactions
+        const completedOrders = await prisma.transaction.count({
+            where: { status: 'COMPLETED' }
+        });
+
+        const pendingOrders = await prisma.transaction.count({
+            where: {
+                status: { in: ['PENDING', 'PROCESSING'] }
+            }
+        });
+
+        // Sum of completed transactions (Revenue from site)
         const result = await prisma.transaction.aggregate({
             where: { status: 'COMPLETED' },
             _sum: { totalAmount: true }
         });
 
-        // 🟢 Retrieve REAL balance from ANY active provider (MooGold, Digi, Friend, or Local)
-        const globalStockDiamonds = await getActiveProviderBalance();
+        const siteRevenue = Number(result._sum.totalAmount) || 0;
 
-        const totalRevenue = Number(result._sum.totalAmount) || 0;
+        // Provider Wallet Balance (Own balance to buy diamonds)
+        const providerWalletBalance = await getProviderWalletBalance();
+
+        // Local Diamond Stock
+        const diamondStock = await getLocalDiamondStock();
 
         return {
-            revenue: totalRevenue,
-            transactions: totalTransactions,
+            revenue: siteRevenue,
+            providerWalletBalance,
+            globalStockDiamonds: diamondStock,
+            completedOrders,
+            pendingOrders,
             activeGames: activeGamesCount,
-            globalStockDiamonds,
-            cardOrders: 0, // Placeholder for now
-            chartData: [], // Placeholder for now
-            recentTransactions: [] // Placeholder for now
+            cardOrders: 0, // Placeholder
+            chartData: [],
+            recentTransactions: []
         };
     },
 
