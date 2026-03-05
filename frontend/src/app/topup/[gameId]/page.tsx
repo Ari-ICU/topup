@@ -531,7 +531,7 @@ export default function TopupPage() {
                                             <div className="flex flex-col items-center justify-center flex-1 min-w-0 text-center px-1">
                                                 <div className=" font-black text-white italic tracking-tighter leading-none mb-0.5">
                                                     <span className="text-[10px] md:text-xs mr-0.5 font-sans opacity-60">$</span>
-                                                    {Number(pkg.price).toFixed(2)}
+                                                    <span className="text-[14px] md:text-xl">{Number(pkg.price).toFixed(2)}</span>
                                                 </div>
                                                 <div className={`text-[8px] md:text-xs font-black text-slate-400 leading-none uppercase italic tracking-tighter mt-1 w-full flex items-center justify-center gap-0.5 ${lang === 'km' ? 'khmer-text' : ''}`}>
                                                     <span className="max-w-full">{formattedPkgName}</span>

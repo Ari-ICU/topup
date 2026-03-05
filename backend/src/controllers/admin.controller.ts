@@ -273,3 +273,12 @@ export const transferToWallet = async (req: Request, res: Response) => {
         res.status(500).json({ success: false, message: error.message });
     }
 };
+
+export const getMooGoldProducts = async (req: Request, res: Response) => {
+    try {
+        const data = await adminService.getMooGoldProducts();
+        res.json({ success: true, data });
+    } catch (error: any) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};

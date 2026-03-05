@@ -22,6 +22,7 @@ import {
     getApiKeys,
     generateApiKeys,
     transferToWallet,
+    getMooGoldProducts,
 } from "../controllers/admin.controller.js";
 import { adminLimiter } from "../middleware/rateLimit.middleware.js";
 import { adminAuth } from "../middleware/auth.middleware.js";
@@ -57,6 +58,9 @@ router.delete("/packages/:id", deletePackage);
 // Transactions Management
 router.get("/transactions", getTransactions);
 router.put("/transactions/:id/status", updateTransactionStatus);
+
+// MooGold Products Sync
+router.get("/moogold/products", getMooGoldProducts);
 
 // Settings
 router.get("/settings", getSettings);

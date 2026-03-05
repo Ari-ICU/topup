@@ -9,6 +9,8 @@ import { deductGlobalStock } from "./transaction.service.js";
 import { invalidateGameCache } from "./game.service.js";
 import { invalidateSettingsCache } from "../lib/settings.js";
 
+import { getMooGoldProductList } from "./moogold.service.js";
+
 interface GameData {
     slug: string;
     name: string;
@@ -471,6 +473,10 @@ export const adminService = {
         ]);
 
         return { publicKey, secretKey };
+    },
+
+    getMooGoldProducts: async () => {
+        return getMooGoldProductList();
     }
 };
 

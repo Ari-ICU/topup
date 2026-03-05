@@ -29,7 +29,7 @@ function formatPackageName(name: string) {
 
 function AdminPackagesContent() {
     const [packages, setPackages] = useState<PackageItem[]>([]);
-    const [games, setGames] = useState<{ id: string; name: string }[]>([]);
+    const [games, setGames] = useState<{ id: string; name: string; slug: string }[]>([]);
     const [showForm, setShowForm] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
@@ -63,6 +63,26 @@ function AdminPackagesContent() {
     const showToast = (message: string, type: 'success' | 'error' | 'warning' = 'error') => {
         setToast({ message, type });
         setTimeout(() => setToast(null), 5000);
+    };
+
+    // Custom Confirmation Modal State
+    const [confirmModal, setConfirmModal] = useState<{
+        isOpen: boolean;
+        title: string;
+        message: string;
+        onConfirm: () => void;
+        type: 'danger' | 'info';
+        confirmLabel?: string;
+    }>({
+        isOpen: false,
+        title: '',
+        message: '',
+        onConfirm: () => { },
+        type: 'info'
+    });
+
+    const openConfirm = (title: string, message: string, onConfirm: () => void, type: 'danger' | 'info' = 'info', confirmLabel: string = 'Confirm') => {
+        setConfirmModal({ isOpen: true, title, message, onConfirm, type, confirmLabel });
     };
 
     useEffect(() => {
@@ -113,12 +133,28 @@ function AdminPackagesContent() {
 
     const fetchGames = useCallback(async () => {
         try {
-            const data = await apiRequest<{ id: string; name: string }[]>('/admin/games');
+            const data = await apiRequest<{ id: string; name: string; slug: string }[]>('/admin/games');
             setGames(data ?? []);
         } catch (err) {
             console.error('Failed to fetch games', err);
         }
     }, []);
+
+    // ── Auto-generate Provider SKU ──────────────────────────────────────────
+    useEffect(() => {
+        // If we are currently fetching from MooGold or selecting from the dropdown, don't override
+        if (isFetchingMooGold || showMooGoldDropdown) return;
+
+        // Auto-generate if it's a new package or if we want to enforce auto-generation
+        // Format: slug_amount (e.g., free-fire_100)
+        const selectedGame = games.find(g => g.id === formData.gameId);
+        if (selectedGame && formData.amount) {
+            const generatedSku = `${selectedGame.slug}_${formData.amount}`.toLowerCase().replace(/[^a-z0-9_]/g, '');
+            if (formData.providerSku !== generatedSku && !editingPackageId && !isDuplicating) {
+                setFormData(prev => ({ ...prev, providerSku: generatedSku }));
+            }
+        }
+    }, [formData.gameId, formData.amount, games, isFetchingMooGold, showMooGoldDropdown, editingPackageId, isDuplicating]);
 
     useEffect(() => {
         fetchPackages();
@@ -228,6 +264,41 @@ function AdminPackagesContent() {
         setShowForm(true);
     };
 
+    const handleSortByPrice = async () => {
+        const targetDesc = filterGameId === 'all' ? 'all visible packages' : `all packages for ${games.find(g => g.id === filterGameId)?.name}`;
+
+        openConfirm(
+            'Confirm Reordering',
+            `Permanently reorder ${targetDesc} by price (Lowest to Highest)?`,
+            async () => {
+                setIsLoading(true);
+                try {
+                    const sorted = [...filteredPackages].sort((a, b) => {
+                        const priceA = typeof a.price === 'string' ? parseFloat(a.price) : a.price;
+                        const priceB = typeof b.price === 'string' ? parseFloat(b.price) : b.price;
+                        if (priceA !== priceB) return priceA - priceB;
+                        return a.name.localeCompare(b.name);
+                    });
+
+                    await apiRequest('/admin/packages/reorder', {
+                        method: 'POST',
+                        body: JSON.stringify({ ids: sorted.map(i => i.id) })
+                    });
+
+                    showToast('Packages reordered by price successfully!', 'success');
+                    await fetchPackages();
+                } catch (err: any) {
+                    console.error('Failed to sort by price', err);
+                    showToast(err.message || 'Failed to reorder packages', 'error');
+                } finally {
+                    setIsLoading(false);
+                }
+            },
+            'info',
+            'Yes, Reorder'
+        );
+    };
+
     const handleDragEnd = async (result: DropResult) => {
         if (!result.destination || searchQuery) return;
 
@@ -263,25 +334,30 @@ function AdminPackagesContent() {
     };
 
     const handleDeletePackage = async (id: string) => {
-        if (!confirm('Are you sure you want to delete this package?')) return;
-        try {
-            await apiRequest(`/admin/packages/${id}`, { method: 'DELETE' });
-            setPackages((prev) => prev.filter((p) => p.id !== id));
-            showToast('Package deleted.', 'success');
-        } catch (err: any) {
-            console.error('Failed to delete package', err);
-            // 404 → already gone, remove from list silently
-            if (err?.status === 404) {
-                setPackages((prev) => prev.filter((p) => p.id !== id));
-                return;
-            }
-            // 409 → has linked transactions — cannot delete
-            if (err?.status === 409) {
-                showToast(err.message, 'warning');
-                return;
-            }
-            showToast(err.message || 'Failed to delete package', 'error');
-        }
+        openConfirm(
+            'Delete Package',
+            'Are you sure you want to delete this package? This action cannot be undone.',
+            async () => {
+                try {
+                    await apiRequest(`/admin/packages/${id}`, { method: 'DELETE' });
+                    setPackages((prev) => prev.filter((p) => p.id !== id));
+                    showToast('Package deleted.', 'success');
+                } catch (err: any) {
+                    console.error('Failed to delete package', err);
+                    if (err?.status === 404) {
+                        setPackages((prev) => prev.filter((p) => p.id !== id));
+                        return;
+                    }
+                    if (err?.status === 409) {
+                        showToast(err.message, 'warning');
+                        return;
+                    }
+                    showToast(err.message || 'Failed to delete package', 'error');
+                }
+            },
+            'danger',
+            'Delete Now'
+        );
     };
 
     // ── Filtered Packages ────────────────────────────────────────────────────
@@ -344,7 +420,7 @@ function AdminPackagesContent() {
             </div>
 
             {/* Filter & Search Bar */}
-            <div className="flex flex-col lg:flex-row gap-6 p-6 bg-white/[0.02] rounded-[2.5rem] border border-white/5 backdrop-blur-md relative z-30">
+            <div className="flex flex-col xl:flex-row gap-4 p-4 md:p-6 bg-white/[0.02] rounded-[2rem] md:rounded-[2.5rem] border border-white/5 backdrop-blur-md relative z-30">
                 <div className="flex-1 relative group">
                     <div className="absolute inset-y-0 left-6 flex items-center pointer-events-none">
                         <Plus className="w-4 h-4 text-slate-500 rotate-45 group-focus-within:text-indigo-400 transition-colors" />
@@ -358,13 +434,12 @@ function AdminPackagesContent() {
                     />
                 </div>
 
-                <div className="grid grid-cols-2 lg:flex gap-4">
+                <div className="flex flex-col sm:flex-row gap-4">
                     {/* Game Filter */}
-                    {/* Game Filter Dropdown */}
-                    <div className="relative min-w-[240px]" ref={filterDropdownRef}>
+                    <div className="relative flex-1 sm:min-w-[240px]" ref={filterDropdownRef}>
                         <button
                             onClick={() => setIsFilterDropdownOpen(!isFilterDropdownOpen)}
-                            className={`w-full flex items-center justify-between px-6 py-4 bg-white/5 border rounded-2xl transition-all duration-300 group ${isFilterDropdownOpen ? 'border-indigo-500/50 ring-2 ring-indigo-500/20' : 'border-white/5 hover:bg-white/10'}`}
+                            className={`w-full h-full flex items-center justify-between px-6 py-4 bg-white/5 border rounded-2xl transition-all duration-300 group ${isFilterDropdownOpen ? 'border-indigo-500/50 ring-2 ring-indigo-500/20' : 'border-white/5 hover:bg-white/10'}`}
                         >
                             <div className="flex items-center gap-3">
                                 <Gamepad2 className={`w-4 h-4 transition-colors ${isFilterDropdownOpen ? 'text-indigo-400' : 'text-slate-500 group-hover:text-indigo-400'}`} />
@@ -398,6 +473,16 @@ function AdminPackagesContent() {
                             </div>
                         )}
                     </div>
+
+                    {/* Sort Action */}
+                    <button
+                        onClick={handleSortByPrice}
+                        disabled={isLoading || filteredPackages.length === 0}
+                        className="flex-1 sm:flex-none px-8 py-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl text-[10px] font-black text-emerald-400 uppercase tracking-widest hover:bg-emerald-500/20 transition-all active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-3 whitespace-nowrap min-h-[56px]"
+                    >
+                        <ChevronDown className="w-4 h-4" />
+                        Sort by Price
+                    </button>
                 </div>
             </div>
 
@@ -564,18 +649,11 @@ function AdminPackagesContent() {
                                         </button>
                                     </div>
                                     <input
-                                        required
+                                        readOnly
                                         type="text"
                                         value={formData.providerSku}
-                                        onChange={e => {
-                                            setFormData({ ...formData, providerSku: e.target.value });
-                                            setShowMooGoldDropdown(false);
-                                        }}
-                                        onFocus={() => {
-                                            if (mooGoldProducts.length > 0) setShowMooGoldDropdown(true);
-                                        }}
-                                        className="w-full px-8 py-5 bg-white/5 border border-white/5 rounded-[2rem] text-indigo-400 font-mono text-[11px] uppercase placeholder-slate-700"
-                                        placeholder="e.g. mlbb_weekly_pass"
+                                        className="w-full px-8 py-5 bg-white/5 border border-white/5 rounded-[2rem] text-indigo-400 font-mono text-[11px] uppercase placeholder-slate-700 cursor-not-allowed opacity-80"
+                                        placeholder="Auto-generated e.g. mlbb_100"
                                     />
                                     {showMooGoldDropdown && mooGoldProducts.length > 0 && (
                                         <div className="absolute z-50 top-full mt-2 w-full bg-[#0a0a0f] border border-white/10 rounded-2xl shadow-2xl py-2 max-h-48 overflow-y-auto backdrop-blur-3xl custom-scrollbar">
@@ -628,6 +706,53 @@ function AdminPackagesContent() {
                         </form>
                     </div>
                 </div>, document.body)}
+
+            {/* ── Custom Confirmation Popup ──────────────────────────── */}
+            {confirmModal.isOpen && typeof document !== 'undefined' && createPortal(
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6 animate-fade-in">
+                    {/* Backdrop */}
+                    <div className="absolute inset-0 bg-[#06060c]/80 backdrop-blur-xl" onClick={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))} />
+
+                    {/* Modal Content */}
+                    <div className="relative w-full max-w-sm bg-[#0c0c14] border border-white/10 rounded-[3rem] shadow-[0_40px_80px_-20px_rgba(0,0,0,0.8)] overflow-hidden animate-fade-in-up">
+                        <div className="p-10 pt-12 text-center">
+                            <div className={`w-20 h-20 mx-auto mb-8 rounded-[2rem] flex items-center justify-center border-2 ${confirmModal.type === 'danger' ? 'bg-red-500/10 border-red-500/20' : 'bg-indigo-500/10 border-indigo-500/20'}`}>
+                                {confirmModal.type === 'danger' ? (
+                                    <Trash2 className="w-8 h-8 text-red-400" />
+                                ) : (
+                                    <AlertTriangle className="w-8 h-8 text-indigo-400" />
+                                )}
+                            </div>
+
+                            <h3 className="text-xl font-black text-white italic uppercase tracking-tight mb-3">
+                                {confirmModal.title}
+                            </h3>
+                            <p className="text-slate-500 text-xs font-bold leading-relaxed px-2 uppercase tracking-tight italic">
+                                {confirmModal.message}
+                            </p>
+                        </div>
+
+                        <div className="flex border-t border-white/5">
+                            <button
+                                onClick={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+                                className="flex-1 py-7 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] hover:bg-white/5 hover:text-white transition-all border-r border-white/5"
+                            >
+                                Nevermind
+                            </button>
+                            <button
+                                onClick={() => {
+                                    confirmModal.onConfirm();
+                                    setConfirmModal(prev => ({ ...prev, isOpen: false }));
+                                }}
+                                className={`flex-1 py-7 text-[10px] font-black uppercase tracking-[0.2em] transition-all hover:brightness-110 active:scale-95 ${confirmModal.type === 'danger' ? 'bg-red-600 text-white' : 'bg-indigo-600 text-white'}`}
+                            >
+                                {confirmModal.confirmLabel || 'Confirm'}
+                            </button>
+                        </div>
+                    </div>
+                </div>,
+                document.body
+            )}
         </div>
     );
 }
