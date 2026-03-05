@@ -59,3 +59,45 @@ Access Points:
 The current state is ready for rigorous staging server validation. The code builds utilizing `npm run build` and uses `Suspense` wraps for nested page parameters solving Vercel hydration flags. All pages dynamically use `/app/globals.css` containing extensive custom variables.
 
 **To transition to production**, insert real Bakong IDs, update `.env.production`, deploy PostgreSQL, and start monitoring!
+
+
+
+
+Customer creates order
+      ↓
+Transaction = PENDING, paymentRef = md5 hash ← our fix
+      ↓
+Customer scans KHQR and pays
+      ↓
+Backend polls check-payment → Bakong confirms
+      ↓
+fulfillTransaction() → delivers diamonds
+      ↓
+Transaction = COMPLETED, providerRef = "MOOGOLD-xxx" or "FRIEND-MANUAL-xxx"
+
+
+
+Customer scans QR / taps "Open ABA"
+              ↓
+         Pays in bank app
+              ↓
+    Frontend polls every 4 seconds:
+    POST /transactions/:id/check-payment
+              ↓
+    Backend calls Bakong API:
+    check_transaction_by_md5 (using the md5/paymentRef we saved)
+              ↓
+    Bakong confirms payment received ✅
+              ↓
+    Backend auto-calls fulfillTransaction()
+              ↓
+    processTopUp() runs → delivers diamonds
+    (via Friend Supplier or MooGold)
+              ↓
+    Transaction updated:
+      status     = "COMPLETED"
+      providerRef = "FRIEND-MANUAL-xxx" or "MOOGOLD-xxx"  ← set automatically
+              ↓
+    Frontend polling detects COMPLETED
+              ↓
+    KHQR modal closes, success screen shows

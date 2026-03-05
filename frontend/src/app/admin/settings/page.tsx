@@ -67,14 +67,15 @@ const settingDefaults: {
         {
             group: 'Bakong KHQR',
             key: 'BAKONG_ACCOUNT_ID',
-            label: 'Account ID',
-            placeholder: 'e.g. yourname@aclb',
+            label: 'Bakong Account ID',
+            placeholder: 'yourname@aba  or  yourname@aclb',
             required: true,
+            hint: 'Format: name@bankcode  (e.g. thoeurnratha@aba)',
         },
         {
             group: 'Bakong KHQR',
             key: 'BAKONG_MERCHANT_NAME',
-            label: 'Merchant Name',
+            label: 'Display Name (shown on QR)',
             placeholder: 'e.g. DAI-GAME Store',
             required: true,
         },
@@ -87,9 +88,11 @@ const settingDefaults: {
         },
         {
             group: 'Bakong KHQR',
-            key: 'BAKONG_ACQUIRING_BANK',
-            label: 'Acquiring Bank',
-            placeholder: 'e.g. ABA Bank',
+            key: 'BAKONG_API_TOKEN',
+            label: 'Bakong API Token (optional)',
+            placeholder: 'Bearer token from api-bakong.nbc.gov.kh',
+            type: 'password',
+            hint: 'Needed to verify payments in production',
         },
     ];
 

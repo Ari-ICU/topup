@@ -12,6 +12,8 @@ interface Transaction {
     paymentMethod: string;
     totalAmount: string;
     createdAt: string;
+    providerRef?: string | null;
+    paymentRef?: string | null;
     playerInfo: { playerId?: string; zoneId?: string; playerName?: string };
     package: {
         name: string;
@@ -61,19 +63,25 @@ export default function AdminTransactionsPage() {
         fetchTransactions();
     }, [fetchTransactions]);
 
+    const [actionError, setActionError] = useState<string | null>(null);
+
     const handleUpdateStatus = async (id: string, status: TransactionStatus) => {
+        setActionError(null);
         try {
             await apiRequest(`/admin/transactions/${id}/status`, {
                 method: 'PUT',
                 body: JSON.stringify({ status }),
             });
-            setTransactions((prev) =>
-                prev.map((t) => (t.id === id ? { ...t, status } : t))
-            );
-        } catch (error) {
+            // ✅ Re-fetch from server so providerRef and all fields are up to date
+            await fetchTransactions();
+        } catch (error: any) {
             console.error('Failed to update status', error);
+            setActionError(error?.message ?? 'Failed to update transaction. Check provider config.');
+            // Still refresh to show current server state
+            await fetchTransactions();
         }
     };
+
 
     return (
         <div className="space-y-8 animate-fade-in">
@@ -94,6 +102,18 @@ export default function AdminTransactionsPage() {
                 </button>
             </div>
 
+            {/* Error Banner */}
+            {actionError && (
+                <div className="flex items-center gap-4 px-6 py-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-400">
+                    <XCircle className="w-5 h-5 shrink-0" />
+                    <div className="flex-1">
+                        <p className="text-[10px] font-black uppercase tracking-widest mb-0.5">Fulfillment Error</p>
+                        <p className="text-xs font-semibold">{actionError}</p>
+                    </div>
+                    <button onClick={() => setActionError(null)} className="text-red-400/50 hover:text-red-400 text-lg leading-none">&times;</button>
+                </div>
+            )}
+
             {/* Table Container */}
             <div className="relative bg-white/[0.02] rounded-[2.5rem] border border-white/5 overflow-hidden">
                 {isLoading ? (
@@ -110,6 +130,7 @@ export default function AdminTransactionsPage() {
                                     <th className="px-8 py-6">Target Asset</th>
                                     <th className="px-8 py-6">User Identity</th>
                                     <th className="px-8 py-6">Protocol</th>
+                                    <th className="px-8 py-6">Provider Ref</th>
                                     <th className="px-8 py-6 text-right">Value</th>
                                     <th className="px-8 py-6 text-center">Current Status</th>
                                     <th className="px-8 py-6 text-right">Control</th>
@@ -118,7 +139,7 @@ export default function AdminTransactionsPage() {
                             <tbody className="divide-y divide-white/5">
                                 {transactions.length === 0 ? (
                                     <tr>
-                                        <td colSpan={7} className="px-8 py-24 text-center">
+                                        <td colSpan={8} className="px-8 py-24 text-center">
                                             <div className="w-16 h-16 bg-white/5 rounded-3xl flex items-center justify-center mx-auto mb-6">
                                                 <Receipt className="w-8 h-8 text-slate-700" />
                                             </div>
@@ -158,6 +179,16 @@ export default function AdminTransactionsPage() {
                                                 <span className="text-[10px] font-black text-indigo-400 bg-indigo-500/5 px-2.5 py-1 rounded-full border border-indigo-500/10 uppercase tracking-widest">
                                                     {txn.paymentMethod}
                                                 </span>
+                                            </td>
+                                            {/* Provider Ref column */}
+                                            <td className="px-8 py-6">
+                                                {txn.providerRef ? (
+                                                    <span className="font-mono text-[9px] text-emerald-400 bg-emerald-500/5 px-2 py-1 rounded border border-emerald-500/10 block max-w-[160px] truncate" title={txn.providerRef}>
+                                                        {txn.providerRef}
+                                                    </span>
+                                                ) : (
+                                                    <span className="text-[9px] text-slate-700 font-bold uppercase tracking-widest">—</span>
+                                                )}
                                             </td>
                                             <td className="px-8 py-6 text-right">
                                                 <span className="text-base font-black text-white tabular-nums drop-shadow-sm">${Number(txn.totalAmount).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>

@@ -3,11 +3,16 @@
  *
  * Generates Bakong KHQR codes using the official bakong-khqr npm library.
  *
- * Key notes (learned from library source):
- *  - `generateMerchant()` takes a `MerchantInfo` instance (positional constructor), NOT a plain object.
+ * Key notes:
+ *  - Use `generateIndividual()` for personal Bakong accounts (e.g. username@aba, username@aclb).
+ *    This produces a KHQR code that is scannable by ALL Cambodian banking apps.
+ *  - Use `generateMerchant()` only for business/merchant Bakong accounts.
  *  - Dynamic KHQR (with amount) REQUIRES `expirationTimestamp` as a 13-digit ms timestamp string.
  *  - Currency must be the numeric code: 840 = USD, 116 = KHR (from khqrData.currency).
  *  - bakong-khqr is CommonJS — imported via createRequire to avoid ESM/CJS conflicts.
+ *
+ * Account ID format: "name@bankcode"
+ *   Examples: thoeurnratha@aba, thoeurnratha@aclb, devit@wing, name@devb (sandbox only)
  */
 
 import { createRequire } from "module";
@@ -16,7 +21,7 @@ import { getSystemSettings } from "../lib/settings.js";
 
 const require = createRequire(import.meta.url);
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const { BakongKHQR, MerchantInfo, khqrData } = require("bakong-khqr") as any;
+const { BakongKHQR, IndividualInfo, MerchantInfo, khqrData } = require("bakong-khqr") as any;
 
 const QR_EXPIRY_MS = 30 * 60 * 1000; // 30 minutes
 
@@ -32,24 +37,34 @@ export const generateTransactionKHQR = async ({
     currency = "USD",
 }: GenerateKHQRProps) => {
     const settings = await getSystemSettings();
-    const merchantId = settings.get("BAKONG_ACCOUNT_ID");
+    const bakongAccountId = settings.get("BAKONG_ACCOUNT_ID");
     const merchantName = settings.get("BAKONG_MERCHANT_NAME") || "Merchant";
     const merchantCity = settings.get("BAKONG_MERCHANT_CITY") || "Phnom Penh";
-    const acquiringBank = settings.get("BAKONG_ACQUIRING_BANK") || "ABA Bank";
 
-    if (!merchantId) {
-        throw new Error("BAKONG_ACCOUNT_ID is not configured in environment variables.");
+    if (!bakongAccountId) {
+        throw new Error(
+            "BAKONG_ACCOUNT_ID is not configured. Go to Admin → Settings and set your Bakong account ID " +
+            "(format: yourname@aba, yourname@aclb, etc.)"
+        );
+    }
+
+    // Validate format: must be "name@bankcode" with no spaces
+    if (!bakongAccountId.includes("@") || bakongAccountId.includes(" ")) {
+        throw new Error(
+            `BAKONG_ACCOUNT_ID format is invalid: "${bakongAccountId}". ` +
+            "It must be in the format: yourname@aba (e.g. thoeurnratha@aba)"
+        );
     }
 
     const currencyCode = currency === "KHR" ? khqrData.currency.khr : khqrData.currency.usd;
     const expirationTimestamp = String(Date.now() + QR_EXPIRY_MS); // 13-digit ms timestamp (required for dynamic QR)
 
-    const merchantInfo = new MerchantInfo(
-        merchantId,       // bakongAccountID  (e.g. "thoeurnratha@devb")
-        merchantName,     // merchantName     (e.g. "TopUpPay Sandbox")
-        merchantCity,     // merchantCity     (e.g. "Phnom Penh")
-        transactionId.substring(0, 25), // merchantID — use txn ID as reference
-        acquiringBank,    // acquiringBank    (e.g. "ABA Bank")
+    // Use IndividualInfo for personal accounts — this QR is accepted by ALL Cambodian banking apps
+    // (ABA, Acleda, Wing, Pi Pay, TrueMoney, MetFone etc.) through the Bakong network.
+    const individualInfo = new IndividualInfo(
+        bakongAccountId,  // bakongAccountID (e.g. "thoeurnratha@aba")
+        merchantName,     // merchantName    (e.g. "TopUpPay")
+        merchantCity,     // merchantCity    (e.g. "Phnom Penh")
         {
             currency: currencyCode,
             amount,
@@ -61,13 +76,15 @@ export const generateTransactionKHQR = async ({
     );
 
     const khqr = new BakongKHQR();
-    const response = khqr.generateMerchant(merchantInfo);
+    const response = khqr.generateIndividual(individualInfo);
 
-    if (response.status.code !== 0) {
-        throw new Error(
-            `KHQR generation failed [code ${response.status.errorCode}]: ${response.status.message}`
-        );
+    if (!response || response.status?.code !== 0) {
+        const code = response?.status?.errorCode ?? "unknown";
+        const msg = response?.status?.message ?? "Unknown error";
+        throw new Error(`KHQR generation failed [code ${code}]: ${msg}`);
     }
+
+    console.log(`[Bakong] ✅ KHQR generated for TxID ${transactionId}, amount: ${amount} ${currency}`);
 
     return {
         qrCode: response.data.qr as string,
@@ -77,9 +94,10 @@ export const generateTransactionKHQR = async ({
 
 /**
  * checkBakongTransactionStatus
- * 
+ *
  * Verifies if a dynamic KHQR payment has been completed by checking its MD5 hash
- * against the Bakong Open API.
+ * against the Bakong Open API. The endpoint is public for sandbox/development.
+ * In production you may need to pass a Bearer token via BAKONG_API_TOKEN env var.
  */
 export const checkBakongTransactionStatus = async (md5: string): Promise<{
     status: "SUCCESS" | "PENDING" | "FAILED";
@@ -91,53 +109,51 @@ export const checkBakongTransactionStatus = async (md5: string): Promise<{
     }
 
     try {
-        // Note: Production usually requires a Bearer token or certificate.
-        // For sandbox/public checks, sometimes it's open or uses basic auth with merchant credentials.
-        // We'll use axios to call the Bakong endpoint.
+        const settings = await getSystemSettings();
+        const apiToken = settings.get("BAKONG_API_TOKEN") || process.env.BAKONG_API_TOKEN;
 
-        const response = await axios.post("https://api-bakong.nbc.gov.kh/v1/check_transaction_by_md5", {
-            md5: md5
-        }, {
-            timeout: 5000,
-            headers: {
-                "Accept": "application/json",
-                "Content-Type": "application/json",
-                // "Authorization": `Bearer ${process.env.BAKONG_API_TOKEN}` // Uncomment if needed
-            }
-        });
+        const headers: Record<string, string> = {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+        };
+
+        if (apiToken) {
+            headers["Authorization"] = `Bearer ${apiToken}`;
+        }
+
+        const response = await axios.post(
+            "https://api-bakong.nbc.gov.kh/v1/check_transaction_by_md5",
+            { md5 },
+            { timeout: 8000, headers }
+        );
 
         const data = response.data;
 
-        // Bakong API response codes: 0 = SUCCESS, 1 = PENDING, etc.
-        // Note: Status codes can vary by API version. 
-        // Typically: data.responseCode === "0" or data.status.code === 0
-
+        // Bakong API: responseCode "0" = found/paid, non-zero = not yet paid
         if (data?.responseCode === "0" || data?.status?.code === 0) {
             return {
                 status: "SUCCESS",
                 message: "Payment received successfully",
-                raw: data
+                raw: data,
             };
         }
 
-        if (data?.responseCode === "1" || data?.status?.code === 1) {
-            return {
-                status: "PENDING",
-                message: "Waiting for payment...",
-            };
-        }
-
+        // responseCode "6" = transaction not found yet (still pending)
         return {
-            status: "PENDING", // Default to pending if not explicitly failed
-            message: data?.status?.message || "Payment not yet detected",
+            status: "PENDING",
+            message: data?.responseMessage || data?.status?.message || "Waiting for payment...",
         };
 
     } catch (error: any) {
+        // 404 from Bakong means transaction doesn't exist yet — still pending
+        if (error?.response?.status === 404) {
+            return { status: "PENDING", message: "Waiting for payment..." };
+        }
         console.error("[Bakong] Status check failed:", error.message);
-        // We return PENDING on network errors so the frontend keeps trying
+        // Return PENDING on network errors so the frontend keeps polling
         return {
             status: "PENDING",
-            message: "Unable to reach Bakong API. Still waiting..."
+            message: "Unable to reach Bakong API. Still waiting...",
         };
     }
 };

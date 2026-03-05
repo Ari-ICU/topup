@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { useState } from "react";
 import QRCode from "react-qr-code";
 
 interface KhqrModalProps {
@@ -6,6 +8,8 @@ interface KhqrModalProps {
     playerName?: string;
     onCancel: () => void;
 }
+
+// ─── SVG Icons ────────────────────────────────────────────────────────────────
 
 const BakongIcon = ({ className }: { className?: string }) => (
     <svg viewBox="0 0 100 100" className={className}>
@@ -26,62 +30,144 @@ const OutlineBakongIcon = ({ className }: { className?: string }) => (
     </svg>
 );
 
-export function KhqrModal({ qrCode, amount, playerName, onCancel }: KhqrModalProps) {
-    return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
-            <div className="w-full max-w-[340px] overflow-hidden p-0 shadow-2xl animate-scale-in bg-[#131520] border-none rounded-[20px]">
+// Cambodian bank color dots for visual indicator
+const BANK_DOTS = [
+    { color: "#003087", label: "ABA" },
+    { color: "#E30613", label: "Acleda" },
+    { color: "#00A651", label: "Wing" },
+    { color: "#F7941D", label: "Prince" },
+    { color: "#1E3A8A", label: "Canadia" },
+];
 
-                {/* Header Pattern */}
-                <div className="bg-[#e9323c] py-[18px] text-center">
-                    <div className="flex justify-center items-center gap-2.5">
-                        <OutlineBakongIcon className="w-5 h-5 text-white" />
-                        <div className="text-white font-bold tracking-[0.15em] text-[15px]">KHQR</div>
+// ─── Main Modal ───────────────────────────────────────────────────────────────
+
+export function KhqrModal({ qrCode, amount, playerName, onCancel }: KhqrModalProps) {
+    const [copied, setCopied] = useState(false);
+
+    // ABA deeplink — encodes the KHQR string into the ABA Pay deeplink
+    // Format: aba://pay?qr=<encoded_qr>
+    // This opens ABA Pay app directly on mobile and pre-fills the QR
+    const abaDeepLink = `aba://pay?qr=${encodeURIComponent(qrCode)}`;
+
+    // Bakong universal deeplink (works with multiple banks via Bakong app)
+    const bakongDeepLink = `bakong://pay?qr=${encodeURIComponent(qrCode)}`;
+
+    const handleCopy = async () => {
+        try {
+            await navigator.clipboard.writeText(qrCode);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        } catch {
+            // fallback silently
+        }
+    };
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4 backdrop-blur-sm">
+            <div className="w-full max-w-[360px] overflow-hidden shadow-2xl animate-scale-in bg-[#131520] border border-white/10 rounded-[24px]">
+
+                {/* ── Header ── */}
+                <div className="bg-gradient-to-r from-[#c0001a] to-[#e9323c] py-[16px] text-center relative overflow-hidden">
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.1),transparent_60%)]" />
+                    <div className="relative flex flex-col items-center gap-1">
+                        <div className="flex justify-center items-center gap-2.5">
+                            <OutlineBakongIcon className="w-5 h-5 text-white" />
+                            <div className="text-white font-bold tracking-[0.15em] text-[15px]">KHQR</div>
+                        </div>
+                        <div className="text-white/70 text-[10px] font-medium tracking-widest uppercase">
+                            Bakong · Any Bank in Cambodia
+                        </div>
                     </div>
                 </div>
 
-                <div className="p-8 pb-6 flex flex-col items-center">
-                    <div className="mb-6 text-center">
-                        {playerName ? (
-                            <div className="text-indigo-400 font-bold text-sm tracking-widest uppercase mb-1"> <span className="text-slate-500 text-[10px] tracking-[0.1em] uppercase mb-2 font-bold italic">Player Name:</span> {playerName}</div>
-                        ) : null}
-                        <div className="font-display text-[32px] font-bold text-white tracking-tight leading-none">${amount}</div>
+                <div className="p-6 pb-5 flex flex-col items-center">
+                    {/* Amount */}
+                    <div className="mb-5 text-center">
+                        {playerName && (
+                            <div className="text-indigo-400 font-bold text-sm tracking-widest uppercase mb-1">
+                                <span className="text-slate-500 text-[10px] tracking-[0.1em] uppercase mb-2 font-bold italic">Player: </span>
+                                {playerName}
+                            </div>
+                        )}
+                        <div className="font-display text-[36px] font-black text-white tracking-tight leading-none">
+                            <span className="text-[20px] text-slate-400 mr-1">$</span>{amount}
+                        </div>
+                        <div className="text-[10px] text-slate-500 font-semibold mt-1 tracking-widest uppercase">Scan to Pay</div>
                     </div>
 
                     {/* QR Code */}
-                    <div className="mb-5 flex aspect-square w-full items-center justify-center rounded-2xl bg-white p-3.5 relative">
-                        <QRCode value={qrCode} size={256} level="Q" className="w-full h-full" style={{ maxWidth: "100%", height: "auto" }} />
-
+                    <div className="mb-4 w-full aspect-square flex items-center justify-center rounded-2xl bg-white p-3 relative shadow-lg">
+                        <QRCode
+                            value={qrCode}
+                            size={256}
+                            level="Q"
+                            className="w-full h-full"
+                            style={{ maxWidth: "100%", height: "auto" }}
+                        />
                         {/* Center Bakong Logo Overlay */}
-                        <div className="absolute inset-0 flex items-center justify-center">
-                            <div className="flex bg-white rounded-full items-center justify-center p-1">
-                                <div className="h-[38px] w-[38px] relative flex items-center justify-center rounded-full overflow-hidden">
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                            <div className="flex bg-white rounded-full items-center justify-center p-1 shadow-md border border-slate-100">
+                                <div className="h-[36px] w-[36px] relative flex items-center justify-center rounded-full overflow-hidden">
                                     <BakongIcon className="w-full h-full" />
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    {/* Actions */}
-                    <div className="text-[11px] text-slate-500 mb-6 font-medium text-center w-full">
-                        Scan with any banking app in Cambodia
-                    </div>
-
-                    <div className="w-full space-y-4">
-                        <div className="flex items-center justify-center gap-2 rounded-[14px] bg-[#1a1c29] py-[14px] w-full">
-                            <div className="relative flex h-2 w-2">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#e9323c]"></span>
-                            </div>
-                            <span className="text-[13px] text-slate-400 font-medium">Awaiting Payment...</span>
+                    {/* Bank Compatibility Row */}
+                    <div className="flex items-center gap-2 mb-4">
+                        <div className="text-[10px] text-slate-600 font-medium">Works with</div>
+                        <div className="flex items-center gap-1">
+                            {BANK_DOTS.map((bank) => (
+                                <div
+                                    key={bank.label}
+                                    title={bank.label}
+                                    className="w-4 h-4 rounded-full border border-white/10 shadow-sm"
+                                    style={{ backgroundColor: bank.color }}
+                                />
+                            ))}
+                            <div className="text-[10px] text-slate-600 font-medium ml-1">+ more</div>
                         </div>
-
-                        <button
-                            onClick={onCancel}
-                            className="w-full py-2 text-[13px] font-semibold text-slate-400 transition-colors hover:text-white"
-                        >
-                            Cancel
-                        </button>
                     </div>
+
+                    {/* Status indicator */}
+                    <div className="w-full flex items-center justify-center gap-2 rounded-[14px] bg-[#1a1c29] py-[13px] mb-4">
+                        <div className="relative flex h-2 w-2">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-[#e9323c]"></span>
+                        </div>
+                        <span className="text-[13px] text-slate-400 font-medium">Awaiting Payment...</span>
+                    </div>
+
+                    {/* Deep Link Buttons */}
+                    <div className="w-full grid grid-cols-2 gap-2 mb-4">
+                        {/* Open in ABA */}
+                        <Link
+                            href={abaDeepLink}
+                            className="flex items-center justify-center gap-2 rounded-[12px] bg-[#003087] py-[11px] px-3 text-white text-[11px] font-bold tracking-wide hover:bg-[#003087]/80 transition-colors active:scale-95"
+                        >
+                            <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
+                                <rect width="24" height="24" rx="4" fill="white" fillOpacity="0.2" />
+                                <text x="4" y="17" fontSize="12" fontWeight="bold" fill="white">ABA</text>
+                            </svg>
+                            Open ABA
+                        </Link>
+                    </div>
+
+                    {/* Copy QR string */}
+                    <button
+                        onClick={handleCopy}
+                        className="w-full py-2 text-[11px] font-semibold text-slate-600 hover:text-slate-400 transition-colors mb-1"
+                    >
+                        {copied ? "✓ Copied!" : "Copy QR Code String"}
+                    </button>
+
+                    <button
+                        onClick={onCancel}
+                        className="w-full py-2 text-[12px] font-semibold text-slate-400 transition-colors hover:text-white"
+                    >
+                        Cancel
+                    </button>
                 </div>
             </div>
         </div>

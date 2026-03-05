@@ -5,11 +5,11 @@ import { PaymentMethod } from "@/types";
 export const PAYMENT_METHODS: PaymentMethod[] = [
     {
         id: "bakong",
-        name: "ABA KHQR",
-        shortName: "ABA KHQR",
+        name: "KHQR",
+        shortName: "KHQR",
         icon: "/khqr.png",
         color: "from-red-600 to-rose-500",
-        desc: "Scan to pay with any banking app",
+        desc: "ABA · Acleda · Wing · any bank in Cambodia",
     },
 ];
 

@@ -37,6 +37,13 @@ export const createTransaction = async (req: Request, res: Response) => {
                 amount: Number(transaction.totalAmount),
                 transactionId: transaction.id,
             });
+
+            // ✅ Save the MD5 hash to paymentRef so the check-payment polling can verify against Bakong API
+            await prisma.transaction.update({
+                where: { id: transaction.id },
+                data: { paymentRef: khqr.md5 },
+            });
+
             // Return transaction + payment QR data together
             return sendSuccess(res, { ...transaction, paymentData: khqr }, "Transaction created successfully", 201);
         }
