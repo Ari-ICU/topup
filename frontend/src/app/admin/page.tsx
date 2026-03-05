@@ -190,9 +190,11 @@ export default function AdminDashboardPage() {
                                         Transfer to Wallet
                                     </button>
                                 </div>
-                                <h3 className="text-3xl font-black text-white tracking-tighter">${Number(stats.revenue || 0).toLocaleString()}</h3>
+                                <h3 className="text-3xl font-black text-white tracking-tighter">
+                                    ${(Number(stats.revenue) - Number(stats.totalTransferredRevenue)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                </h3>
                                 <p className="text-[8px] font-bold text-slate-600 uppercase mt-2 tracking-tighter">
-                                    Available: ${(Number(stats.revenue) - Number(stats.totalTransferredRevenue)).toFixed(2)} / Total Sold
+                                    Total Sold: ${Number(stats.revenue || 0).toFixed(2)} • Available for Transfer
                                 </p>
                             </div>
 

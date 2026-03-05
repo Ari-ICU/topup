@@ -61,6 +61,12 @@ export default function AdminTransactionsPage() {
 
     useEffect(() => {
         fetchTransactions();
+        // 🔄 Added Real-time Polling: updates the ledger every 30 seconds
+        const pollInterval = setInterval(() => {
+            fetchTransactions();
+        }, 30000);
+
+        return () => clearInterval(pollInterval);
     }, [fetchTransactions]);
 
     const [actionError, setActionError] = useState<string | null>(null);
