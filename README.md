@@ -35,7 +35,7 @@
 | 🕹️ Game catalogue | Dynamically managed games & packages via admin panel |
 | 💳 KHQR payments | Dynamic QR generation via `bakong-khqr`, polled in real-time |
 | 🔗 ABA Deep Link | One-tap "Open in ABA App" button for direct mobile payment |
-| 📦 Multi-provider | MooGold → Digiflazz → Smile.One → Friend Supplier → Mock fallback |
+| 📦 Multi-provider | MooGold (primary) → Friend Supplier API → Friend Supplier manual mode |
 | 👤 Account verification | Verifies player ID/server before checkout (ML, FF, etc.) |
 | 🛡️ Admin panel | Full management of games, packages, transactions, settings, API keys |
 | 🔑 API key system | Public/secret key pair for supplier integration |
@@ -276,19 +276,38 @@ PORT=4000
 DATABASE_URL="postgresql://postgres:password@localhost:5050/topup_db?schema=public"
 NODE_ENV=development
 
-# Bakong KHQR — use @devb for sandbox, @aba/@aclb for production
-BAKONG_ACCOUNT_ID="yourname@aba"
-BAKONG_MERCHANT_NAME="TopUpPay"
-BAKONG_MERCHANT_CITY="Phnom Penh"
-BAKONG_API_TOKEN=""   # optional, for status polling
-
-# MooGold (primary provider)
-MOOGOLD_PARTNER_ID=""
-MOOGOLD_API_KEY=""
-MOOGOLD_TEST_MODE=true    # set to false for live traffic
-
 # Admin credentials
 ADMIN_PASSWORD=admin123
+
+# Comma-separated list of allowed frontend origins
+ALLOWED_ORIGINS=https://YOUR_DOMAIN.com,https://www.YOUR_DOMAIN.com
+
+# ─── Frontend ─────────────────────────────────────────────────
+# This must be the PUBLIC URL of your backend API (via Nginx)
+NEXT_PUBLIC_API_URL=https://YOUR_DOMAIN.com/api
+
+# ─── Bakong KHQR (PRODUCTION — get from NBC Cambodia) ─────────
+# Apply at: https://bakong.nbc.org.kh/
+BAKONG_ACCOUNT_ID=yourname@aba
+BAKONG_MERCHANT_NAME=TopUpPay Co., Ltd.
+BAKONG_MERCHANT_CITY=Phnom Penh
+BAKONG_ACQUIRING_BANK=ABA Bank
+
+# ─── MooGold (Primary top-up provider) ───────────────────────
+# Get from: https://moogold.com → Dashboard → API Settings
+MOOGOLD_PARTNER_ID=your_partner_id
+MOOGOLD_SECRET_KEY=your_secret_key
+
+# ─── Friend Supplier (Fallback) ──────────────────────────────
+# Generate: openssl rand -hex 32
+FRIEND_SUPPLIER_SECRET=your_shared_secret
+# Optional — only if friend has their own API system:
+FRIEND_SUPPLIER_API_URL=https://friend-system.com/api/order
+FRIEND_SUPPLIER_API_KEY=key_from_your_friend
+
+# ─── Optional: Monitoring & Alerting ──────────────────────────
+# SENTRY_DSN=https://xxx@sentry.io/xxx
+# SLACK_WEBHOOK_URL=https://hooks.slack.com/services/xxxn123
 JWT_SECRET=your_random_secret_here
 ```
 
@@ -420,10 +439,9 @@ Opens at **http://localhost:5555**
 | `MOOGOLD_PARTNER_ID` | ⬜ | MooGold reseller ID |
 | `MOOGOLD_API_KEY` | ⬜ | MooGold API key |
 | `MOOGOLD_TEST_MODE` | ⬜ | `true` to simulate orders locally |
-| `DIGIFLAZZ_USERNAME` | ⬜ | Digiflazz account username |
-| `DIGIFLAZZ_API_KEY` | ⬜ | Digiflazz API key |
 | `FRIEND_SUPPLIER_SECRET` | ⬜ | Shared secret with friend supplier |
-| `FRIEND_SUPPLIER_API_URL` | ⬜ | Friend's order endpoint (if they have API) |
+| `FRIEND_SUPPLIER_API_URL` | ⬜ | Friend's order endpoint (if they have their own API) |
+| `FRIEND_SUPPLIER_API_KEY` | ⬜ | API key your friend gave you (for their system) |
 | `ALLOWED_ORIGINS` | ⬜ | Comma-separated CORS origins (production) |
 
 ### Frontend (`frontend/.env.local`)
@@ -638,74 +656,135 @@ For reliable payment status polling in production:
 
 ## 📦 Top-Up Provider Integration
 
-Providers are tried in this priority order:
+Providers are tried in this **priority order**:
 
 ```
-1. MooGold   →   2. Digiflazz   →   3. Smile.One   →   4. Friend Supplier   →   5. Mock (dev only)
+1. MooGold (primary)
+        ↓  (if MooGold not configured)
+2. Friend Supplier — API mode  (FRIEND_SUPPLIER_API_URL + FRIEND_SUPPLIER_API_KEY set)
+        ↓  (if no API URL)
+3. Friend Supplier — Manual / Callback mode  (FRIEND_SUPPLIER_SECRET set)
+        ↓  (if nothing configured)
+❌ Error: No provider configured
 ```
-
-### MooGold (Primary)
-
-1. Sign up at [moogold.com](https://moogold.com) → "Become a Reseller"  
-2. Get `Partner ID` and `API Key` from Dashboard → API Settings  
-3. Set `MOOGOLD_PARTNER_ID` and `MOOGOLD_API_KEY` in `.env`  
-4. Set `MOOGOLD_TEST_MODE=false` for live traffic
-
-**Test mode simulation:**
-```env
-MOOGOLD_TEST_MODE=true
-MOOGOLD_TEST_OUTCOME=success       # or: failure / insufficient_balance
-MOOGOLD_TEST_DELAY_MS=1500
-```
-
-### Digiflazz (Fallback)
-
-1. Sign up at [digiflazz.com](https://digiflazz.com)
-2. Set `DIGIFLAZZ_USERNAME` and `DIGIFLAZZ_API_KEY`
-
-### Smile.One (Fallback)
-
-1. Sign up at [smile.one](https://www.smile.one)
-2. Set `SMILE_ONE_UID`, `SMILE_ONE_EMAIL`, `SMILE_ONE_API_KEY`
 
 ---
 
-## 🤝 Friend Supplier API
+### 1. MooGold (Primary Provider)
 
-If you have a personal reseller friend who fulfills orders manually or has their own system:
+MooGold is a Cambodia & SEA-friendly diamond reseller. It fulfills orders **automatically** via API.
 
-### Setup
-
-1. **Generate a secret and share it** with your friend:
-   ```bash
-   openssl rand -hex 32
+**Setup steps:**
+1. Sign up at [moogold.com](https://moogold.com) → click **"Become a Reseller"**
+2. Get your credentials from **Dashboard → API Settings**:
+   - `Partner ID`
+   - `Secret Key`
+3. Enter them in **Admin → Settings**:
    ```
-2. Set it in `.env`:
-   ```env
-   FRIEND_SUPPLIER_SECRET=generated_secret_here
+   MOOGOLD_PARTNER_ID=your_partner_id
+   MOOGOLD_SECRET_KEY=your_secret_key
    ```
-3. Tell your friend to POST to:
-   ```
-   POST https://yourdomain.com/api/supplier/fulfill
-   ```
+4. Once both are set, MooGold becomes the active provider automatically
 
-### Callback Payload (from your friend → TopUpPay)
+**Test mode simulation** (no real money spent):
+```env
+MOOGOLD_TEST_MODE=true
+MOOGOLD_TEST_OUTCOME=success          # or: failure / insufficient_balance
+MOOGOLD_TEST_DELAY_MS=1500            # Simulated API latency
+```
 
+> 💡 MooGold takes priority over Friend Supplier whenever both `MOOGOLD_PARTNER_ID` and `MOOGOLD_SECRET_KEY` are configured.
+
+---
+
+### 2. Friend Supplier (Fallback Provider)
+
+A personal reseller / friend who delivers diamonds either via **their own API** or **manually**. This is used when MooGold is not configured.
+
+**Two sub-modes (auto-detected):**
+
+| Mode | Trigger | Behaviour |
+|---|---|---|
+| **API Mode** | `FRIEND_SUPPLIER_API_URL` + `FRIEND_SUPPLIER_API_KEY` set | Backend sends order to friend's endpoint automatically |
+| **Manual / Callback Mode** | Only `FRIEND_SUPPLIER_SECRET` set | Order is queued; friend delivers manually and calls back |
+
+**Request sent to friend's API (API mode):**
 ```json
 {
-  "transactionId": "TXID_HERE",
+  "transactionId": "tx_abc123",
+  "playerId": "12345678",
+  "zoneId": "2001",
+  "diamonds": 86,
+  "game": "mobile-legends"
+}
+```
+
+**Callback your friend sends back (manual mode):**
+```json
+{
+  "transactionId": "tx_abc123",
   "status": "completed",
   "providerRef": "ORDER_REF_FROM_SUPPLIER",
   "secret": "your_shared_secret"
 }
 ```
 
+> ⚠️ If **neither** MooGold **nor** Friend Supplier is configured, the system throws an error and blocks the top-up.
+
+---
+
+## 🤝 Friend Supplier Setup
+
+### Step 1 — Generate a shared secret
+
+```bash
+openssl rand -hex 32
+```
+
+### Step 2 — Set it in Admin → Settings
+
+In Admin → Settings, set:
+```
+FRIEND_SUPPLIER_SECRET=your_generated_secret
+```
+
+### Step 3 — Share these details with your friend
+
+| What | Value |
+|---|---|
+| Callback URL | `https://yourdomain.com/api/supplier/fulfill` |
+| Shared Secret | *(the secret from Step 1)* |
+
+### Step 4 — Friend sends order callback
+
+Your friend POSTs this when diamonds are delivered:
+
+```json
+{
+  "transactionId": "tx_abc123",
+  "status": "completed",
+  "providerRef": "THEIR_ORDER_REFERENCE",
+  "secret": "your_shared_secret"
+}
+```
+
+### Optional: Your friend has their own API
+
+If your friend has an API system and you want to send orders **to** their system automatically:
+
+```env
+FRIEND_SUPPLIER_API_URL=https://friend-system.com/api/order
+FRIEND_SUPPLIER_API_KEY=key_they_gave_you
+```
+
+When these are set, the backend will automatically call your friend's API when a new order comes in.
+
 ### Admin → Supplier Page
 
 In Admin → Supplier, you can:
-- View your callback URL to share with your friend
-- Generate and rotate the secret key
-- Test the connection
+- View your callback URL to copy and share with your friend
+- Generate and rotate the shared secret key
+- Test the connection to your friend's system
 
 ---
 
