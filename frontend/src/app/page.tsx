@@ -23,8 +23,6 @@ import {
   Facebook,
   Send
 } from "lucide-react";
-import { ReviewList } from "@/components/review/review-list";
-import { ReviewForm } from "@/components/review/review-form";
 import { useLang } from "@/context/lang-context";
 import { t, tr } from "@/lib/i18n";
 import { LangSwitcher } from "@/components/ui/lang-switcher";
