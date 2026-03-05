@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { apiRequest } from '@/lib/api';
 import {
     DollarSign, Package, Users,
@@ -66,6 +67,11 @@ export default function AdminDashboardPage() {
     const [showTransferModal, setShowTransferModal] = useState(false);
     const [transferAmount, setTransferAmount] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
 
     const [selectedPeriod, setSelectedPeriod] = useState('1Y');
 
@@ -135,7 +141,7 @@ export default function AdminDashboardPage() {
     const currentYear = new Date().getFullYear();
 
     return (
-        <div className="space-y-10 animate-fade-in text-slate-200 pb-20">
+        <div className="space-y-10 animate-fade-in text-slate-200 pb-20 relative ">
             {/* ── Header ──────────────────────────────────────────────────── */}
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
                 <div>
@@ -346,96 +352,94 @@ export default function AdminDashboardPage() {
                 </div>
             </div>
 
-            {/* ── Transfer Modal ────────────────────────────────────────── */}
-            {showTransferModal && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-                    <div className="absolute inset-0 bg-black/60 backdrop-blur-md animate-fade-in" onClick={() => !isSubmitting && setShowTransferModal(false)} />
+            {/* ── Transfer Modal (Portaled for Full Website Centering) ──────────────── */}
+            {showTransferModal && isMounted && createPortal(
+                <div className="fixed inset-0 z-[300] flex items-center justify-center p-4">
+                    {/* Dark Backdrop */}
+                    <div
+                        className="absolute inset-0 bg-black/90 backdrop-blur-md animate-fade-in"
+                        onClick={() => !isSubmitting && setShowTransferModal(false)}
+                    />
 
-                    <div className="relative w-full max-w-md bg-[#0f0e16] border border-white/10 rounded-[2.5rem] p-8 shadow-2xl animate-scale-in overflow-hidden group">
-                        {/* Background Glow */}
-                        <div className="absolute -right-20 -top-20 w-40 h-40 bg-indigo-500/10 rounded-full blur-[60px]" />
-                        <div className="absolute -left-20 -bottom-20 w-40 h-40 bg-purple-500/10 rounded-full blur-[60px]" />
+                    {/* Modal Content */}
+                    <div className="relative w-full max-w-lg bg-[#0d0d12] border border-white/5 rounded-[2.5rem] p-10 shadow-[0_0_100px_rgba(0,0,0,0.8)] animate-scale-in">
+                        {/* Header */}
+                        <div className="flex justify-between items-start mb-8">
+                            <div>
+                                <h3 className="text-3xl font-black text-white italic uppercase tracking-tighter">Transfer Revenue</h3>
+                                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mt-2">Revenue to Provider Wallet</p>
+                            </div>
+                            <button
+                                onClick={() => setShowTransferModal(false)}
+                                className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors border border-white/5"
+                            >
+                                <X className="w-5 h-5 text-slate-400" />
+                            </button>
+                        </div>
 
-                        <div className="relative z-10">
-                            <div className="flex justify-between items-center mb-8">
-                                <div>
-                                    <h3 className="text-xl font-black text-white italic uppercase tracking-tight">Internal Transfer</h3>
-                                    <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mt-1">Revenue to Provider Wallet</p>
+                        <div className="space-y-10">
+                            {/* Available Balance Stat */}
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Current Pool Status</label>
+                                <div className="flex items-center justify-between p-6 bg-white/[0.03] border border-white/5 rounded-[1.5rem]">
+                                    <div>
+                                        <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Available to Sync</p>
+                                        <p className="text-2xl font-black text-white italic tracking-tighter">
+                                            ${(Number(stats.revenue) - Number(stats.totalTransferredRevenue)).toFixed(2)}
+                                        </p>
+                                    </div>
+                                    <button
+                                        onClick={() => setTransferAmount((Number(stats.revenue) - Number(stats.totalTransferredRevenue)).toFixed(2))}
+                                        className="px-4 py-2 bg-indigo-500/10 text-indigo-400 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-indigo-500 hover:text-white transition-all border border-indigo-500/20"
+                                    >
+                                        Auto Fill
+                                    </button>
                                 </div>
-                                <button
-                                    onClick={() => setShowTransferModal(false)}
-                                    className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors border border-white/5"
-                                >
-                                    <X className="w-4 h-4 text-slate-400" />
-                                </button>
                             </div>
 
-                            <div className="space-y-6">
-                                {/* Info Box */}
-                                <div className="bg-indigo-500/5 rounded-2xl p-4 border border-indigo-500/10 flex items-start gap-4">
-                                    <div className="w-8 h-8 rounded-xl bg-indigo-500/10 flex items-center justify-center shrink-0 border border-indigo-500/5">
-                                        <AlertCircle className="w-4 h-4 text-indigo-400" />
+                            {/* Amount Input Section */}
+                            <div className="space-y-3">
+                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Amount to Transfer</label>
+                                <div className="relative group/input">
+                                    <div className="absolute inset-y-0 left-6 flex items-center pointer-events-none">
+                                        <span className="text-slate-600 font-black text-xl">$</span>
                                     </div>
-                                    <p className="text-[9px] font-bold text-slate-400 leading-relaxed uppercase tracking-wider">
-                                        Transferring funds will move them from your <span className="text-white">Customer Revenue</span> pool directly into your <span className="text-indigo-400">Provider Wallet</span> for purchasing stock.
-                                    </p>
+                                    <input
+                                        type="number"
+                                        value={transferAmount}
+                                        onChange={(e) => setTransferAmount(e.target.value)}
+                                        placeholder="0.00"
+                                        className="w-full bg-[#1a1a23] border border-white/5 rounded-[1.5rem] py-6 pl-12 pr-6 text-white font-black text-2xl focus:outline-none focus:border-indigo-500/50 transition-all placeholder:text-slate-800"
+                                    />
                                 </div>
+                            </div>
 
-                                {/* Available Amount */}
-                                <div className="flex items-center justify-between px-2">
-                                    <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Available to transfer</span>
-                                    <span className="text-lg font-black text-white italic tracking-tight">
-                                        ${(Number(stats.revenue) - Number(stats.totalTransferredRevenue)).toFixed(2)}
-                                    </span>
-                                </div>
-
-                                {/* Input Field */}
-                                <div className="space-y-2">
-                                    <label className="text-[8px] font-black text-slate-500 uppercase tracking-[0.3em] px-2 block">Amount to Transfer ($)</label>
-                                    <div className="relative group/input">
-                                        <div className="absolute inset-y-0 left-5 flex items-center">
-                                            <span className="text-slate-500 font-bold">$</span>
-                                        </div>
-                                        <input
-                                            type="number"
-                                            value={transferAmount}
-                                            onChange={(e) => setTransferAmount(e.target.value)}
-                                            placeholder="0.00"
-                                            className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-4 pl-10 pr-6 text-white font-black text-lg focus:outline-none focus:border-indigo-500/50 focus:bg-white/[0.05] transition-all"
-                                        />
-                                    </div>
-                                </div>
-
-                                {/* Action Buttons */}
-                                <div className="flex gap-4 pt-4">
-                                    <button
-                                        disabled={isSubmitting}
-                                        onClick={() => setShowTransferModal(false)}
-                                        className="flex-1 py-4 bg-white/5 border border-white/5 rounded-2xl text-[10px] font-black text-slate-400 uppercase tracking-widest hover:bg-white/10 transition-all transition-transform active:scale-95"
-                                    >
-                                        Cancel
-                                    </button>
-                                    <button
-                                        disabled={isSubmitting || !transferAmount || parseFloat(transferAmount) <= 0 || parseFloat(transferAmount) > (Number(stats.revenue) - Number(stats.totalTransferredRevenue))}
-                                        onClick={() => confirmTransfer()}
-                                        className="flex-1 py-4 bg-indigo-600 border border-indigo-500/50 rounded-2xl text-[10px] font-black text-white uppercase tracking-widest hover:bg-indigo-500 shadow-xl shadow-indigo-600/20 transition-all flex items-center justify-center gap-2 group/btn relative overflow-hidden transition-transform active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed"
-                                    >
-                                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000" />
-                                        {isSubmitting ? (
-                                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                        ) : (
-                                            <>
-                                                <span>Confirm Transfer</span>
-                                                <ArrowRight className="w-3 h-3 group-hover/btn:translate-x-1 transition-transform" />
-                                            </>
-                                        )}
-                                    </button>
-                                </div>
+                            {/* Action Buttons */}
+                            <div className="flex flex-col sm:flex-row gap-4 pt-4">
+                                <button
+                                    disabled={isSubmitting}
+                                    onClick={() => setShowTransferModal(false)}
+                                    className="flex-1 py-5 bg-[#1a1a23] border border-white/5 rounded-full text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] hover:bg-[#252530] hover:text-white transition-all"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    disabled={isSubmitting || !transferAmount || parseFloat(transferAmount) <= 0 || parseFloat(transferAmount) > (Number(stats.revenue) - Number(stats.totalTransferredRevenue))}
+                                    onClick={() => confirmTransfer()}
+                                    className="flex-[1.5] py-5 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full text-[11px] font-black text-white uppercase tracking-[0.2em] hover:shadow-[0_10px_30px_rgba(99,102,241,0.4)] transition-all flex items-center justify-center gap-2 group/btn relative overflow-hidden active:scale-95 disabled:opacity-20 disabled:grayscale"
+                                >
+                                    {isSubmitting ? (
+                                        <div className="w-5 h-5 border-3 border-white/30 border-t-white rounded-full animate-spin" />
+                                    ) : (
+                                        <span>Confirm Transfer</span>
+                                    )}
+                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
-            )}
+                , document.body)}
         </div>
+
     );
 }
