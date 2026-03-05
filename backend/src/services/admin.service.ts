@@ -18,7 +18,7 @@ interface GameData {
 
 export const adminService = {
     // --- Analytics ---
-    getOverview: async () => {
+    getOverview: async (period: string = '1Y') => {
         const activeGamesCount = await prisma.game.count({ where: { isActive: true } });
 
         const completedOrders = await prisma.transaction.count({
@@ -45,6 +45,81 @@ export const adminService = {
         // Local Diamond Stock
         const diamondStock = await getLocalDiamondStock();
 
+        // --- Analytics Chart Data ---
+        let chartData: { month: string, topup: number, card: number }[] = [];
+        const now = new Date();
+
+        if (period === '7D' || period === '30D') {
+            const days = period === '7D' ? 7 : 30;
+            const startDate = new Date();
+            startDate.setDate(now.getDate() - days + 1);
+            startDate.setHours(0, 0, 0, 0);
+
+            const transactions = await prisma.transaction.findMany({
+                where: { createdAt: { gte: startDate } },
+                select: { status: true, createdAt: true }
+            });
+
+            // Initialize days
+            for (let i = 0; i < days; i++) {
+                const date = new Date(startDate);
+                date.setDate(startDate.getDate() + i);
+                const label = date.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
+                chartData.push({ month: label, topup: 0, card: 0 });
+            }
+
+            // Group by day
+            transactions.forEach(tx => {
+                const txDate = tx.createdAt.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
+                const dataPoint = chartData.find(d => d.month === txDate);
+                if (dataPoint) {
+                    if (tx.status === 'COMPLETED') dataPoint.topup += 1;
+                    else if (tx.status === 'FAILED' || tx.status === 'EXPIRED') dataPoint.card += 1;
+                }
+            });
+        } else {
+            // 6M or 1Y (Default to 1Y)
+            const monthsToFetch = period === '6M' ? 6 : 12;
+            const months = [
+                'January', 'February', 'March', 'April', 'May', 'June',
+                'July', 'August', 'September', 'October', 'November', 'December'
+            ];
+
+            const startOfMonth = new Date(now.getFullYear(), now.getMonth() - monthsToFetch + 1, 1);
+
+            const transactions = await prisma.transaction.findMany({
+                where: { createdAt: { gte: startOfMonth } },
+                select: { status: true, createdAt: true }
+            });
+
+            // Initialize months
+            for (let i = 0; i < monthsToFetch; i++) {
+                const date = new Date(now.getFullYear(), now.getMonth() - monthsToFetch + 1 + i, 1);
+                chartData.push({ month: months[date.getMonth()], topup: 0, card: 0 });
+            }
+
+            // Group by month
+            transactions.forEach(tx => {
+                const monthName = months[tx.createdAt.getMonth()];
+                const dataPoint = chartData.find(d => d.month === monthName);
+                if (dataPoint) {
+                    if (tx.status === 'COMPLETED') dataPoint.topup += 1;
+                    else if (tx.status === 'FAILED' || tx.status === 'EXPIRED') dataPoint.card += 1;
+                }
+            });
+        }
+
+        // Get recent transactions
+        const recentTransactions = await prisma.transaction.findMany({
+            take: 10,
+            orderBy: { createdAt: 'desc' },
+            include: {
+                package: {
+                    include: { game: { select: { name: true, iconUrl: true } } }
+                }
+            }
+        });
+
         return {
             revenue: siteRevenue,
             providerWalletBalance,
@@ -52,9 +127,9 @@ export const adminService = {
             completedOrders,
             pendingOrders,
             activeGames: activeGamesCount,
-            cardOrders: 0, // Placeholder
-            chartData: [],
-            recentTransactions: []
+            cardOrders: 0,
+            chartData,
+            recentTransactions
         };
     },
 

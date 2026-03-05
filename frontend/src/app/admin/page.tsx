@@ -5,8 +5,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { apiRequest } from '@/lib/api';
 import {
-    DollarSign, Package, Receipt, Users, TrendingUp,
-    Calendar, MousePointer2, Wallet, Layers, Gamepad2,
+    DollarSign, Package, Users,
+    Calendar, Gamepad2,
     CheckCircle, Clock
 } from 'lucide-react';
 
@@ -65,9 +65,12 @@ export default function AdminDashboardPage() {
     });
     const [isLoading, setIsLoading] = useState(true);
 
-    const fetchData = async () => {
+    const [selectedPeriod, setSelectedPeriod] = useState('1Y');
+
+    const fetchData = async (period: string = selectedPeriod) => {
+        setIsLoading(true);
         try {
-            const overviewData = await apiRequest<typeof stats>('/admin/overview');
+            const overviewData = await apiRequest<typeof stats>(`/admin/overview?period=${period}`);
             setStats(prev => ({ ...prev, ...overviewData }));
         } catch (error) {
             console.error('Failed to fetch dashboard data', error);
@@ -77,23 +80,23 @@ export default function AdminDashboardPage() {
     };
 
     useEffect(() => {
-        fetchData();
-    }, []);
+        fetchData(selectedPeriod);
+    }, [selectedPeriod]);
 
-    // Monthly orders mock (matching chart in screenshot)
+    // Monthly orders mock (fallback)
     const monthlyData = [
-        { month: 'January', topup: 20, card: 30 },
-        { month: 'February', topup: 15, card: 25 },
-        { month: 'March', topup: 45, card: 85 }, // Highlighted in screenshot
-        { month: 'April', topup: 52, card: 60 },
+        { month: 'Jan', topup: 20, card: 30 },
+        { month: 'Feb', topup: 15, card: 25 },
+        { month: 'Mar', topup: 45, card: 85 },
+        { month: 'Apr', topup: 52, card: 60 },
         { month: 'May', topup: 48, card: 68 },
-        { month: 'June', topup: 45, card: 40 },
-        { month: 'July', topup: 55, card: 38 },
-        { month: 'August', topup: 50, card: 58 },
-        { month: 'September', topup: 22, card: 35 },
-        { month: 'October', topup: 42, card: 62 },
-        { month: 'November', topup: 40, card: 52 },
-        { month: 'December', topup: 55, card: 70 },
+        { month: 'Jun', topup: 45, card: 40 },
+        { month: 'Jul', topup: 55, card: 38 },
+        { month: 'Aug', topup: 50, card: 58 },
+        { month: 'Sep', topup: 22, card: 35 },
+        { month: 'Oct', topup: 42, card: 62 },
+        { month: 'Nov', topup: 40, card: 52 },
+        { month: 'Dec', topup: 55, card: 70 },
     ];
 
     const currentMonth = new Date().toLocaleString('default', { month: 'long' });
@@ -193,9 +196,9 @@ export default function AdminDashboardPage() {
             </div>
 
             {/* ── Analytics Section ────────────────────────────────────────── */}
-            <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
+            <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 p-2">
                 {/* Advanced Chart Card */}
-                <div className="xl:col-span-8 bg-[#12111d] rounded-[3rem] border border-white/5 p-8 md:p-10 relative overflow-hidden group">
+                <div className="xl:col-span-8 bg-[#12111d] rounded-[3rem] border border-white/5 p-2 md:p-10 relative overflow-hidden group">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-12">
                         <div>
                             <h3 className="text-2xl font-black text-white italic tracking-tight uppercase">Revenue Analytics</h3>
@@ -203,7 +206,11 @@ export default function AdminDashboardPage() {
                         </div>
                         <div className="flex bg-[#0a0a14] p-1.5 rounded-2xl border border-white/5">
                             {['7D', '30D', '6M', '1Y'].map(t => (
-                                <button key={t} className={`px-4 py-2 rounded-xl text-[8px] font-black transition-all ${t === '1Y' ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-500 hover:text-white'}`}>
+                                <button
+                                    key={t}
+                                    onClick={() => setSelectedPeriod(t)}
+                                    className={`px-4 py-2 rounded-xl text-[8px] font-black transition-all ${selectedPeriod === t ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' : 'text-slate-500 hover:text-white'}`}
+                                >
                                     {t}
                                 </button>
                             ))}
@@ -217,8 +224,12 @@ export default function AdminDashboardPage() {
                             </div>
                         ))}
 
-                        {(stats.chartData.length > 0 ? stats.chartData : monthlyData).map((d) => {
-                            const maxVal = Math.max(...(stats.chartData.length > 0 ? stats.chartData : monthlyData).map(m => Math.max(m.topup, m.card, 1)));
+                        {isLoading ? (
+                            <div className="absolute inset-0 flex items-center justify-center">
+                                <span className="text-[10px] font-black text-indigo-500/50 uppercase tracking-[0.5em] animate-pulse">Syncing Data...</span>
+                            </div>
+                        ) : (stats.chartData.length > 0 ? stats.chartData : monthlyData).map((d) => {
+                            const maxVal = Math.max(...(stats.chartData.length > 0 ? stats.chartData : monthlyData).map(m => Math.max(m.topup, m.card, 1)), 10);
                             const topupHeight = (d.topup / maxVal) * 85;
                             const cardHeight = (d.card / maxVal) * 85;
 
@@ -234,18 +245,20 @@ export default function AdminDashboardPage() {
                                             style={{ height: `${cardHeight}%` }}
                                         />
                                     </div>
-                                    <span className="text-[8px] font-black text-slate-600 uppercase mt-4 absolute bottom-0 tracking-tighter">{d.month.substring(0, 3)}</span>
+                                    <span className="text-[8px] font-black text-slate-600 uppercase mt-4 absolute bottom-0 tracking-tighter">
+                                        {d.month.includes(' ') ? d.month : d.month.substring(0, 3)}
+                                    </span>
 
                                     <div className="absolute bottom-full mb-6 opacity-0 group-hover/bar:opacity-100 transition-all duration-300 scale-90 group-hover/bar:scale-100 z-30 pointer-events-none">
                                         <div className="bg-[#1b1a29]/90 backdrop-blur-xl border border-white/10 rounded-2xl p-3 shadow-2xl min-w-[120px]">
                                             <p className="text-[9px] font-black text-indigo-400 uppercase tracking-widest mb-2 text-center">{d.month}</p>
                                             <div className="space-y-1.5">
                                                 <div className="flex justify-between items-center text-[9px] font-bold">
-                                                    <span className="text-slate-400 uppercase">Topup</span>
+                                                    <span className="text-slate-400 uppercase">Completed</span>
                                                     <span className="text-white">{d.topup}</span>
                                                 </div>
                                                 <div className="flex justify-between items-center text-[9px] font-bold">
-                                                    <span className="text-slate-400 uppercase">Card</span>
+                                                    <span className="text-slate-400 uppercase">Failed</span>
                                                     <span className="text-white">{d.card}</span>
                                                 </div>
                                             </div>

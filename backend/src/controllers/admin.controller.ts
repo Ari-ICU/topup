@@ -42,7 +42,8 @@ export const adminLogin = async (req: Request, res: Response) => {
 
 export const getOverview = async (req: Request, res: Response) => {
     try {
-        const data = await adminService.getOverview();
+        const period = req.query.period as string || '1Y';
+        const data = await adminService.getOverview(period);
         res.json({ success: true, data });
     } catch (error: any) {
         res.status(500).json({ success: false, message: error.message });
