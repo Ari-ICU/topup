@@ -7,7 +7,6 @@ import { sendSuccess, sendError } from "../utils/apiResponse.js";
 import { prisma } from "../lib/prisma.js";
 
 export const createTransaction = async (req: Request, res: Response) => {
-    console.log(`[Transaction] 🛒 Create Order Request:`, JSON.stringify(req.body));
     const { packageId, playerInfo, paymentMethod } = req.body;
 
     // ── Guard: block order creation if no real provider is ready ─────────────
@@ -38,15 +37,8 @@ export const createTransaction = async (req: Request, res: Response) => {
                 amount: Number(transaction.totalAmount),
                 transactionId: transaction.id,
             });
-
-            // Update transaction with payment reference (MD5) for later verification/polling
-            await prisma.transaction.update({
-                where: { id: transaction.id },
-                data: { paymentRef: khqr.md5 }
-            });
-
             // Return transaction + payment QR data together
-            return sendSuccess(res, { ...transaction, paymentRef: khqr.md5, paymentData: khqr }, "Transaction created successfully", 201);
+            return sendSuccess(res, { ...transaction, paymentData: khqr }, "Transaction created successfully", 201);
         }
 
         return sendSuccess(res, transaction, "Transaction created successfully", 201);
@@ -85,71 +77,96 @@ export const getTransactionStatus = async (req: Request, res: Response) => {
 /**
  * POST /transactions/:id/confirm
  *
- * Manually confirm a transaction (called by Admin or via Webhook).
+ * Called after payment is verified (e.g., Bakong webhook or manual admin confirm).
+ * This endpoint:
+ *   1. Marks the transaction as PROCESSING
+ *   2. Calls MooGold (or fallback provider) to deliver the diamonds
+ *   3. Marks the transaction as COMPLETED with the provider reference
  */
 export const confirmAndFulfillTransaction = async (req: Request, res: Response) => {
     const { id } = req.params;
 
     try {
-        const result = await transactionService.fulfillTransaction(id);
-        return sendSuccess(res, result, "Transaction fulfilled successfully!");
-    } catch (error: any) {
-        return sendError(res, error.message || "Fulfillment failed", 500);
-    }
-};
+        // 1. Load transaction with package info
+        const transaction = await prisma.transaction.findUnique({
+            where: { id },
+            include: {
+                package: {
+                    include: { game: true },
+                },
+            },
+        });
 
-/**
- * POST /transactions/:id/check-payment
- * 
- * Called by the frontend to poll for payment status (especially for KHQR).
- * If payment is confirmed by the provider, it automatically triggers fulfillment.
- */
-export const checkPaymentAndFulfill = async (req: Request, res: Response) => {
-    const { id } = req.params;
+        if (!transaction) {
+            return sendError(res, "Transaction not found", 404);
+        }
 
-    try {
-        const transaction = await transactionService.getTransactionById(id);
-
-        // 1. If already completed, just return success
         if (transaction.status === "COMPLETED") {
-            return sendSuccess(res, { status: "COMPLETED", message: "Transaction already completed." });
+            return sendError(res, "Transaction has already been fulfilled", 400);
         }
 
-        // 2. Only check if it's PENDING and method is BAKONG
-        if (transaction.status === "PENDING" && transaction.paymentMethod === "BAKONG") {
-            const md5 = transaction.paymentRef;
-            if (!md5) {
-                return sendSuccess(res, { status: "PENDING", message: "Waiting for KHQR generation..." });
-            }
-
-            // 3. Check Bakong API
-            const check = await bakongService.checkBakongTransactionStatus(md5);
-
-            if (check.status === "SUCCESS") {
-                console.log(`[AutoCheck] 💰 Payment detected for TxID ${id}. Triggering fulfillment...`);
-
-                // 4. Trigger fulfillment automatically
-                const result = await transactionService.fulfillTransaction(id);
-
-                return sendSuccess(res, {
-                    status: "COMPLETED",
-                    provider: result.provider,
-                    providerRef: result.providerRef,
-                    message: "Payment received and diamonds delivered!"
-                });
-            }
-
-            return sendSuccess(res, {
-                status: "PENDING",
-                message: check.message || "Still waiting for payment..."
-            });
+        if (transaction.status === "FAILED") {
+            return sendError(res, "Cannot fulfill a failed transaction", 400);
         }
 
-        // For other methods or statuses, just return the current state
-        return sendSuccess(res, { status: transaction.status, message: "Transaction status checked." });
+        // 2. Mark as PROCESSING
+        await prisma.transaction.update({
+            where: { id },
+            data: { status: "PROCESSING" },
+        });
+
+        // 3. Extract player info
+        const playerInfo = transaction.playerInfo as { userId?: string; zoneId?: string;[key: string]: any };
+        const playerId = playerInfo?.userId || playerInfo?.playerId || "";
+        const zoneId = playerInfo?.zoneId;
+
+        // providerSku must be set on the Package record in admin panel
+        const providerSku = (transaction.package as any)?.providerSku as string | undefined;
+        if (!providerSku) {
+            await prisma.transaction.update({ where: { id }, data: { status: "FAILED" } });
+            return sendError(res, "Package is missing a Provider SKU. Please configure it in the admin panel.", 422);
+        }
+
+        // 4. Call the top-up provider (MooGold by default)
+        const result = await processTopUp({
+            transactionId: transaction.id,
+            providerSku,
+            playerId,
+            zoneId,
+        });
+
+        // 5. Mark as COMPLETED with provider reference
+        const completed = await prisma.transaction.update({
+            where: { id },
+            data: {
+                status: "COMPLETED",
+                providerRef: result.providerRef,
+            },
+        });
+
+        // 6. Deduct real diamonds from global stock ONLY after confirmed delivery
+        //    -1 = unlimited, skip; otherwise deduct the package's diamond amount
+        const deliveredAmount = (transaction.package as any)?.amount as number;
+        await deductGlobalStock(deliveredAmount);
+
+        console.log(`[Fulfillment] ✅ TxID ${id} completed via ${result.provider}. Ref: ${result.providerRef}. Stock deducted: ${deliveredAmount}💎`);
+
+        return sendSuccess(res, {
+            ...completed,
+            provider: result.provider,
+            providerRef: result.providerRef,
+            message: result.message,
+        }, "Diamonds delivered successfully!");
 
     } catch (error: any) {
-        console.error(`[AutoCheck] Error checking TxID ${id}:`, error.message);
-        return sendError(res, "Failed to check payment status", 500);
+        console.error(`[Fulfillment] ❌ TxID ${id} failed:`, error.message);
+
+        // Mark transaction as FAILED so admin can retry
+        await prisma.transaction.update({
+            where: { id },
+            data: { status: "FAILED" },
+        }).catch(() => { });
+
+        return sendError(res, `Fulfillment failed: ${error.message}`, 500);
     }
 };

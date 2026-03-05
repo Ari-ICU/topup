@@ -24,70 +24,17 @@ export const adminService = {
             _sum: { totalAmount: true }
         });
 
-        // Recent successful operations
-        const recentTransactions = await prisma.transaction.findMany({
-            take: 5,
-            orderBy: { createdAt: 'desc' },
-            include: {
-                package: {
-                    select: { name: true, game: { select: { name: true } } }
-                }
-            }
-        });
-
-        // 7-day revenue performance (simplified)
-        const sevenDaysAgo = new Date();
-        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-
-        const dailyRevenue = await prisma.transaction.groupBy({
-            by: ['createdAt'],
-            where: {
-                status: 'COMPLETED',
-                createdAt: { gte: sevenDaysAgo }
-            },
-            _sum: { totalAmount: true }
-        });
-
         // 🟢 Retrieve REAL balance from ANY active provider (MooGold, Digi, Friend, or Local)
         const globalStockDiamonds = await getActiveProviderBalance();
 
         const totalRevenue = Number(result._sum.totalAmount) || 0;
-        const completedCount = await prisma.transaction.count({ where: { status: 'COMPLETED' } });
-
-        // Metrics
-        const conversionRate = totalTransactions > 0 ? (completedCount / totalTransactions * 100).toFixed(2) : "0.00";
-        const avgTicketSize = completedCount > 0 ? (totalRevenue / completedCount).toFixed(2) : "0.00";
-
-        // Count unique players by playerId/userId in playerInfo JSON
-        const uniquePlayers = await prisma.transaction.groupBy({
-            by: ['playerInfo'],
-            where: { status: 'COMPLETED' }
-        });
-
-        // Aggregate into unique daily buckets for the chart
-        const aggregated = new Map<string, number>();
-        dailyRevenue.forEach(d => {
-            const dateStr = d.createdAt.toISOString().split('T')[0];
-            aggregated.set(dateStr, (aggregated.get(dateStr) || 0) + (Number(d._sum.totalAmount) || 0));
-        });
-
-        const sortedChartData = Array.from(aggregated.entries())
-            .map(([date, amount]) => ({ date, amount }))
-            .sort((a, b) => a.date.localeCompare(b.date));
 
         return {
             revenue: totalRevenue,
             transactions: totalTransactions,
             activeGames: activeGamesCount,
             globalStockDiamonds,
-            pendingReviews: pendingReviewsCount,
-            recentTransactions,
-            chartData: sortedChartData,
-            metrics: {
-                conversionRate: `${conversionRate}%`,
-                avgTicketSize: `$${avgTicketSize}`,
-                customerLTV: uniquePlayers.length > 0 ? `$${(totalRevenue / uniquePlayers.length).toFixed(2)}` : "$0.00"
-            }
+            pendingReviews: pendingReviewsCount
         };
     },
 
@@ -237,11 +184,45 @@ export const adminService = {
     },
 
     updateTransactionStatus: async (id: string, status: any) => {
-        // If admin marks as COMPLETED, we use the central fulfillment logic
-        if (status === "COMPLETED") {
-            const { fulfillTransaction } = await import("./transaction.service.js");
-            const result = await fulfillTransaction(id);
-            return prisma.transaction.findUnique({ where: { id } });
+        // Find existing transaction to get package and player info
+        const transaction = await prisma.transaction.findUnique({
+            where: { id },
+            include: { package: true }
+        });
+
+        if (!transaction) throw new Error("Transaction not found");
+
+        // If admin marks as COMPLETED, we initiate the top-up via Provider API
+        if (status === "COMPLETED" && transaction.status !== "COMPLETED") {
+            try {
+                const playerInfo: any = transaction.playerInfo;
+                const result = await processTopUp({
+                    transactionId: transaction.id,
+                    providerSku: transaction.package.providerSku,
+                    playerId: playerInfo.playerId || playerInfo.userId || "",
+                    zoneId: playerInfo.zoneId,
+                });
+
+                // Save reference from provider
+                const updatedTransaction = await prisma.transaction.update({
+                    where: { id },
+                    data: {
+                        status,
+                        providerRef: result.providerRef,
+                    },
+                });
+
+                // Deduct real diamonds from global stock ONLY after confirmed delivery
+                // Uses shared helper — handles unlimited (-1) correctly
+                await deductGlobalStock(transaction.package.amount);
+
+                console.log(`[Admin] ✅ Manually completed TxID ${id} via ${result.provider}. Stock deducted: ${transaction.package.amount}💎`);
+
+                return updatedTransaction;
+            } catch (err: any) {
+                console.error("[Admin] TopUp Failed:", err.message);
+                throw new Error("Failed to deliver diamonds via Provider API: " + err.message);
+            }
         }
 
         // Just a normal status update (e.g., to FAILED or PROCESSING)
