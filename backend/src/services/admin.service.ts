@@ -404,11 +404,20 @@ export const adminService = {
     transferRevenue: async (amount: number) => {
         const globalStockRow = await prisma.globalStock.findUnique({ where: { id: "GLOBAL" } });
         const currentTotal = Number(globalStockRow?.totalTransferredRevenue) || 0;
+        const currentProviderBalance = Number(globalStockRow?.providerBalance) || 0;
 
         const updated = await prisma.globalStock.upsert({
             where: { id: "GLOBAL" },
-            update: { totalTransferredRevenue: currentTotal + amount },
-            create: { id: "GLOBAL", diamonds: -1, totalTransferredRevenue: amount }
+            update: {
+                totalTransferredRevenue: currentTotal + amount,
+                providerBalance: currentProviderBalance + amount
+            },
+            create: {
+                id: "GLOBAL",
+                diamonds: -1,
+                totalTransferredRevenue: amount,
+                providerBalance: amount
+            }
         });
 
         return updated;
