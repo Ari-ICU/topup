@@ -41,9 +41,8 @@ export function KhqrModal({ qrCode, amount, playerName, onCancel }: KhqrModalPro
 
                 <div className="p-8 pb-6 flex flex-col items-center">
                     <div className="mb-6 text-center">
-                        <div className="text-slate-500 text-[10px] tracking-[0.1em] uppercase mb-2 font-bold italic">Recipient Identity</div>
                         {playerName ? (
-                            <div className="text-indigo-400 font-bold text-sm tracking-widest uppercase mb-1">{playerName}</div>
+                            <div className="text-indigo-400 font-bold text-sm tracking-widest uppercase mb-1"> <span className="text-slate-500 text-[10px] tracking-[0.1em] uppercase mb-2 font-bold italic">Player Name:</span> {playerName}</div>
                         ) : null}
                         <div className="font-display text-[32px] font-bold text-white tracking-tight leading-none">${amount}</div>
                     </div>

@@ -279,7 +279,7 @@ export default function TopupPage() {
                     <div className="lg:col-span-2 space-y-8">
 
                         {/* Step 1: Account Info (MooGold Style: card-style inputs) */}
-                        <div className="glass-card p-6 md:p-10 rounded-[32px] md:rounded-[42px] border-white/5 relative overflow-hidden group shadow-2xl bg-white/5 backdrop-blur-xl">
+                        <div className="glass-card p-4 md:p-8 rounded-[32px] md:rounded-[42px] border-white/5 relative overflow-hidden group shadow-2xl bg-white/5 backdrop-blur-xl">
                             <div className="absolute -right-20 -top-20 w-80 h-80 bg-purple-500/5 rounded-full blur-[100px]" />
 
                             <div className="flex items-center gap-3 px-5 py-3 rounded-2xl md:rounded-[2rem] bg-purple-600/90 mb-8 border border-white/10 shadow-lg backdrop-blur-sm self-start inline-flex group/header">
@@ -291,7 +291,7 @@ export default function TopupPage() {
                                 </h2>
                             </div>
 
-                            <div className={`grid ${game.inputConfig?.zoneId ? 'grid-cols-5' : 'grid-cols-1'} gap-4 md:gap-8 mt-6`}>
+                            <div className={`grid ${game.inputConfig?.zoneId ? 'grid-cols-5' : 'grid-cols-1'} gap-2 md:gap-4`}>
                                 <div className={`space-y-3 md:space-y-4 ${game.inputConfig?.zoneId ? 'col-span-3' : ''}`}>
                                     <label className="flex items-center gap-2 text-[10px] font-black text-slate-500 uppercase tracking-[0.25em] ml-2">
                                         <Hash className="w-4 h-4 text-purple-500" />
@@ -328,23 +328,23 @@ export default function TopupPage() {
                                 )}
                             </div>
 
-                            <div className="mt-8 flex flex-col sm:flex-row items-center gap-6">
+                            <div className="mt-4 md:mt-8 flex flex-col sm:flex-row items-center gap-6">
                                 <button
                                     onClick={handleVerify}
                                     disabled={!userId.trim() || isVerifying}
-                                    className="w-full sm:w-auto px-10 py-5 rounded-3xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-black text-xs uppercase tracking-[0.2em] shadow-[0_20px_40px_rgba(124,58,237,0.3)] hover:shadow-purple-500/50 transition-all active:scale-95 disabled:opacity-20 flex items-center justify-center gap-3"
+                                    className="w-fit px-5 py-2 md:py-5 rounded-3xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-black text-xs uppercase tracking-[0.2em] shadow-[0_20px_40px_rgba(124,58,237,0.3)] hover:shadow-purple-500/50 transition-all active:scale-95 disabled:opacity-20 flex items-center justify-center gap-3"
                                 >
                                     {isVerifying ? <Loader2 className="w-5 h-5 animate-spin" /> : <Shield className="w-5 h-5" />}
                                     {isVerifying ? tr(t.topup.verifyingBtn, lang) : tr(t.topup.verifyBtn, lang)}
                                 </button>
-                                <p className="text-[10px] md:text-[12px] text-slate-500 font-bold uppercase tracking-widest text-center sm:text-left">{tr(t.topup.verifyHint, lang)}</p>
+                                <p className="text-[8px] md:text-[12px] text-slate-500 font-bold uppercase tracking-widest text-center sm:text-left">{tr(t.topup.verifyHint, lang)}</p>
                             </div>
 
                             <VerifyBanner status={verifyStatus} verifiedName={verifiedName} verifyError={verifyError} lang={lang} />
                         </div>
 
                         {/* Step 2: Package Selection (MooGold Style: prominent selection) */}
-                        <div className="glass-card p-6 md:p-10 rounded-[32px] md:rounded-[42px] border-white/5 relative overflow-hidden shadow-2xl bg-white/5 backdrop-blur-xl">
+                        <div className="glass-card p-4 md:p-8 rounded-[32px] md:rounded-[42px] border-white/5 relative overflow-hidden shadow-2xl bg-white/5 backdrop-blur-xl">
                             <div className="absolute -right-20 -top-20 w-80 h-80 bg-purple-500/5 rounded-full blur-[100px]" />
 
                             <div className="flex items-center gap-3 px-5 py-3 rounded-2xl md:rounded-[2rem] bg-indigo-600/90 mb-8 border border-white/10 shadow-lg backdrop-blur-sm self-start inline-flex">
@@ -413,7 +413,7 @@ export default function TopupPage() {
                         </div>
 
                         {/* Step 3: Payment Method */}
-                        <div className="glass-card p-6 md:p-10 rounded-[32px] md:rounded-[42px] border-white/5 relative overflow-hidden shadow-2xl bg-white/5 backdrop-blur-xl">
+                        <div className="glass-card p-4 md:p-8 rounded-[32px] md:rounded-[42px] border-white/5 relative overflow-hidden shadow-2xl bg-white/5 backdrop-blur-xl">
                             <div className="absolute -left-20 -bottom-20 w-80 h-80 bg-emerald-500/5 rounded-full blur-[100px]" />
 
                             <div className="flex items-center gap-3 px-5 py-3 rounded-2xl md:rounded-[2rem] bg-emerald-600/90 mb-10 border border-white/10 shadow-lg backdrop-blur-sm self-start inline-flex group/header">
