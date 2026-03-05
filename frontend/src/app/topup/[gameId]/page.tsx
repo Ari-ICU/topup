@@ -236,16 +236,16 @@ export default function TopupPage() {
                 </div>
 
                 <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-16">
-                    <div className="flex flex-col md:flex-row items-center md:items-end gap-8 md:gap-12">
+                    <div className="flex flex-col md:flex-row items-center md:items-end gap-8 md:gap-10 lg:gap-14">
                         {/* Game Icon */}
-                        <div className="relative group">
+                        <div className="relative group flex-shrink-0">
                             <div className="absolute inset-0 bg-purple-500/20 blur-3xl group-hover:bg-purple-500/40 transition-colors" />
-                            <div className="relative w-36 h-36 md:w-56 md:h-56 rounded-[2.5rem] md:rounded-[3.5rem] bg-slate-900/60 backdrop-blur-xl border-2 border-white/10 overflow-hidden shadow-[0_0_50px_rgba(168,85,247,0.3)] p-5 md:p-6 rotate-1 group-hover:rotate-0 transition-all duration-700">
+                            <div className="relative w-32 h-32 md:w-44 md:h-44 lg:w-52 lg:h-52 rounded-[2.5rem] md:rounded-[3rem] bg-slate-900/60 backdrop-blur-xl border-2 border-white/10 overflow-hidden shadow-[0_0_50px_rgba(168,85,247,0.3)] p-4 md:p-5 rotate-1 group-hover:rotate-0 transition-all duration-700">
                                 <Image
                                     src={game.iconUrl || "/hero-image.png"}
                                     alt={game.name}
                                     fill
-                                    className="object-contain p-3 md:p-5 transition-transform duration-700 group-hover:scale-110"
+                                    className="object-contain p-3 md:p-4 transition-transform duration-700 group-hover:scale-110"
                                     unoptimized={true}
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-tr from-purple-500/20 to-transparent pointer-events-none" />
@@ -253,12 +253,12 @@ export default function TopupPage() {
                         </div>
 
                         {/* Game Meta */}
-                        <div className="flex-1 text-center md:text-left space-y-4 md:space-y-6">
+                        <div className="flex-1 min-w-0 text-center md:text-left space-y-4 md:space-y-5">
                             <div className={`inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[10px] md:text-[11px] font-black text-emerald-400 uppercase tracking-[0.25em] ${lang === 'km' ? 'khmer-text text-[12px]' : ''}`}>
                                 <div className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
                                 {tr(t.topup.instantEnabled, lang)}
                             </div>
-                            <h1 className="text-5xl sm:text-7xl md:text-9xl font-black text-white italic tracking-tighter drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)] leading-tight select-none">
+                            <h1 className="text-5xl sm:text-7xl md:text-7xl lg:text-8xl font-black text-white italic tracking-tighter drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)] leading-[0.9] select-none break-words">
                                 {game.name.toUpperCase()}
                             </h1>
 
