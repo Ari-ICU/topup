@@ -13,35 +13,14 @@ import { getActiveProviderBalance, processTopUp } from "./topup-provider.service
 // ============================================================================
 
 export const deductGlobalStock = async (diamondAmount: number): Promise<void> => {
-    // Attempt to sync with provider after deduction. We fetch live balance first;
-    // if the provider reports a finite number we use it as the source of truth.
-    const providerStock = await getActiveProviderBalance();
-
-    // When providerStock is a finite number, we can update our local table to keep
-    // it in sync. We subtract the amount we just delivered so that the next check
-    // reflects the remaining balance.
-    if (providerStock !== -1) {
-        const newCount = Math.max(0, providerStock - diamondAmount);
-        const updated = await prisma.globalStock.upsert({
-            where: { id: "GLOBAL" },
-            update: { diamonds: newCount },
-            create: { id: "GLOBAL", diamonds: newCount }
-        });
-        console.log(`[Stock] Synced local stock to provider (${providerStock}→${newCount}).`);
-        if (updated.diamonds < 0) {
-            throw new Error(`Global Stock Insufficient during deduction: provider reported ${providerStock}`);
-        }
-        return;
-    }
-
-    // Fallback to local stock if provider is unlimited or unreachable.
+    // We only use the local GlobalStock table to track diamonds.
     const stock = await prisma.globalStock.upsert({
         where: { id: "GLOBAL" },
         update: {},
         create: { id: "GLOBAL", diamonds: -1 }
     });
 
-    // Unlimited mode ("-1") means we don't track locally.
+    // Unlimited mode ("-1") means we don't track or deduct.
     if (stock.diamonds === -1) {
         console.log(`[Stock] Unlimited mode, skipping local deduction for ${diamondAmount} diamonds.`);
         return;
@@ -77,15 +56,6 @@ export const createNewTransaction = async (data: {
 
     if (!pkg) {
         throw new Error("Package not found");
-    }
-
-    // ── Guard: check supplier balance if possible ────────────────────────────
-    // We perform a live check against the active provider and our local table,
-    // preventing orders when there isn't enough stock available. This avoids
-    // charging customers for orders we cannot fulfill.
-    const providerStock = await getActiveProviderBalance();
-    if (providerStock !== -1 && providerStock < pkg.amount) {
-        throw new Error(`Global Stock Insufficient: provider only has ${providerStock} diamonds`);
     }
 
     const localStock = await prisma.globalStock.findUnique({ where: { id: "GLOBAL" } });

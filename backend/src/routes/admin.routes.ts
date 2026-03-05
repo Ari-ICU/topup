@@ -21,8 +21,6 @@ import {
     getProviderStatusEndpoint,
     getApiKeys,
     generateApiKeys,
-    transferToWallet,
-    getMooGoldProducts,
 } from "../controllers/admin.controller.js";
 import { adminLimiter } from "../middleware/rateLimit.middleware.js";
 import { adminAuth } from "../middleware/auth.middleware.js";
@@ -59,9 +57,6 @@ router.delete("/packages/:id", deletePackage);
 router.get("/transactions", getTransactions);
 router.put("/transactions/:id/status", updateTransactionStatus);
 
-// MooGold Products Sync
-router.get("/moogold/products", getMooGoldProducts);
-
 // Settings
 router.get("/settings", getSettings);
 router.put("/settings", updateSettings);
@@ -77,8 +72,5 @@ router.get("/provider-status", getProviderStatusEndpoint);
 
 // Sync local stock with provider (populates globalStock table)
 router.post("/global-stock/sync", syncProviderStock);
-
-// Wallet
-router.post("/wallet/transfer", transferToWallet);
 
 export default router;

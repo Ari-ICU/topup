@@ -482,13 +482,15 @@ export default function TopupPage() {
                         <div className="glass-card p-4 md:p-8 rounded-[32px] md:rounded-[42px] border-white/5 relative overflow-hidden shadow-2xl bg-white/5 backdrop-blur-xl">
                             <div className="absolute -right-20 -top-20 w-80 h-80 bg-purple-500/5 rounded-full blur-[100px]" />
 
-                            <div className="flex items-center gap-3 px-2 py-2 md:px-5 md:py-3 rounded-2xl md:rounded-[2rem] bg-indigo-600/90 mb-8 border border-white/10 shadow-lg backdrop-blur-sm self-start inline-flex">
-                                <div className="h-10 w-10 flex-shrink-0 flex items-center justify-center bg-indigo-700/50 rounded-xl border border-white/20 overflow-hidden shadow-inner">
-                                    <Image src="/package-logo.png" alt="" width={28} height={28} className="object-contain" />
+                            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
+                                <div className="flex items-center gap-3 px-2 py-2 md:px-5 md:py-3 rounded-2xl md:rounded-[2rem] bg-indigo-600/90 border border-white/10 shadow-lg backdrop-blur-sm self-start inline-flex">
+                                    <div className="h-10 w-10 flex-shrink-0 flex items-center justify-center bg-indigo-700/50 rounded-xl border border-white/20 overflow-hidden shadow-inner">
+                                        <Image src="/package-logo.png" alt="" width={28} height={28} className="object-contain" />
+                                    </div>
+                                    <h2 className={`font-display text-white font-black tracking-tight uppercase italic ${lang === 'km' ? 'khmer-text md:text-xl text-xs' : 'md:text-xl text-xs'}`}>
+                                        2. {lang === 'km' ? 'ជ្រើសរើសកញ្ចប់ ពេជ្រ' : tr(t.topup.step2title, lang)}
+                                    </h2>
                                 </div>
-                                <h2 className={`font-display text-white font-black tracking-tight uppercase italic ${lang === 'km' ? 'khmer-text md:text-xl text-xs' : 'md:text-xl text-xs'}`}>
-                                    2. {lang === 'km' ? 'ជ្រើសរើសកញ្ចប់ ពេជ្រ' : tr(t.topup.step2title, lang)}
-                                </h2>
                             </div>
 
                             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">

@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { createPortal } from 'react-dom';
 import { apiRequest } from '@/lib/api';
-import { Edit2, Trash2, PlusCircle, ToggleLeft, ToggleRight, Gamepad2, GripVertical, Search, X } from 'lucide-react';
+import { Edit2, Trash2, PlusCircle, ToggleLeft, ToggleRight, Gamepad2, GripVertical, Search, X, CheckCircle, AlertTriangle, XCircle, ChevronDown, CheckCircle2 } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import Image from 'next/image';
 
@@ -49,6 +49,33 @@ function AdminGamesContent() {
         requiresPlayerId: true,
         requiresZoneId: false
     });
+
+    // Toast notification state
+    const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'warning' } | null>(null);
+    const showToast = (message: string, type: 'success' | 'error' | 'warning' = 'error') => {
+        setToast({ message, type });
+        setTimeout(() => setToast(null), 5000);
+    };
+
+    // Custom Confirmation Modal State
+    const [confirmModal, setConfirmModal] = useState<{
+        isOpen: boolean;
+        title: string;
+        message: string;
+        onConfirm: () => void;
+        type: 'danger' | 'info';
+        confirmLabel?: string;
+    }>({
+        isOpen: false,
+        title: '',
+        message: '',
+        onConfirm: () => { },
+        type: 'info'
+    });
+
+    const openConfirm = (title: string, message: string, onConfirm: () => void, type: 'danger' | 'info' = 'info', confirmLabel: string = 'Confirm') => {
+        setConfirmModal({ isOpen: true, title, message, onConfirm, type, confirmLabel });
+    };
 
     const handleEditClick = (game: Game) => {
         setFormData({
@@ -135,23 +162,32 @@ function AdminGamesContent() {
                 method: 'POST',
                 body: JSON.stringify({ ids: items.map(i => i.id) })
             });
+            showToast('Sort order updated!', 'success');
         } catch (error) {
             console.error('Failed to update order', error);
             // Revert on error
             fetchGames();
-            alert('Failed to update sort order');
+            showToast('Failed to update sort order', 'error');
         }
     };
 
     const handleDelete = async (id: string) => {
-        if (!confirm('Are you sure you want to delete this game? This will also remove all its packages.')) return;
-        try {
-            await apiRequest(`/admin/games/${id}`, { method: 'DELETE' });
-            setGames((prev) => prev.filter((g) => g.id !== id));
-        } catch (error) {
-            console.error('Failed to delete game', error);
-            alert('Failed to delete game');
-        }
+        openConfirm(
+            'Delete Game',
+            'Are you sure you want to delete this game? All associated packages will be removed permanently.',
+            async () => {
+                try {
+                    await apiRequest(`/admin/games/${id}`, { method: 'DELETE' });
+                    setGames((prev) => prev.filter((g) => g.id !== id));
+                    showToast('Game deleted.', 'success');
+                } catch (error: any) {
+                    console.error('Failed to delete game', error);
+                    showToast(error.message || 'Failed to delete game', 'error');
+                }
+            },
+            'danger',
+            'Delete Now'
+        );
     };
 
     const handleSubmitGame = async (e: React.FormEvent) => {
@@ -193,16 +229,32 @@ function AdminGamesContent() {
             setShowForm(false);
             setEditingGameId(null);
             setFormData({ name: '', slug: '', iconUrl: '', requiresPlayerId: true, requiresZoneId: false });
+            showToast(editingGameId ? 'Game updated!' : 'Game created!', 'success');
         } catch (error: any) {
             console.error('Failed to save game', error);
-            alert(error.message || 'Failed to save game');
+            showToast(error.message || 'Failed to save game', 'error');
         } finally {
             setIsSaving(false);
         }
     };
 
     return (
-        <div className="space-y-8 animate-fade-in">
+        <div className="space-y-8 animate-fade-in relative">
+            {/* ── Toast Notification ──────────────────────────────────── */}
+            {toast && (
+                <div className={`fixed top-6 right-6 z-[999] flex items-start gap-3 max-w-sm px-5 py-4 rounded-xl shadow-2xl border backdrop-blur-sm animate-fade-in transition-all ${toast.type === 'success' ? 'bg-emerald-900/80 border-emerald-500/40 text-emerald-200' :
+                    toast.type === 'warning' ? 'bg-yellow-900/80 border-yellow-500/40 text-yellow-200' :
+                        'bg-red-900/80 border-red-500/40 text-red-200'
+                    }`}>
+                    {toast.type === 'success' && <CheckCircle className="w-5 h-5 shrink-0 mt-0.5 text-emerald-400" />}
+                    {toast.type === 'warning' && <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5 text-yellow-400" />}
+                    {toast.type === 'error' && <XCircle className="w-5 h-5 shrink-0 mt-0.5 text-red-400" />}
+                    <p className="text-sm font-bold uppercase tracking-tight flex-1">{toast.message}</p>
+                    <button onClick={() => setToast(null)} className="ml-2 opacity-60 hover:opacity-100 transition-opacity shrink-0">
+                        <X className="w-4 h-4" />
+                    </button>
+                </div>
+            )}
             {/* Header */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
                 <div>
@@ -509,6 +561,46 @@ function AdminGamesContent() {
                     </div>
                 )}
             </div>
+            {/* ── Custom Confirmation Popup ──────────────────────────── */}
+            {confirmModal.isOpen && typeof document !== 'undefined' && createPortal(
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6 animate-fade-in">
+                    {/* Backdrop */}
+                    <div className="absolute inset-0 bg-[#06060c]/80 backdrop-blur-xl" onClick={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))} />
+
+                    {/* Modal Content */}
+                    <div className="relative w-full max-w-sm bg-[#0c0c14] border border-white/10 rounded-[3rem] shadow-[0_40px_80px_-20px_rgba(0,0,0,0.8)] overflow-hidden animate-fade-in-up">
+                        <div className="p-10 pt-12 text-center">
+                            <div className={`w-20 h-20 mx-auto mb-8 rounded-[2rem] flex items-center justify-center border-2 ${confirmModal.type === 'danger' ? 'bg-red-500/10 border-red-500/20' : 'bg-indigo-500/10 border-indigo-500/20'}`}>
+                                {confirmModal.type === 'danger' ? (
+                                    <Trash2 className="w-10 h-10 text-red-500 drop-shadow-[0_0_15px_rgba(239,68,68,0.4)]" />
+                                ) : (
+                                    <Gamepad2 className="w-10 h-10 text-indigo-400 drop-shadow-[0_0_15px_rgba(99,102,241,0.4)]" />
+                                )}
+                            </div>
+
+                            <h3 className="text-2xl font-black text-white italic uppercase tracking-tighter mb-3">{confirmModal.title}</h3>
+                            <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest leading-relaxed mb-10">
+                                {confirmModal.message}
+                            </p>
+
+                            <div className="flex flex-col gap-3">
+                                <button
+                                    onClick={() => { confirmModal.onConfirm(); setConfirmModal(prev => ({ ...prev, isOpen: false })); }}
+                                    className={`w-full py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all active:scale-95 shadow-lg ${confirmModal.type === 'danger' ? 'bg-red-600 hover:bg-red-700 text-white shadow-red-600/20' : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-600/20'}`}
+                                >
+                                    {confirmModal.confirmLabel || 'Confirm'}
+                                </button>
+                                <button
+                                    onClick={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+                                    className="w-full py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 hover:text-white hover:bg-white/5 transition-all"
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>, document.body)
+            }
         </div>
     );
 }
