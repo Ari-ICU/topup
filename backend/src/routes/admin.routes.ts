@@ -19,6 +19,8 @@ import {
     updateGlobalStock,
     syncProviderStock,
     getProviderStatusEndpoint,
+    getApiKeys,
+    generateApiKeys,
 } from "../controllers/admin.controller.js";
 import { adminLimiter } from "../middleware/rateLimit.middleware.js";
 import { adminAuth } from "../middleware/auth.middleware.js";
@@ -59,6 +61,10 @@ router.put("/transactions/:id/status", updateTransactionStatus);
 router.get("/settings", getSettings);
 router.put("/settings", updateSettings);
 router.post("/global-stock", updateGlobalStock);
+
+// API Keys
+router.get("/api-keys", getApiKeys);
+router.post("/api-keys/generate", generateApiKeys);
 
 
 // Provider Status — for admin dashboard health warning
