@@ -75,20 +75,27 @@ export default function AdminDashboardPage() {
 
     const [selectedPeriod, setSelectedPeriod] = useState('1Y');
 
-    const fetchData = async (period: string = selectedPeriod) => {
-        setIsLoading(true);
+    const fetchData = async (period: string = selectedPeriod, silent = false) => {
+        if (!silent) setIsLoading(true);
         try {
             const overviewData = await apiRequest<typeof stats>(`/admin/overview?period=${period}`);
             setStats(prev => ({ ...prev, ...overviewData }));
         } catch (error) {
             console.error('Failed to fetch dashboard data', error);
         } finally {
-            setIsLoading(false);
+            if (!silent) setIsLoading(false);
         }
     };
 
     useEffect(() => {
         fetchData(selectedPeriod);
+
+        // 🔄 Added Real-time Polling: updates stats every 30 seconds
+        const pollInterval = setInterval(() => {
+            fetchData(selectedPeriod, true);
+        }, 30000);
+
+        return () => clearInterval(pollInterval);
     }, [selectedPeriod]);
 
     const handleTransferClick = () => {

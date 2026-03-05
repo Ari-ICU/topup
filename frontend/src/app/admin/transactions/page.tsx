@@ -46,8 +46,8 @@ export default function AdminTransactionsPage() {
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
-    const fetchTransactions = useCallback(async () => {
-        setIsLoading(true);
+    const fetchTransactions = useCallback(async (silent = false) => {
+        if (!silent) setIsLoading(true);
         try {
             const data = await apiRequest<Transaction[]>('/admin/transactions');
             setTransactions(data ?? []);
@@ -55,7 +55,7 @@ export default function AdminTransactionsPage() {
             console.error('Failed to fetch transactions', error);
             setTransactions([]);
         } finally {
-            setIsLoading(false);
+            if (!silent) setIsLoading(false);
         }
     }, []);
 
@@ -63,7 +63,7 @@ export default function AdminTransactionsPage() {
         fetchTransactions();
         // 🔄 Added Real-time Polling: updates the ledger every 30 seconds
         const pollInterval = setInterval(() => {
-            fetchTransactions();
+            fetchTransactions(true);
         }, 30000);
 
         return () => clearInterval(pollInterval);
@@ -100,7 +100,7 @@ export default function AdminTransactionsPage() {
                     </p>
                 </div>
                 <button
-                    onClick={fetchTransactions}
+                    onClick={() => fetchTransactions()}
                     className="group px-8 py-4 bg-white/5 hover:bg-white/10 border border-white/5 rounded-[2rem] text-[10px] font-black text-white uppercase tracking-[0.2em] transition-all hover:-translate-y-1 active:scale-95 flex items-center gap-3"
                 >
                     <RefreshCw className={`w-4 h-4 text-indigo-400 ${isLoading ? 'animate-spin' : ''}`} />
