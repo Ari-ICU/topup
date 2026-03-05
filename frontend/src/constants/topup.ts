@@ -7,7 +7,7 @@ export const PAYMENT_METHODS: PaymentMethod[] = [
         id: "bakong",
         name: "KHQR",
         shortName: "KHQR",
-        icon: "/khqr.png",
+        icon: "/khqr-v2.png",
         color: "from-red-600 to-rose-500",
         desc: "ABA · Acleda · Wing · any bank in Cambodia",
     },

@@ -276,7 +276,7 @@ export default function Home() {
                 <h4 className={`text-xs uppercase font-bold tracking-[0.2em] text-white/50 mb-5 ${lang === 'km' ? 'khmer-text' : ''}`}>{tr(t.footer.payments, lang)}</h4>
                 <div className="flex gap-3 mb-8">
                   <div className="md:h-32 md:w-32 h-24 w-24 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center p-2 group hover:border-purple-500/30 transition-all">
-                    <Image src="/khqr.png" alt="KHQR" width={64} height={64} className="object-contain w-full h-full opacity-70 group-hover:opacity-100 transition-opacity" />
+                    <Image src="/khqr-v2.png" alt="KHQR" width={64} height={64} className="object-contain w-full h-full opacity-70 group-hover:opacity-100 transition-opacity" />
                   </div>
                   <div className="md:h-32 md:w-32 h-24 w-24 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center p-2 group hover:border-purple-500/30 transition-all">
                     <Image src="/aba.png" alt="ABA" width={64} height={64} className="object-contain w-full h-full opacity-70 group-hover:opacity-100 transition-opacity" />
