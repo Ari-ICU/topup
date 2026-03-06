@@ -58,10 +58,16 @@ redis.on("close", () => {
     isConnected = false;
 });
 
-// connect eagerly
-redis.connect().catch((err: Error) => {
-    console.warn("[Redis] Could not connect:", err.message, "(Running without cache)");
-});
+// connect eagerly only if explicitly configured or in dev
+const shouldConnect = !!process.env.REDIS_URL || !!process.env.REDIS_HOST || process.env.NODE_ENV !== "production";
+
+if (shouldConnect) {
+    redis.connect().catch((err: Error) => {
+        console.warn("[Redis] Could not connect:", err.message, "(Running without cache)");
+    });
+} else {
+    console.info("[Redis] No REDIS_URL/HOST provided. Skipping connection (Running without cache).");
+}
 
 export const isRedisAvailable = () => isConnected && redis.status === "ready";
 
