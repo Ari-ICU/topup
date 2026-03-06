@@ -22,6 +22,11 @@ import {
     getApiKeys,
     generateApiKeys,
     transferRevenue,
+    getPromotions,
+    createPromotion,
+    updatePromotion,
+    deletePromotion,
+    reorderPromotions,
 } from "../controllers/admin.controller.js";
 import { adminLimiter } from "../middleware/rateLimit.middleware.js";
 import { adminAuth } from "../middleware/auth.middleware.js";
@@ -56,6 +61,13 @@ router.delete("/packages/:id", deletePackage);
 // Transactions
 router.get("/transactions", getTransactions);
 router.put("/transactions/:id/status", updateTransactionStatus);
+
+// Promotions
+router.get("/promotions", getPromotions);
+router.post("/promotions", createPromotion);
+router.put("/promotions/:id", updatePromotion);
+router.delete("/promotions/:id", deletePromotion);
+router.post("/promotions/reorder", reorderPromotions);
 
 // Configuration
 router.get("/settings", getSettings);

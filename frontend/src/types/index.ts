@@ -37,3 +37,14 @@ export interface PaymentMethod {
 export type TransactionStatus = "IDLE" | "PENDING" | "PROCESSING" | "COMPLETED" | "FAILED";
 
 export type VerifyStatus = "idle" | "success" | "format-ok" | "error";
+
+export interface Promotion {
+    id: string;
+    title: string;
+    subtitle?: string;
+    badgeText?: string;
+    badgeColor: string;
+    imageUrl: string;
+    linkUrl?: string;
+    isActive?: boolean;
+}

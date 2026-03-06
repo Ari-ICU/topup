@@ -73,6 +73,20 @@ model SystemSetting {
   updatedAt DateTime @updatedAt
 }
 
+model Promotion {
+  id          String   @id @default(cuid())
+  title       String
+  subtitle    String?
+  badgeText   String?
+  badgeColor  String   @default("purple")
+  imageUrl    String
+  linkUrl     String?
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
 
 enum TransactionStatus {
   PENDING

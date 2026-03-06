@@ -445,6 +445,67 @@ export const adminService = {
         ]);
 
         return { publicKey, secretKey };
+    },
+
+    // --- Promotions ---
+    getAllPromotions: async () => {
+        return prisma.promotion.findMany({
+            orderBy: { sortOrder: 'asc' }
+        });
+    },
+
+    getActivePromotions: async () => {
+        return prisma.promotion.findMany({
+            where: { isActive: true },
+            orderBy: { sortOrder: 'asc' }
+        });
+    },
+
+    createPromotion: async (data: {
+        title: string;
+        subtitle?: string;
+        badgeText?: string;
+        badgeColor?: string;
+        imageUrl: string;
+        linkUrl?: string;
+        isActive?: boolean;
+        sortOrder?: number;
+    }) => {
+        const promo = await prisma.promotion.create({ data });
+        return promo;
+    },
+
+    updatePromotion: async (id: string, data: Partial<{
+        title: string;
+        subtitle: string;
+        badgeText: string;
+        badgeColor: string;
+        imageUrl: string;
+        linkUrl: string;
+        isActive: boolean;
+        sortOrder: number;
+    }>) => {
+        const promo = await prisma.promotion.update({
+            where: { id },
+            data
+        });
+        return promo;
+    },
+
+    deletePromotion: async (id: string) => {
+        return prisma.promotion.delete({
+            where: { id }
+        });
+    },
+
+    reorderPromotions: async (ids: string[]) => {
+        const updates = ids.map((id, index) =>
+            prisma.promotion.update({
+                where: { id },
+                data: { sortOrder: index }
+            })
+        );
+        return prisma.$transaction(updates);
     }
 };
 

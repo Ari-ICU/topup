@@ -136,6 +136,7 @@ export default function AdminLayout({
                         <SidebarItem icon={Gamepad2} label="Games" href="/admin/games" isActive={pathname === '/admin/games'} onClick={closeSidebar} />
                         <SidebarItem icon={Package} label="Packages" href="/admin/packages" isActive={pathname === '/admin/packages'} onClick={closeSidebar} />
                         <SidebarItem icon={Receipt} label="Transactions" href="/admin/transactions" isActive={pathname === '/admin/transactions'} onClick={closeSidebar} />
+                        <SidebarItem icon={Star} label="Promotions" href="/admin/promotions" isActive={pathname === '/admin/promotions'} onClick={closeSidebar} />
 
                         <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.25em] px-4 mb-4 mt-8">System</p>
                         <SidebarItem icon={Users} label="Supplier API" href="/admin/supplier" isActive={pathname === '/admin/supplier'} onClick={closeSidebar} />

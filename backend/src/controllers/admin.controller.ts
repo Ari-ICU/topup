@@ -266,3 +266,59 @@ export const generateApiKeys = async (req: Request, res: Response) => {
         res.status(500).json({ success: false, message: error.message });
     }
 };
+
+// --- Promotions ---
+export const getPromotions = async (req: Request, res: Response) => {
+    try {
+        const data = await adminService.getAllPromotions();
+        res.json({ success: true, data });
+    } catch (error: any) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+export const createPromotion = async (req: Request, res: Response) => {
+    try {
+        const data = await adminService.createPromotion(req.body);
+        res.status(201).json({ success: true, data });
+    } catch (error: any) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+export const updatePromotion = async (req: Request, res: Response) => {
+    try {
+        const data = await adminService.updatePromotion(req.params.id, req.body);
+        res.json({ success: true, data });
+    } catch (error: any) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+export const deletePromotion = async (req: Request, res: Response) => {
+    try {
+        await adminService.deletePromotion(req.params.id);
+        res.json({ success: true, message: "Promotion deleted successfully" });
+    } catch (error: any) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+export const reorderPromotions = async (req: Request, res: Response) => {
+    try {
+        const { ids } = req.body;
+        await adminService.reorderPromotions(ids);
+        res.json({ success: true, message: "Promotions reordered successfully" });
+    } catch (error: any) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+export const getActivePromotionsPublic = async (req: Request, res: Response) => {
+    try {
+        const data = await adminService.getActivePromotions();
+        res.json({ success: true, data });
+    } catch (error: any) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
