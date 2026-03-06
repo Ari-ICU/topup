@@ -840,6 +840,22 @@ body {
   animation-delay: 0.4s;
 }
 
+@keyframes float-gentle {
+
+  0%,
+  100% {
+    transform: translateY(0) rotate(-6deg);
+  }
+
+  50% {
+    transform: translateY(-5px) rotate(-8deg);
+  }
+}
+
+.animate-float-gentle {
+  animation: float-gentle 3s ease-in-out infinite;
+}
+
 @keyframes dot-pulse {
   0% {
     opacity: 0;
