@@ -439,7 +439,7 @@ export default function TopupPage() {
                                             value={userId}
                                             onChange={(e) => handlePlayerIdChange(e.target.value)}
                                             placeholder="e.g. 12345678"
-                                            className="relative w-full bg-[#0a0a14]/60 border-2 border-slate-800/60 rounded-[24px] md:rounded-3xl px-4 md:px-6 py-2 md:py-5 text-white font-black text-[10px] md:text-[16px] focus:border-purple-500/50 focus:bg-[#0f0f1d] transition-all outline-none placeholder:text-slate-800 shadow-inner"
+                                            className="relative w-full bg-[#0a0a14]/60 border-2 border-slate-800/60 rounded-[24px] md:rounded-3xl px-4 md:px-6 py-3 md:py-5 text-white font-black text-[10px] md:text-[16px] focus:border-purple-500/50 focus:bg-[#0f0f1d] transition-all outline-none placeholder:text-slate-800 shadow-inner"
                                         />
                                     </div>
                                 </div>
@@ -456,7 +456,7 @@ export default function TopupPage() {
                                                 value={zoneId}
                                                 onChange={(e) => { setZoneId(e.target.value); resetVerify(); }}
                                                 placeholder="e.g. 1234"
-                                                className="relative w-full bg-[#0a0a14]/60 border-2 border-slate-800/60 rounded-[24px] md:rounded-3xl px-4 md:px-6 py-2 md:py-5 text-white font-black text-[10px] md:text-[16px] focus:border-purple-500/50 focus:bg-[#0f0f1d] transition-all outline-none placeholder:text-slate-800 shadow-inner"
+                                                className="relative w-full bg-[#0a0a14]/60 border-2 border-slate-800/60 rounded-[24px] md:rounded-3xl px-4 md:px-6 py-3 md:py-5 text-white font-black text-[10px] md:text-[16px] focus:border-purple-500/50 focus:bg-[#0f0f1d] transition-all outline-none placeholder:text-slate-800 shadow-inner"
                                             />
                                         </div>
                                     </div>
