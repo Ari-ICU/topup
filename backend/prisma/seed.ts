@@ -31,7 +31,7 @@ async function main() {
         where: { slug: "free-fire" },
         update: {
             name: "Free Fire",
-            iconUrl: "/free-fire.png",
+            iconUrl: "/free-fire-log.png",
             inputConfig: { playerId: "string" },
             sortOrder: 1,
             packages: {
@@ -48,7 +48,7 @@ async function main() {
         create: {
             slug: "free-fire",
             name: "Free Fire",
-            iconUrl: "/free-fire.png",
+            iconUrl: "/free-fire-log.png",
             inputConfig: { playerId: "string" },
             sortOrder: 1,
             packages: {
@@ -69,7 +69,7 @@ async function main() {
         where: { slug: "mobile-legends" },
         update: {
             name: "Mobile Legends",
-            iconUrl: "/mobile-legends.png",
+            iconUrl: "/mobile-legends-bang-bang-global-1770434793000.avif",
             inputConfig: { playerId: "string", zoneId: "string" },
             sortOrder: 2,
             packages: {
@@ -100,7 +100,7 @@ async function main() {
         create: {
             slug: "mobile-legends",
             name: "Mobile Legends",
-            iconUrl: "/mobile-legends.png",
+            iconUrl: "/mobile-legends-bang-bang-global-1770434793000.avif",
             inputConfig: { playerId: "string", zoneId: "string" },
             sortOrder: 2,
             packages: {
@@ -112,7 +112,21 @@ async function main() {
         },
     });
 
-    console.log("✅ Seeding completed. All 20 items are now in the database!");
+    // 5. GLOBAL STOCK & BALANCE (For Testing)
+    await prisma.globalStock.upsert({
+        where: { id: "GLOBAL" },
+        update: {
+            diamonds: 1000000,
+            providerBalance: 1000.00,
+        },
+        create: {
+            id: "GLOBAL",
+            diamonds: 1000000,
+            providerBalance: 1000.00,
+        },
+    });
+
+    console.log("✅ Seeding completed. All 20 items and test stock are now in the database!");
 }
 
 main()

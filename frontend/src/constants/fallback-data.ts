@@ -5,7 +5,7 @@ export const FALLBACK_GAMES: Game[] = [
         id: "fallback-mlbb",
         name: "Mobile Legends",
         slug: "mobile-legends",
-        iconUrl: "/mobile-legends.png",
+        iconUrl: "/mobile-legends-bang-bang-global-1770434793000.avif",
         inputConfig: { zoneId: true },
         packages: [
             { id: "mlbb-86", name: "86 Diamonds", amount: 86, price: 1.55, isWeeklyPass: false },
@@ -18,7 +18,7 @@ export const FALLBACK_GAMES: Game[] = [
         id: "fallback-ff",
         name: "Free Fire",
         slug: "free-fire",
-        iconUrl: "/free-fire.png",
+        iconUrl: "/free-fire-log.png",
         inputConfig: { zoneId: false },
         packages: [
             { id: "ff-100", name: "100 Diamonds", amount: 100, price: 0.99, isWeeklyPass: false },
