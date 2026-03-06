@@ -322,3 +322,20 @@ export const getActivePromotionsPublic = async (req: Request, res: Response) => 
         res.status(500).json({ success: false, message: error.message });
     }
 };
+export const triggerBackup = async (_req: Request, res: Response) => {
+    try {
+        await adminService.backupData();
+        res.json({ success: true, message: "Backup created successfully" });
+    } catch (error: any) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+export const restoreData = async (req: Request, res: Response) => {
+    try {
+        const result = await adminService.restoreData();
+        res.json({ success: true, data: result, message: "Data restored from backup" });
+    } catch (error: any) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};

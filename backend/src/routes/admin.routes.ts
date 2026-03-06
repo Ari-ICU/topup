@@ -27,6 +27,8 @@ import {
     updatePromotion,
     deletePromotion,
     reorderPromotions,
+    triggerBackup,
+    restoreData,
 } from "../controllers/admin.controller.js";
 import { adminLimiter } from "../middleware/rateLimit.middleware.js";
 import { adminAuth } from "../middleware/auth.middleware.js";
@@ -78,6 +80,10 @@ router.post("/global-stock/sync", syncProviderStock);
 // System status and transfers
 router.get("/provider-status", getProviderStatusEndpoint);
 router.post("/wallet/transfer", transferRevenue);
+
+// Maintenance / Data Safety
+router.post("/maintenance/backup", triggerBackup);
+router.post("/maintenance/restore", restoreData);
 
 // Security
 router.get("/api-keys", getApiKeys);

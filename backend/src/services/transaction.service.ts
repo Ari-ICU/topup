@@ -146,6 +146,10 @@ export const fulfillTransaction = async (id: string): Promise<{
         const deliveredAmount = (transaction.package as any)?.amount as number;
         await deductGlobalStock(deliveredAmount);
 
+        // Emergency backup after success
+        const { adminService } = await import("./admin.service.js");
+        await adminService.backupData();
+
         console.log(`[Fulfillment] ✅ TxID ${id} completed via ${result.provider}.`);
 
         return {

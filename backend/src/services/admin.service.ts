@@ -9,6 +9,9 @@ import { deductGlobalStock } from "./transaction.service.js";
 import { invalidateGameCache } from "./game.service.js";
 import { invalidateSettingsCache } from "../lib/settings.js";
 
+import fs from "node:fs/promises";
+import path from "node:path";
+
 interface GameData {
     slug: string;
     name: string;
@@ -19,6 +22,97 @@ interface GameData {
 }
 
 export const adminService = {
+    // --- Data Safety ---
+    backupData: async () => {
+        try {
+            const games = await prisma.game.findMany({ include: { packages: true } });
+            const settings = await prisma.systemSetting.findMany();
+            const globalStock = await prisma.globalStock.findUnique({ where: { id: "GLOBAL" } });
+            const recentTransactions = await prisma.transaction.findMany({
+                take: 500,
+                orderBy: { createdAt: 'desc' },
+                include: { package: true }
+            });
+
+            const backup = {
+                timestamp: new Date().toISOString(),
+                games,
+                settings,
+                globalStock,
+                recentTransactions
+            };
+
+            const backupDir = path.join(process.cwd(), 'backups');
+            await fs.mkdir(backupDir, { recursive: true });
+
+            const filePath = path.join(backupDir, 'db_backup.json');
+            await fs.writeFile(filePath, JSON.stringify(backup, null, 2));
+
+            console.log(`[Backup] 📁 Data backed up to ${filePath}`);
+        } catch (err) {
+            console.error("[Backup] ❌ Failed to create backup:", err);
+        }
+    },
+
+    restoreData: async () => {
+        try {
+            const filePath = path.join(process.cwd(), 'backups', 'db_backup.json');
+            const data = await fs.readFile(filePath, 'utf-8');
+            const backup = JSON.parse(data);
+
+            const { games, settings, globalStock } = backup;
+
+            console.log(`[Restore] 🔄 Starting restoration from ${backup.timestamp}...`);
+
+            // Use a transaction for safety
+            await prisma.$transaction(async (tx) => {
+                // Restore Games & Packages
+                for (const game of games) {
+                    const { packages, ...gameData } = game;
+                    await tx.game.upsert({
+                        where: { id: gameData.id },
+                        create: gameData,
+                        update: gameData
+                    });
+
+                    for (const pkg of packages) {
+                        await tx.package.upsert({
+                            where: { id: pkg.id },
+                            create: pkg,
+                            update: pkg
+                        });
+                    }
+                }
+
+                // Restore Settings
+                for (const setting of settings) {
+                    await tx.systemSetting.upsert({
+                        where: { key: setting.key },
+                        create: setting,
+                        update: setting
+                    });
+                }
+
+                // Restore Global Stock
+                if (globalStock) {
+                    await tx.globalStock.upsert({
+                        where: { id: "GLOBAL" },
+                        create: globalStock,
+                        update: globalStock
+                    });
+                }
+            });
+
+            console.log("[Restore] ✅ Restoration completed successfully!");
+            await invalidateGameCache();
+            await invalidateSettingsCache();
+
+            return { timestamp: backup.timestamp, gamesCount: games.length };
+        } catch (err) {
+            console.error("[Restore] ❌ Restoration failed:", err);
+            throw err;
+        }
+    },
     // --- Analytics ---
     getOverview: async (period: string = '1Y') => {
         const activeGamesCount = await prisma.game.count({ where: { isActive: true } });
@@ -319,6 +413,9 @@ export const adminService = {
                 await deductGlobalStock(transaction.package.amount);
                 console.log(`[Admin] ✅ Completed TxID ${id} via ${result.provider}. Stock: -${transaction.package.amount}`);
 
+                // Trigger emergency backup
+                await adminService.backupData();
+
                 return updatedTransaction;
             } catch (err: any) {
                 console.error("[Admin] TopUp Failed:", err.message);
@@ -380,6 +477,8 @@ export const adminService = {
             update: { diamonds: balance },
             create: { id: "GLOBAL", diamonds: balance }
         });
+
+        await adminService.backupData();
         return updated.diamonds;
     },
 
