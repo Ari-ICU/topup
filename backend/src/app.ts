@@ -65,7 +65,12 @@ const allowedOrigins = (process.env.ALLOWED_ORIGINS ?? "http://localhost:3000,ht
 app.use(
     cors({
         origin: (origin, callback) => {
-            if (!origin || allowedOrigins.includes(origin)) {
+            if (!origin) return callback(null, true);
+
+            const isAllowed = allowedOrigins.includes(origin) ||
+                origin.endsWith(".vercel.app"); // Allow all Vercel previews for convenience
+
+            if (isAllowed) {
                 callback(null, true);
             } else {
                 console.warn(`[CORS] 🚫 Blocked origin: ${origin}`);

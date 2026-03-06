@@ -6,7 +6,7 @@ FROM node:20-alpine
 WORKDIR /app
 
 # Set permissions for the working directory
-RUN chown -R node:node /app
+RUN mkdir -p /app/public/uploads && chown -R node:node /app
 
 # Switch to the existing node user
 USER node
