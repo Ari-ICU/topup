@@ -502,61 +502,50 @@ export default function TopupPage() {
                                             key={pkg.id}
                                             onClick={() => !soldOut && setSelectedPackage(pkg.id)}
                                             disabled={soldOut}
-                                            className={`group relative flex items-center md:flex-col md:justify-center gap-2 p-2 md:p-4 rounded-3xl border-2 transition-all duration-500 overflow-visible md:min-h-[100px]
+                                            className={`group relative flex flex-col items-center justify-start gap-4 p-4 md:p-6 rounded-[2rem] border transition-all duration-300 overflow-hidden min-h-[160px]
                                                 ${soldOut
-                                                    ? "border-white/5 bg-[#0d0b1d]/60 opacity-60 cursor-not-allowed"
+                                                    ? "border-white/5 bg-[#0d0b1d]/40 opacity-50 cursor-not-allowed"
                                                     : selectedPackage === pkg.id
-                                                        ? "border-purple-500 bg-purple-500/15 shadow-[0_20px_40px_rgba(168,85,247,0.25)] scale-[1.02]"
-                                                        : "border-white/10 bg-[#0d0b1d] hover:border-white/20 hover:bg-[#15122b] md:hover:-translate-y-2"
+                                                        ? "border-indigo-500 bg-indigo-500/10 shadow-[0_0_30px_rgba(99,102,241,0.2)] scale-[1.02]"
+                                                        : "border-white/5 bg-[#0a0a14] hover:border-white/10 hover:bg-[#121222]"
                                                 }`}
                                         >
-                                            {/* Weekly Pass Rebate Badge */}
-                                            {(pkg.isWeeklyPass || formattedPkgName.toLowerCase().includes('pass')) && !soldOut && (
-                                                <div className="absolute -top-4 -right-1 z-30 animate-float-gentle">
-                                                    <div className="relative">
-                                                        <div className="bg-gradient-to-r from-[#eb1c24] to-[#ff4d4d] text-white text-[7px] md:text-[9px] font-black px-2 py-0.5 md:py-1 rounded-md shadow-[0_5px_15px_rgba(235,28,36,0.4)] -skew-x-6 border border-white/30 whitespace-nowrap italic tracking-tighter">
-                                                            {lang === 'km' ? 'ចំណេញ: 455%' : 'REBATE: 455%'}
-                                                        </div>
-                                                        {/* Speech Bubble Tail */}
-                                                        <div className="absolute -bottom-1 left-4 w-2 h-2 bg-[#eb1c24] rotate-45 -z-10" />
-                                                    </div>
-                                                </div>
-                                            )}
-
                                             {/* Sold Out overlay */}
                                             {soldOut && (
-                                                <div className="absolute inset-0 z-20 flex items-center justify-center rounded-3xl bg-black/40 backdrop-blur-[2px]">
-                                                    <span className="px-2 py-1 rounded-lg bg-red-600/90 text-white text-[8px] md:text-[10px] font-black uppercase tracking-widest border border-red-400/30 shadow-lg">
+                                                <div className="absolute inset-0 z-20 flex items-center justify-center rounded-[2rem] bg-black/40 backdrop-blur-[2px]">
+                                                    <span className="px-2 py-1 rounded-lg bg-red-600/90 text-white text-[10px] font-black uppercase tracking-widest border border-red-400/30">
                                                         {lang === 'km' ? 'អស់ស្តុក' : 'SOLD OUT'}
                                                     </span>
                                                 </div>
                                             )}
 
-                                            <div className="relative w-10 h-10 md:w-20 md:h-20 shrink-0 overflow-hidden rounded-2xl bg-white/5 p-2 transition-transform duration-500 group-hover:scale-110">
-                                                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-transparent opacity-50 group-hover:opacity-100" />
+                                            {/* Game Icon */}
+                                            <div className="relative w-16 h-16 md:w-20 md:h-20 shrink-0 overflow-hidden rounded-2xl shadow-lg border border-white/10 group-hover:scale-105 transition-transform duration-300">
                                                 <Image
                                                     src={getAssetUrl(game.iconUrl) || "/package-logo.png"}
                                                     alt={formattedPkgName}
                                                     fill
-                                                    className="relative z-10 object-contain p-2 drop-shadow-[0_0_15px_rgba(168,85,247,0.4)]"
+                                                    className="object-cover"
                                                     unoptimized={true}
                                                 />
                                             </div>
 
-                                            <div className="flex flex-col items-center justify-center flex-1 min-w-0 text-center px-1">
-                                                <div className=" font-black text-white italic tracking-tighter leading-none mb-0.5">
-                                                    <span className="text-[10px] md:text-xs mr-0.5 font-sans opacity-60">$</span>
-                                                    <span className="text-[14px] md:text-xl">{Number(pkg.price).toFixed(2)}</span>
+                                            {/* Price & Name Container */}
+                                            <div className="flex flex-col items-center w-full mt-2">
+                                                {/* Price */}
+                                                <div className="flex items-baseline justify-center mb-2">
+                                                    <span className="text-xs md:text-sm text-white/50 font-black mr-1">$</span>
+                                                    <span className="text-xl md:text-2xl font-black text-white italic tracking-tight">
+                                                        {Number(pkg.price).toFixed(2)}
+                                                    </span>
                                                 </div>
-                                                <div className={`text-[8px] md:text-xs font-black text-slate-400 leading-none italic tracking-tighter mt-1 w-full flex items-center justify-center gap-0.5 ${lang === 'km' ? 'khmer-text' : ''}`}>
-                                                    <span className="max-w-full text-[7px] md:text-xs">{formattedPkgName}</span>
-                                                    <span className="shrink-0 text-[7px] md:text-xs">{formattedPkgName.toLowerCase().includes('pass') ? '🎟️' : '💎'}</span>
+
+                                                {/* Package Name */}
+                                                <div className={`text-[10px] md:text-xs font-bold text-slate-300 text-center leading-tight flex items-center justify-center gap-1 min-h-[30px] ${lang === 'km' ? 'khmer-text' : ''}`}>
+                                                    <span>{formattedPkgName}</span>
+                                                    <span>{formattedPkgName.toLowerCase().includes('pass') ? '🎟️' : '💎'}</span>
                                                 </div>
                                             </div>
-
-                                            {selectedPackage === pkg.id && !soldOut && (
-                                                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1/2 h-1 bg-purple-500 blur-[2px] rounded-full" />
-                                            )}
                                         </button>
                                     );
                                 })}
