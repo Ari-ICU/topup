@@ -22,9 +22,17 @@ async function main() {
     }
 
     // 2. REFRESH PACKAGES: Delete existing packages for active games to ensure all 20+ items are added
-    await prisma.package.deleteMany({
-        where: { game: { slug: { in: activeSlugs } } }
+    const activeGameIds = await prisma.game.findMany({
+        where: { slug: { in: activeSlugs } },
+        select: { id: true }
     });
+
+    if (activeGameIds.length > 0) {
+        const ids = activeGameIds.map(g => g.id);
+        // Delete transactions related to packages of active games to avoid foreign key errors
+        await prisma.transaction.deleteMany({ where: { package: { gameId: { in: ids } } } });
+        await prisma.package.deleteMany({ where: { gameId: { in: ids } } });
+    }
 
     // 3. Free Fire (FF)
     await prisma.game.upsert({
@@ -126,7 +134,42 @@ async function main() {
         },
     });
 
-    console.log("✅ Seeding completed. All 20 items and test stock are now in the database!");
+    // 6. PROMOTIONS
+    const promotions = [
+        {
+            title: "Weekend Rebate",
+            subtitle: "Get up to 50% extra diamonds on Mobile Legends",
+            imageUrl: "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=2070&auto=format&fit=crop",
+            linkUrl: "/game/mobile-legends",
+            badgeText: "HOT DEAL",
+            badgeColor: "orange",
+            isActive: true,
+            sortOrder: 1,
+        },
+        {
+            title: "New Player Bonus",
+            subtitle: "Double your first top-up for Free Fire",
+            imageUrl: "https://images.unsplash.com/photo-1616588589676-62b3bd4ff6d2?q=80&w=2069&auto=format&fit=crop",
+            linkUrl: "/game/free-fire",
+            badgeText: "LIMITED",
+            badgeColor: "purple",
+            isActive: true,
+            sortOrder: 2,
+        }
+    ];
+
+    console.log("Seeding Promotions...");
+    for (const promo of promotions) {
+        // Find existing promo by title to roughly simulate upsert
+        const existing = await prisma.promotion.findFirst({
+            where: { title: promo.title }
+        });
+        if (!existing) {
+            await prisma.promotion.create({ data: promo });
+        }
+    }
+
+    console.log("✅ Seeding completed. All 20 items, test stock, and promotions are now in the database!");
 }
 
 main()
