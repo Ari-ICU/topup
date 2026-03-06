@@ -1,4 +1,12 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
+export const ASSET_URL = API_URL.replace(/\/api\/?$/, "");
+
+export function getAssetUrl(path: string | null | undefined) {
+    if (!path) return "";
+    if (path.startsWith("http")) return path;
+    const cleanPath = path.startsWith("/") ? path : `/${path}`;
+    return `${ASSET_URL}${cleanPath}`;
+}
 
 export interface ApiResponse<T = any> {
     success: boolean;

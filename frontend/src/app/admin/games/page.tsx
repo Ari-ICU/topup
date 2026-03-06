@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { createPortal } from 'react-dom';
-import { apiRequest } from '@/lib/api';
+import { apiRequest, getAssetUrl } from '@/lib/api';
 import { Edit2, Trash2, PlusCircle, ToggleLeft, ToggleRight, Gamepad2, GripVertical, Search, X, CheckCircle, AlertTriangle, XCircle, ChevronDown, CheckCircle2 } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import Image from 'next/image';
@@ -349,7 +349,7 @@ function AdminGamesContent() {
                                     <div className="flex flex-col md:flex-row items-center gap-8 p-6 bg-white/[0.02] border border-white/5 rounded-3xl">
                                         <div className="relative w-24 h-24 rounded-3xl overflow-hidden border-2 border-white/10 bg-slate-900 group shrink-0">
                                             {formData.iconUrl ? (
-                                                <Image src={formData.iconUrl} alt="Preview" fill className="object-cover" unoptimized={true} />
+                                                <Image src={getAssetUrl(formData.iconUrl)} alt="Preview" fill className="object-cover" unoptimized={true} />
                                             ) : (
                                                 <div className="w-full h-full flex items-center justify-center">
                                                     <PlusCircle className="w-8 h-8 text-slate-700" />
@@ -486,7 +486,7 @@ function AdminGamesContent() {
                                                                     <div className="flex items-center gap-5">
                                                                         <div className="relative w-14 h-14 rounded-2xl overflow-hidden border border-white/10 bg-slate-900 group-hover:scale-105 transition-transform duration-500">
                                                                             {game.iconUrl ? (
-                                                                                <Image src={game.iconUrl} alt={game.name} fill className="object-cover" unoptimized={true} />
+                                                                                <Image src={getAssetUrl(game.iconUrl)} alt={game.name} fill className="object-cover" unoptimized={true} />
                                                                             ) : (
                                                                                 <div className="w-full h-full flex items-center justify-center">
                                                                                     <Gamepad2 className="w-6 h-6 text-slate-700" />

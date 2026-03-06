@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { createPortal } from 'react-dom';
 import Image from 'next/image';
-import { apiRequest, ApiError } from "@/lib/api";
+import { apiRequest, ApiError, getAssetUrl } from "@/lib/api";
 import { Plus, Edit2, Trash2, Gift, Copy, ChevronDown, CheckCircle2, Gamepad2, X, AlertTriangle, CheckCircle, XCircle, GripVertical, Zap } from "lucide-react";
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 
@@ -653,7 +653,7 @@ function AdminPackagesContent() {
                                                                     <div className={`w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center border border-white/5 transition-transform overflow-hidden ${snapshot.isDragging ? 'rotate-0' : 'group-hover:rotate-6'}`}>
                                                                         {gameObj?.iconUrl ? (
                                                                             <Image
-                                                                                src={gameObj.iconUrl}
+                                                                                src={getAssetUrl(gameObj.iconUrl)}
                                                                                 alt=""
                                                                                 width={40}
                                                                                 height={40}

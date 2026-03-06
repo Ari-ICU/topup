@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { apiRequest } from "@/lib/api";
+import { apiRequest, getAssetUrl } from "@/lib/api";
 import { Zap, ChevronRight } from "lucide-react";
 import { useLang } from "@/context/lang-context";
 import { t, tr } from "@/lib/i18n";
@@ -89,7 +89,7 @@ export function GameGrid() {
 
                             <div className="relative w-full h-full">
                                 <Image
-                                    src={game.iconUrl || "/hero-image.png"}
+                                    src={getAssetUrl(game.iconUrl) || "/hero-image.png"}
                                     alt={game.name}
                                     fill
                                     className={`object-contain transition-all duration-700 ${hasPackages ? 'group-hover:scale-110 group-hover:rotate-[-2deg]' : ''}`}

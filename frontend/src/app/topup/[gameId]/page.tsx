@@ -10,7 +10,7 @@ import {
     Gamepad2, Package, ChevronRight
 } from "lucide-react";
 
-import { apiRequest } from "@/lib/api";
+import { apiRequest, getAssetUrl } from "@/lib/api";
 import { useGame, useVerifyAccount, useTransaction } from "@/hooks/topup";
 import { PAYMENT_METHODS } from "@/constants/topup";
 import { TopupPageLoader, TopupPageError } from "@/components/topup/page-states";
@@ -337,7 +337,7 @@ export default function TopupPage() {
                             <div className="absolute inset-0 bg-purple-500/20 blur-3xl group-hover:bg-purple-500/40 transition-colors" />
                             <div className="relative w-32 h-32 md:w-44 md:h-44 lg:w-52 lg:h-52 rounded-[2.5rem] md:rounded-[3rem] bg-slate-900/60 backdrop-blur-xl border-2 border-white/10 overflow-hidden shadow-[0_0_50px_rgba(168,85,247,0.3)] p-4 md:p-5 rotate-1 group-hover:rotate-0 transition-all duration-700">
                                 <Image
-                                    src={game.iconUrl || "/hero-image.png"}
+                                    src={getAssetUrl(game.iconUrl) || "/hero-image.png"}
                                     alt={game.name}
                                     fill
                                     className="object-contain p-3 md:p-4 transition-transform duration-700 group-hover:scale-110"
@@ -522,7 +522,7 @@ export default function TopupPage() {
                                             <div className="relative w-10 h-10 md:w-20 md:h-20 shrink-0 overflow-hidden rounded-2xl bg-white/5 p-2 transition-transform duration-500 group-hover:scale-110">
                                                 <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-transparent opacity-50 group-hover:opacity-100" />
                                                 <Image
-                                                    src={game.iconUrl || "/package-logo.png"}
+                                                    src={getAssetUrl(game.iconUrl) || "/package-logo.png"}
                                                     alt={formattedPkgName}
                                                     fill
                                                     className="relative z-10 object-contain p-2 drop-shadow-[0_0_15px_rgba(168,85,247,0.4)]"
