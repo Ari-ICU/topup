@@ -37,7 +37,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "DAI-GAME | បញ្ចូលហ្គេមភ្លាមៗ · Instant Game Credits",
     description: "បញ្ចូលហ្គេមភ្លាមៗ — Mobile Legends, Free Fire, PUBG និង ហ្គេម 50+ ទៀត។ ការទូទាត់តាម KHQR / ABA",
-    url: "https://daigame.net",
+    url: "https://topup-sable.vercel.app",
     siteName: "DAI-GAME",
     images: [
       {
@@ -68,7 +68,7 @@ export const metadata: Metadata = {
     },
   },
   alternates: {
-    canonical: "https://daigame.net",
+    canonical: "https://topup-sable.vercel.app",
   },
 };
 
