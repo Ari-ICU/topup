@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-    const baseUrl = 'https://daigame.net'; // Replace with your actual domain
+    const baseUrl = 'https://topup-sable.vercel.app/'; // Replace with your actual domain
 
     return [
         {
