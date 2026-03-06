@@ -5,7 +5,14 @@ export function getAssetUrl(path: string | null | undefined) {
     if (!path) return "";
     if (path.startsWith("http")) return path;
     const cleanPath = path.startsWith("/") ? path : `/${path}`;
-    return `${ASSET_URL}${cleanPath}`;
+
+    // Only prepend backend URL if the path is explicitly an upload
+    if (cleanPath.startsWith("/uploads/")) {
+        return `${ASSET_URL}${cleanPath}`;
+    }
+
+    // Otherwise, return as-is (referring to frontend /public)
+    return cleanPath;
 }
 
 export interface ApiResponse<T = any> {

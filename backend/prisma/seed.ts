@@ -31,7 +31,7 @@ async function main() {
         where: { slug: "free-fire" },
         update: {
             name: "Free Fire",
-            iconUrl: "/uploads/free-fire-logo.png",
+            iconUrl: "/free-fire.png",
             inputConfig: { playerId: "string" },
             sortOrder: 1,
             packages: {
@@ -48,7 +48,7 @@ async function main() {
         create: {
             slug: "free-fire",
             name: "Free Fire",
-            iconUrl: "/uploads/free-fire-logo.png",
+            iconUrl: "/free-fire.png",
             inputConfig: { playerId: "string" },
             sortOrder: 1,
             packages: {
@@ -69,7 +69,7 @@ async function main() {
         where: { slug: "mobile-legends" },
         update: {
             name: "Mobile Legends",
-            iconUrl: "/uploads/mobile-legends-bang-bang-global-1770434793000.avif",
+            iconUrl: "/mobile-legends.png",
             inputConfig: { playerId: "string", zoneId: "string" },
             sortOrder: 2,
             packages: {
@@ -100,7 +100,7 @@ async function main() {
         create: {
             slug: "mobile-legends",
             name: "Mobile Legends",
-            iconUrl: "/uploads/mobile-legends-bang-bang-global-1770434793000.avif",
+            iconUrl: "/mobile-legends.png",
             inputConfig: { playerId: "string", zoneId: "string" },
             sortOrder: 2,
             packages: {
