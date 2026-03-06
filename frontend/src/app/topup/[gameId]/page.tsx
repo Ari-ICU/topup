@@ -543,27 +543,22 @@ export default function TopupPage() {
                                                 />
                                             </div>
 
-                                            <div className="relative flex flex-col items-center justify-center flex-1 min-w-0 text-center px-1 group/price">
-                                                <div className="font-black text-white italic tracking-tighter leading-none mb-0.5 cursor-help">
-                                                    <span className="text-[10px] md:text-xs mr-0.5 font-sans opacity-60">$</span>
-                                                    <span className="text-[14px] md:text-xl">{Number(pkg.price).toFixed(2)}</span>
-                                                </div>
-
-                                                {/* Price Popup on Hover */}
-                                                {(pkg.isWeeklyPass || formattedPkgName.toLowerCase().includes('pass')) && !soldOut && (
-                                                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 z-30 opacity-0 group-hover/price:opacity-100 transition-all duration-300 pointer-events-none flex flex-col items-center">
-                                                        <div className="bg-gradient-to-r from-[#eb1c24] to-[#ff4d4d] text-white font-black px-2.5 py-1 rounded-md shadow-[0_5px_15px_rgba(235,28,36,0.4)] -skew-x-6 border border-white/30 whitespace-nowrap italic tracking-tighter leading-none">
+                                            <div className="flex flex-col items-center justify-center flex-1 min-w-0 text-center px-1">
+                                                {(pkg.isWeeklyPass || formattedPkgName.toLowerCase().includes('pass')) && !soldOut ? (
+                                                    <div className="relative mb-0.5 mt-0.5">
+                                                        <div className="bg-gradient-to-r from-[#eb1c24] to-[#ff4d4d] text-white font-black px-2.5 py-0.5 md:py-1 rounded-md shadow-[0_5px_15px_rgba(235,28,36,0.4)] -skew-x-6 border border-white/30 whitespace-nowrap italic tracking-tighter leading-none inline-block">
                                                             <div className="skew-x-6 flex items-baseline justify-center">
-                                                                <span className="text-[10px] md:text-xs mr-1 opacity-90 drop-shadow-md">{lang === 'km' ? 'តម្លៃ:' : 'PRICE:'}</span>
                                                                 <span className="text-[10px] md:text-xs mr-0.5 font-sans opacity-90 drop-shadow-md">$</span>
-                                                                <span className="text-[14px] md:text-xl">{Number(pkg.price).toFixed(2)}</span>
+                                                                <span className="text-[14px] md:text-xl drop-shadow-md">{Number(pkg.price).toFixed(2)}</span>
                                                             </div>
                                                         </div>
-                                                        {/* Speech Bubble Tail */}
-                                                        <div className="w-2 h-2 bg-[#eb1c24] rotate-45 -mt-1 shadow-sm" />
+                                                    </div>
+                                                ) : (
+                                                    <div className=" font-black text-white italic tracking-tighter leading-none mb-0.5">
+                                                        <span className="text-[10px] md:text-xs mr-0.5 font-sans opacity-60">$</span>
+                                                        <span className="text-[14px] md:text-xl">{Number(pkg.price).toFixed(2)}</span>
                                                     </div>
                                                 )}
-
                                                 <div className={`text-[8px] md:text-xs font-black text-gray-50 leading-none italic tracking-tighter mt-1 w-full flex items-center justify-center gap-0.5 ${lang === 'km' ? 'khmer-text' : ''}`}>
                                                     <span className="max-w-full text-[7px] md:text-xs">{formattedPkgName}</span>
                                                     <span className="shrink-0 text-[7px] md:text-xs">{formattedPkgName.toLowerCase().includes('pass') ? '🎟️' : '💎'}</span>
