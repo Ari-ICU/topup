@@ -671,7 +671,7 @@ function AdminPackagesContent() {
                                                                         <p className="text-[9px] text-indigo-400 font-black uppercase tracking-[0.2em]">{gameName}</p>
                                                                         <p className="text-sm font-black text-white italic truncate max-w-[140px]">{formatPackageName(pkg.name)}</p>
                                                                         {pkg.isWeeklyPass && (
-                                                                            <span className="inline-block mt-1 px-2 py-0.5 rounded-lg bg-indigo-500/20 border border-indigo-500/20 text-[8px] font-black text-indigo-400 uppercase tracking-widest">Weekly Pass</span>
+                                                                            <span className="inline-block mt-1 px-2 py-0.5 rounded-lg bg-[#eb1c24]/20 border border-[#eb1c24]/20 text-[8px] font-black text-[#eb1c24] uppercase tracking-widest">Hot Deal</span>
                                                                         )}
                                                                     </div>
                                                                 </div>
@@ -819,11 +819,11 @@ function AdminPackagesContent() {
                                                 type="checkbox"
                                                 checked={formData.isWeeklyPass}
                                                 onChange={(e) => setFormData({ ...formData, isWeeklyPass: e.target.checked })}
-                                                className="w-5 h-5 rounded-lg border-2 border-white/10 bg-slate-900 text-indigo-500 focus:ring-offset-0 focus:ring-0"
+                                                className="w-5 h-5 rounded-lg border-2 border-white/10 bg-slate-900 text-[#eb1c24] focus:ring-offset-0 focus:ring-0"
                                             />
                                             <div className="flex flex-col">
-                                                <span className="text-[11px] font-black text-white uppercase tracking-wider">Weekly Pass</span>
-                                                <span className="text-[9px] text-slate-500 font-bold uppercase tracking-tight italic">Enable daily rewards for this package</span>
+                                                <span className="text-[11px] font-black text-white uppercase tracking-wider">Highlight Package (Hot Deal)</span>
+                                                <span className="text-[9px] text-slate-500 font-bold uppercase tracking-tight italic">Enable special red styling for this package</span>
                                             </div>
                                         </label>
                                         <div className="space-y-2">
