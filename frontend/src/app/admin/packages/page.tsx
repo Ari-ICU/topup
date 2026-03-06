@@ -15,6 +15,7 @@ interface PackageItem {
     amount: number;
     price: number | string;
     description?: string;
+    badgeText?: string;
     isWeeklyPass: boolean;
     sortOrder: number;
     game: string | { name?: string; slug?: string; iconUrl?: string } | unknown;
@@ -121,6 +122,7 @@ function AdminPackagesContent() {
         providerCode: 'MOOGOLD',
         providerSku: '',
         description: '',
+        badgeText: '',
         isWeeklyPass: false,
         sortOrder: '0'
     });
@@ -249,6 +251,7 @@ function AdminPackagesContent() {
                 providerCode: formData.providerCode,
                 providerSku: formData.providerSku || `${formData.gameId}_${formData.amount}`,
                 description: formData.description,
+                badgeText: formData.badgeText,
                 isWeeklyPass: formData.isWeeklyPass,
                 sortOrder: parseInt(formData.sortOrder, 10) || 0
             };
@@ -273,7 +276,7 @@ function AdminPackagesContent() {
             setEditingPackageId(null);
             setIsDuplicating(false);
             setIsFormDropdownOpen(false);
-            setFormData({ name: '', gameId: '', amount: '', price: '', providerCode: 'MOOGOLD', providerSku: '', description: '', isWeeklyPass: false, sortOrder: '0' });
+            setFormData({ name: '', gameId: '', amount: '', price: '', providerCode: 'MOOGOLD', providerSku: '', description: '', badgeText: '', isWeeklyPass: false, sortOrder: '0' });
         } catch (err: any) {
             console.error('Failed to save package', err);
             showToast(err.message || 'Failed to save package', 'error');
@@ -291,6 +294,7 @@ function AdminPackagesContent() {
             providerCode: 'MOOGOLD',
             providerSku: pkg.providerSku || '',
             description: pkg.description || '',
+            badgeText: pkg.badgeText || '',
             isWeeklyPass: pkg.isWeeklyPass || false,
             sortOrder: (pkg.sortOrder ?? 0).toString()
         });
@@ -310,6 +314,7 @@ function AdminPackagesContent() {
             providerCode: 'MOOGOLD',
             providerSku: pkg.providerSku || '',
             description: pkg.description || '',
+            badgeText: pkg.badgeText || '',
             isWeeklyPass: pkg.isWeeklyPass || false,
             sortOrder: (pkg.sortOrder ?? 0).toString()
         });
@@ -528,7 +533,7 @@ function AdminPackagesContent() {
                         setEditingPackageId(null);
                         setIsDuplicating(false);
                         setIsFormDropdownOpen(false);
-                        setFormData({ name: '', gameId: '', amount: '', price: '', providerCode: 'MOOGOLD', providerSku: '', description: '', isWeeklyPass: false, sortOrder: '0' });
+                        setFormData({ name: '', gameId: '', amount: '', price: '', providerCode: 'MOOGOLD', providerSku: '', description: '', badgeText: '', isWeeklyPass: false, sortOrder: '0' });
                         setShowForm((s) => !s);
                     }}
                     className="group relative px-10 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-[2.5rem] overflow-hidden shadow-[0_20px_40px_-10px_rgba(99,102,241,0.5)] transition-all hover:-translate-y-1 active:scale-95 flex items-center gap-4"
@@ -821,6 +826,10 @@ function AdminPackagesContent() {
                                                 <span className="text-[9px] text-slate-500 font-bold uppercase tracking-tight italic">Enable daily rewards for this package</span>
                                             </div>
                                         </label>
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Badge Text (Optional)</label>
+                                            <input type="text" value={formData.badgeText} onChange={e => setFormData({ ...formData, badgeText: e.target.value })} className="w-full px-8 py-4 bg-white/5 border border-white/5 rounded-[2rem] text-white font-bold text-sm" placeholder="e.g. REBATE: 455%" />
+                                        </div>
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Description</label>
                                             <input type="text" value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} className="w-full px-8 py-4 bg-white/5 border border-white/5 rounded-[2rem] text-slate-400 text-sm italic" placeholder="e.g. 80 Instant + 20 Daily x 7 Days" />

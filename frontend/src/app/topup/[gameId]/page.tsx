@@ -510,12 +510,12 @@ export default function TopupPage() {
                                                         : "border-white/10 bg-[#0d0b1d] hover:border-white/20 hover:bg-[#15122b] md:hover:-translate-y-2"
                                                 }`}
                                         >
-                                            {/* Weekly Pass Rebate Badge */}
-                                            {(pkg.isWeeklyPass || formattedPkgName.toLowerCase().includes('pass')) && !soldOut && (
+                                            {/* Dynamic Badge */}
+                                            {(pkg.badgeText || pkg.isWeeklyPass || formattedPkgName.toLowerCase().includes('pass')) && !soldOut && (
                                                 <div className="absolute -top-4 -right-1 z-30 animate-float-gentle">
                                                     <div className="relative">
                                                         <div className="bg-gradient-to-r from-[#eb1c24] to-[#ff4d4d] text-white text-[7px] md:text-[9px] font-black px-2 py-0.5 md:py-1 rounded-md shadow-[0_5px_15px_rgba(235,28,36,0.4)] -skew-x-6 border border-white/30 whitespace-nowrap italic tracking-tighter">
-                                                            {lang === 'km' ? 'ចំណេញ: 455%' : 'REBATE: 455%'}
+                                                            {pkg.badgeText ? pkg.badgeText : (lang === 'km' ? 'ចំណេញ: 455%' : 'REBATE: 455%')}
                                                         </div>
                                                         {/* Speech Bubble Tail */}
                                                         <div className="absolute -bottom-1 left-4 w-2 h-2 bg-[#eb1c24] rotate-45 -z-10" />
