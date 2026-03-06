@@ -25,21 +25,22 @@ export const adminService = {
     // --- Data Safety ---
     backupData: async () => {
         try {
+            console.log("[Backup] 🔄 Starting full data backup...");
             const games = await prisma.game.findMany({ include: { packages: true } });
             const settings = await prisma.systemSetting.findMany();
             const globalStock = await prisma.globalStock.findUnique({ where: { id: "GLOBAL" } });
-            const recentTransactions = await prisma.transaction.findMany({
-                take: 500,
-                orderBy: { createdAt: 'desc' },
-                include: { package: true }
-            });
+            const users = await prisma.user.findMany();
+            const promotions = await prisma.promotion.findMany();
+            const allTransactions = await prisma.transaction.findMany();
 
             const backup = {
                 timestamp: new Date().toISOString(),
                 games,
                 settings,
                 globalStock,
-                recentTransactions
+                users,
+                promotions,
+                transactions: allTransactions
             };
 
             const backupDir = path.join(process.cwd(), 'backups');
@@ -48,9 +49,9 @@ export const adminService = {
             const filePath = path.join(backupDir, 'db_backup.json');
             await fs.writeFile(filePath, JSON.stringify(backup, null, 2));
 
-            console.log(`[Backup] 📁 Data backed up to ${filePath}`);
+            console.log(`[Backup] 📁 Full data backup created at ${filePath} (${allTransactions.length} transactions)`);
         } catch (err) {
-            console.error("[Backup] ❌ Failed to create backup:", err);
+            console.error("[Backup] ❌ Failed to create full backup:", err);
         }
     },
 
@@ -60,40 +61,24 @@ export const adminService = {
             const data = await fs.readFile(filePath, 'utf-8');
             const backup = JSON.parse(data);
 
-            const { games, settings, globalStock } = backup;
+            const { games, settings, globalStock, users, promotions, transactions } = backup;
 
-            console.log(`[Restore] 🔄 Starting restoration from ${backup.timestamp}...`);
+            console.log(`[Restore] 🔄 Starting restoration from backup dated: ${backup.timestamp}...`);
 
             // Use a transaction for safety
             await prisma.$transaction(async (tx) => {
-                // Restore Games & Packages
-                for (const game of games) {
-                    const { packages, ...gameData } = game;
-                    await tx.game.upsert({
-                        where: { id: gameData.id },
-                        create: gameData,
-                        update: gameData
-                    });
-
-                    for (const pkg of packages) {
-                        await tx.package.upsert({
-                            where: { id: pkg.id },
-                            create: pkg,
-                            update: pkg
+                // 1. Restore Settings
+                if (settings) {
+                    for (const setting of settings) {
+                        await tx.systemSetting.upsert({
+                            where: { key: setting.key },
+                            create: setting,
+                            update: setting
                         });
                     }
                 }
 
-                // Restore Settings
-                for (const setting of settings) {
-                    await tx.systemSetting.upsert({
-                        where: { key: setting.key },
-                        create: setting,
-                        update: setting
-                    });
-                }
-
-                // Restore Global Stock
+                // 2. Restore Global Stock
                 if (globalStock) {
                     await tx.globalStock.upsert({
                         where: { id: "GLOBAL" },
@@ -101,13 +86,76 @@ export const adminService = {
                         update: globalStock
                     });
                 }
+
+                // 3. Restore Promotions
+                if (promotions) {
+                    for (const promo of promotions) {
+                        await tx.promotion.upsert({
+                            where: { id: promo.id },
+                            create: promo,
+                            update: promo
+                        });
+                    }
+                }
+
+                // 4. Restore Users
+                if (users) {
+                    for (const user of users) {
+                        await tx.user.upsert({
+                            where: { id: user.id },
+                            create: user,
+                            update: user
+                        });
+                    }
+                }
+
+                // 5. Restore Games & Packages
+                if (games) {
+                    for (const game of games) {
+                        const { packages, ...gameData } = game;
+                        await tx.game.upsert({
+                            where: { id: gameData.id },
+                            create: gameData,
+                            update: gameData
+                        });
+
+                        for (const pkg of packages) {
+                            await tx.package.upsert({
+                                where: { id: pkg.id },
+                                create: pkg,
+                                update: pkg
+                            });
+                        }
+                    }
+                }
+
+                // 6. Restore Transactions
+                if (transactions) {
+                    console.log(`[Restore] 📈 Restoring ${transactions.length} transactions...`);
+                    for (const txItem of transactions) {
+                        // Ensure optional dates are converted back from JSON strings if necessary
+                        // Prisma usually handles date strings in create/upsert if format is ISO
+                        await tx.transaction.upsert({
+                            where: { id: txItem.id },
+                            create: txItem,
+                            update: txItem
+                        });
+                    }
+                }
+            }, {
+                timeout: 30000 // Increase timeout for large backups
             });
 
-            console.log("[Restore] ✅ Restoration completed successfully!");
+            console.log("[Restore] ✅ Full restoration completed successfully!");
             await invalidateGameCache();
             await invalidateSettingsCache();
 
-            return { timestamp: backup.timestamp, gamesCount: games.length };
+            return {
+                timestamp: backup.timestamp,
+                gamesCount: games?.length || 0,
+                transactionsCount: transactions?.length || 0,
+                usersCount: users?.length || 0
+            };
         } catch (err) {
             console.error("[Restore] ❌ Restoration failed:", err);
             throw err;
