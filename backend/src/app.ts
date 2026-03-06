@@ -47,7 +47,7 @@ app.use(
             : false,
         crossOriginResourcePolicy: { policy: "cross-origin" },
         referrerPolicy: { policy: "strict-origin-when-cross-origin" },
-        frameguard: { action: "deny" },
+        frameguard: false,
         noSniff: true,
         xssFilter: true,
         hidePoweredBy: true,
@@ -58,7 +58,7 @@ app.use(ipBlocklist);
 app.use(blockSuspiciousAgents);
 
 // CORS configuration
-const allowedOrigins = (process.env.ALLOWED_ORIGINS ?? "http://localhost:3000")
+const allowedOrigins = (process.env.ALLOWED_ORIGINS ?? "http://localhost:3000,https://topup-sable.vercel.app")
     .split(",")
     .map((o) => o.trim());
 

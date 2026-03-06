@@ -10,10 +10,15 @@ const REDIS_PASSWORD = process.env.REDIS_PASSWORD || undefined;
 
 function createClient(): Redis {
     const options = {
-        maxRetriesPerRequest: 3,
+        maxRetriesPerRequest: null, // Required for some environments/versions
         enableReadyCheck: true,
         lazyConnect: true,
-        retryStrategy: (times: number) => Math.min(times * 200, 10_000),
+        connectTimeout: 10000,
+        keepAlive: 0, // Disable keep-alive for some serverless providers
+        retryStrategy: (times: number) => {
+            const delay = Math.min(times * 200, 10_000);
+            return delay;
+        },
         ...(REDIS_PASSWORD ? { password: REDIS_PASSWORD } : {}),
     };
 
