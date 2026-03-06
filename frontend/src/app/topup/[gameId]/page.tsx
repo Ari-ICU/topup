@@ -511,7 +511,7 @@ export default function TopupPage() {
                                                 }`}
                                         >
                                             {/* Dynamic Badge */}
-                                            {(pkg.badgeText || pkg.isWeeklyPass || formattedPkgName.toLowerCase().includes('pass')) && !soldOut && (
+                                            {!soldOut && (
                                                 <div className="absolute -top-4 -right-1 z-30 animate-float-gentle">
                                                     <div className="relative">
                                                         <div className="bg-gradient-to-r from-[#eb1c24] to-[#ff4d4d] text-white text-[7px] md:text-[9px] font-black px-2 py-0.5 md:py-1 rounded-md shadow-[0_5px_15px_rgba(235,28,36,0.4)] -skew-x-6 border border-white/30 whitespace-nowrap italic tracking-tighter">
@@ -544,7 +544,7 @@ export default function TopupPage() {
                                             </div>
 
                                             <div className="flex flex-col items-center justify-center flex-1 min-w-0 text-center px-1">
-                                                {(pkg.isWeeklyPass || formattedPkgName.toLowerCase().includes('pass')) && !soldOut ? (
+                                                {!soldOut ? (
                                                     <div className="relative mb-0.5 mt-0.5">
                                                         <div className="bg-gradient-to-r from-[#eb1c24] to-[#ff4d4d] text-white font-black px-2.5 py-0.5 md:py-1 rounded-md shadow-[0_5px_15px_rgba(235,28,36,0.4)] -skew-x-6 border border-white/30 whitespace-nowrap italic tracking-tighter leading-none inline-block">
                                                             <div className="skew-x-6 flex items-baseline justify-center">
