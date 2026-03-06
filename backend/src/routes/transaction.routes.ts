@@ -14,4 +14,7 @@ router.post("/:id/confirm", heavyActionLimiter, transactionController.confirmAnd
 // Polling endpoint for automated payment verification
 router.post("/:id/check-payment", heavyActionLimiter, transactionController.checkPaymentAndFulfill);
 
+// Webhook for Bakong (Push notification)
+router.post("/bakong-callback", transactionController.handleBakongWebhook);
+
 export default router;

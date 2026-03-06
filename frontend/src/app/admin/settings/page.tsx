@@ -94,6 +94,13 @@ const settingDefaults: {
             type: 'password',
             hint: 'Needed to verify payments in production',
         },
+        {
+            group: 'Bakong KHQR',
+            key: 'BAKONG_CALLBACK_URL',
+            label: 'Webhook / Callback URL (set this in Bakong)',
+            placeholder: 'https://yourwebsite.com/api/transactions/bakong-callback',
+            hint: 'Copy this URL and set it in your Bakong Dashboard to enable instant delivery.',
+        },
     ];
 
 const groupIcons: Record<string, React.ElementType> = {

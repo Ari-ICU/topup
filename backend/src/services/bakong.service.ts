@@ -157,3 +157,11 @@ export const checkBakongTransactionStatus = async (md5: string): Promise<{
         };
     }
 };
+
+/**
+ * BAKONG CALLBACK SETUP:
+ * 1. Go to your Bakong Merchant Dashboard.
+ * 2. Set your Webhook / Callback URL to: 
+ *    https://yourdomain.com/api/transactions/bakong-callback
+ * 3. The system will now automatically fulfill orders as soon as payment is made!
+ */

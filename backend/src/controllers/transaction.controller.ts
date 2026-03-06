@@ -156,3 +156,67 @@ export const checkPaymentAndFulfill = async (req: Request, res: Response) => {
         return sendError(res, "Failed to check payment status", 500);
     }
 };
+
+/**
+ * POST /transactions/bakong-callback
+ * 
+ * Webhook endpoint for Bakong to notify us of successful payments.
+ * This is the "Push Notification" from Bakong for Merchant accounts.
+ */
+export const handleBakongWebhook = async (req: Request, res: Response) => {
+    // Bakong usually sends a JSON payload with 'data' containing the results
+    const payload = req.body;
+
+    // Try MD5 or externalId (billNumber) or transactionId
+    const md5 = payload.md5 || payload.data?.md5;
+    const externalId = payload.externalId || payload.data?.externalId || payload.billNumber || payload.data?.billNumber;
+
+    console.log(`[Bakong Callback] 📥 Hook received. MD5: ${md5}, ID: ${externalId}`);
+
+    if (!md5 && !externalId) {
+        console.warn("[Bakong Callback] ⚠️ Received empty or invalid payload:", JSON.stringify(payload));
+        return sendError(res, "Invalid payload. md5 or externalId required.", 400);
+    }
+
+    try {
+        // Find transaction by MD5 (saved in paymentRef) or Transaction ID
+        const transaction = await prisma.transaction.findFirst({
+            where: {
+                OR: [
+                    { paymentRef: md5 },
+                    { id: externalId }
+                ]
+            }
+        });
+
+        if (!transaction) {
+            console.warn(`[Bakong Callback] ⚠️ No transaction found matching md5: ${md5} or id: ${externalId}`);
+            // Return 200/Success so Bakong doesn't keep retrying, but log it
+            return sendSuccess(res, { message: "Webhook received but no matching transaction found." });
+        }
+
+        // If transaction is already completed, just tell Bakong it's okay
+        if (transaction.status === "COMPLETED") {
+            return sendSuccess(res, { message: "Transaction already completed." });
+        }
+
+        // If it was failed, maybe we should reconsider, but usually completion is only for PENDING/PROCESSING
+        if (transaction.status === "FAILED") {
+            console.warn(`[Bakong Callback] ⚠️ Payment received for FAILED transaction ${transaction.id}. Attempting to fulfill anyway.`);
+        }
+
+        console.log(`[Bakong Callback] 💰 Payment confirmed for TxID ${transaction.id}. Triggering fulfillment...`);
+
+        // Trigger fulfillment automatically
+        const result = await transactionService.fulfillTransaction(transaction.id);
+
+        return sendSuccess(res, result, "Payment confirmed and diamonds delivered via callback!");
+
+    } catch (error: any) {
+        console.error(`[Bakong Callback] ❌ Fulfillment failed for payload:`, JSON.stringify(payload));
+        console.error(`[Bakong Callback] Error Detail:`, error.message);
+
+        // Return error status so the provider might retry (though Bakong usually doesn't retry often)
+        return sendError(res, "Callback processing failed", 500);
+    }
+};
