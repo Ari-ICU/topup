@@ -6,6 +6,7 @@ export interface GamePackage {
     amount: number;
     price: number;
     description?: string;
+    badgeText?: string;
     isWeeklyPass: boolean;
 }
 

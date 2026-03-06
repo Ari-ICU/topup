@@ -202,6 +202,7 @@ export const adminService = {
         providerCode: string;
         providerSku: string;
         description?: string;
+        badgeText?: string;
         isWeeklyPass: boolean;
         sortOrder: number;
     }) => {
@@ -225,6 +226,7 @@ export const adminService = {
         providerCode?: string;
         providerSku?: string;
         description?: string;
+        badgeText?: string;
         isWeeklyPass?: boolean;
         sortOrder?: number;
     }) => {

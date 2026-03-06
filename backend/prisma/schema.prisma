@@ -36,6 +36,7 @@ model Package {
   price        Decimal       @db.Decimal(10, 2)
   providerSku  String
   description  String?
+  badgeText    String?
   isWeeklyPass Boolean       @default(false)
   sortOrder    Int           @default(0)
   game         Game          @relation(fields: [gameId], references: [id])
