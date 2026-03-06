@@ -165,6 +165,61 @@ export default function Home() {
           </div>
         </main>
 
+        {/* ===== PROMOTIONS SECTION ===== */}
+        <section className="w-full py-12 px-6 lg:px-16 relative overflow-hidden">
+          <div className="relative mx-auto max-w-7xl">
+            <div className="flex flex-col md:flex-row gap-6">
+              {/* Promo Card 1 */}
+              <div className="flex-1 relative group cursor-pointer overflow-hidden rounded-[2.5rem] border border-purple-500/20 shadow-2xl transition-all duration-700 hover:border-purple-500/50 hover:-translate-y-2">
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent z-10 opacity-80 group-hover:opacity-60 transition-opacity" />
+                <Image
+                  src="/mlbb_promo_banner.png"
+                  alt="MLBB Promo"
+                  width={800}
+                  height={450}
+                  className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                />
+                <div className="absolute bottom-6 left-8 z-20">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-600 text-[10px] font-black uppercase tracking-widest text-white mb-3 shadow-[0_5px_15px_rgba(124,58,237,0.4)]">
+                    <Zap className="w-3 h-3 fill-white" />
+                    Limited Offer
+                  </div>
+                  <h3 className="text-2xl md:text-3xl font-display font-black text-white italic tracking-tighter uppercase leading-none">
+                    Weekend <span className="text-purple-400">Rebate</span>
+                  </h3>
+                  <p className="text-slate-400 text-sm font-bold mt-2">Get up to 50% bonus diamonds</p>
+                </div>
+                {/* Glossy overlay */}
+                <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+              </div>
+
+              {/* Promo Card 2 */}
+              <div className="flex-1 relative group cursor-pointer overflow-hidden rounded-[2.5rem] border border-orange-500/20 shadow-2xl transition-all duration-700 hover:border-orange-500/50 hover:-translate-y-2">
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent z-10 opacity-80 group-hover:opacity-60 transition-opacity" />
+                <Image
+                  src="/freefire_promo_banner.png"
+                  alt="Free Fire Promo"
+                  width={800}
+                  height={450}
+                  className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                />
+                <div className="absolute bottom-6 left-8 z-20">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-600 text-[10px] font-black uppercase tracking-widest text-white mb-3 shadow-[0_5px_15px_rgba(234,88,12,0.4)]">
+                    <TrendingUp className="w-3 h-3" />
+                    Hot Sale
+                  </div>
+                  <h3 className="text-2xl md:text-3xl font-display font-black text-white italic tracking-tighter uppercase leading-none">
+                    Survivor <span className="text-orange-400">Sale</span>
+                  </h3>
+                  <p className="text-slate-400 text-sm font-bold mt-2">Claim extra credits today only</p>
+                </div>
+                {/* Glossy overlay */}
+                <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* ===== GAME GRID SECTION ===== */}
         <section id="games" className="w-full section-dark py-24 px-6 lg:px-16 relative">
           <div className="absolute inset-0 grid-lines opacity-30 pointer-events-none" />
