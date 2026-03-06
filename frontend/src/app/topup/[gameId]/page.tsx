@@ -536,8 +536,8 @@ export default function TopupPage() {
                                                     <span className="text-[14px] md:text-xl">{Number(pkg.price).toFixed(2)}</span>
                                                 </div>
                                                 <div className={`text-[8px] md:text-xs font-black text-slate-400 leading-none italic tracking-tighter mt-1 w-full flex items-center justify-center gap-0.5 ${lang === 'km' ? 'khmer-text' : ''}`}>
-                                                    <span className="max-w-full text-[6px] md:text-xs">{formattedPkgName}</span>
-                                                    <span className="shrink-0 text-[6px] md:text-xs">{formattedPkgName.toLowerCase().includes('pass') ? '🎟️' : '💎'}</span>
+                                                    <span className="max-w-full text-[7px] md:text-xs">{formattedPkgName}</span>
+                                                    <span className="shrink-0 text-[7px] md:text-xs">{formattedPkgName.toLowerCase().includes('pass') ? '🎟️' : '💎'}</span>
                                                 </div>
                                             </div>
 
