@@ -47,6 +47,57 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     }
 }
 
-export default function GameLayout({ children }: { children: React.ReactNode }) {
-    return <>{children}</>;
+export default async function GameLayout({
+    children,
+    params
+}: {
+    children: React.ReactNode;
+    params: Promise<{ gameId: string }>;
+}) {
+    const { gameId } = await params;
+    let jsonLd = null;
+
+    try {
+        const game = await apiRequest<Game>(`/games/${gameId}`);
+
+        // Construct JSON-LD
+        const prices = game.packages.map(p => Number(p.price));
+        const minPrice = Math.min(...prices);
+        const maxPrice = Math.max(...prices);
+
+        jsonLd = {
+            "@context": "https://schema.org",
+            "@type": "Product",
+            "name": `Top up ${game.name} Diamonds`,
+            "description": `Fast and secure ${game.name} top-up. Instant delivery with KHQR support.`,
+            "image": game.iconUrl,
+            "brand": {
+                "@type": "Brand",
+                "name": game.name
+            },
+            "offers": {
+                "@type": "AggregateOffer",
+                "lowPrice": minPrice.toFixed(2),
+                "highPrice": maxPrice.toFixed(2),
+                "priceCurrency": "USD",
+                "offerCount": game.packages.length,
+                "availability": "https://schema.org/InStock",
+                "url": `https://topup-sable.vercel.app/topup/${gameId}`
+            }
+        };
+    } catch (e) {
+        console.warn("[JSON-LD] Failed to generate for game:", gameId);
+    }
+
+    return (
+        <>
+            {jsonLd && (
+                <script
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+                />
+            )}
+            {children}
+        </>
+    );
 }
