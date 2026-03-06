@@ -56,6 +56,9 @@ export const metadata: Metadata = {
     description: "Get instant game credits. Secure, lightning-fast delivery. KHQR supported.",
     images: ["/package-logo.png"],
   },
+  verification: {
+    google: "eddaf04c24dec5aa",
+  },
   robots: {
     index: true,
     follow: true,
