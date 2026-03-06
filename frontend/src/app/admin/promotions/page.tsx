@@ -17,10 +17,8 @@ export default function PromotionsPage() {
 
     const fetchPromotions = async () => {
         try {
-            const response = await apiRequest<{ success: boolean; data: Promotion[] }>('/admin/promotions');
-            if (response.success) {
-                setPromotions(response.data);
-            }
+            const data = await apiRequest<Promotion[]>('/admin/promotions');
+            setPromotions(data || []);
         } catch (error) {
             console.error('Failed to fetch promotions:', error);
         } finally {
