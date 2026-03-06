@@ -28,53 +28,47 @@ import { adminAuth } from "../middleware/auth.middleware.js";
 
 const router = Router();
 
-// Apply strict rate limit to ALL admin routes
+// Rate limit for admin routes
 router.use(adminLimiter);
 
-// 🔐 Authentication route (Public)
+// Login (Public)
 router.post("/login", adminLogin);
 
-// 🛡️ Protected routes (Requires valid JWT)
+// Protected routes (Requires Auth)
 router.use(adminAuth);
 
-// Dashboard Overview
+// Analytics
 router.get("/overview", getOverview);
 
-// Games Management
+// Products and Games
 router.get("/games", getGames);
 router.post("/games", createGame);
 router.put("/games/:id", updateGame);
 router.delete("/games/:id", deleteGame);
 router.post("/games/reorder", reorderGames);
 
-// Packages Management
 router.get("/packages", getPackages);
 router.post("/packages", createPackage);
 router.put("/packages/:id", updatePackage);
 router.post("/packages/reorder", reorderPackages);
 router.delete("/packages/:id", deletePackage);
 
-// Transactions Management
+// Transactions
 router.get("/transactions", getTransactions);
 router.put("/transactions/:id/status", updateTransactionStatus);
 
-// Settings
+// Configuration
 router.get("/settings", getSettings);
 router.put("/settings", updateSettings);
 router.post("/global-stock", updateGlobalStock);
-
-// API Keys
-router.get("/api-keys", getApiKeys);
-router.post("/api-keys/generate", generateApiKeys);
-
-
-// Provider Status — for admin dashboard health warning
-router.get("/provider-status", getProviderStatusEndpoint);
-
-// Sync local stock with provider (populates globalStock table)
 router.post("/global-stock/sync", syncProviderStock);
 
-// Wallet Transfer
+// System status and transfers
+router.get("/provider-status", getProviderStatusEndpoint);
 router.post("/wallet/transfer", transferRevenue);
+
+// Security
+router.get("/api-keys", getApiKeys);
+router.post("/api-keys/generate", generateApiKeys);
 
 export default router;

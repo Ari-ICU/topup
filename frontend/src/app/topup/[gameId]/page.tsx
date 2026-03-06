@@ -406,14 +406,14 @@ export default function TopupPage() {
                 </div>
             </header>
 
-            {/* ── Main Layout ───────────────────────────────────────────────────── */}
+            {/* Main Layout */}
             <main className="max-w-7xl mx-auto px-6 lg:px-16 pb-32">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
 
                     {/* LEFT SIDE: Steps */}
                     <div className="lg:col-span-2 space-y-8">
 
-                        {/* Step 1: Account Info (MooGold Style: card-style inputs) */}
+                        {/* Step 1: Account Info */}
                         <div className="glass-card p-4 md:p-8 rounded-[32px] md:rounded-[42px] border-white/5 relative overflow-hidden group shadow-2xl bg-white/5 backdrop-blur-xl">
                             <div className="absolute -right-20 -top-20 w-80 h-80 bg-purple-500/5 rounded-full blur-[100px]" />
 
@@ -478,7 +478,7 @@ export default function TopupPage() {
                             <VerifyBanner status={verifyStatus} verifiedName={verifiedName} verifyError={verifyError} lang={lang} />
                         </div>
 
-                        {/* Step 2: Package Selection (MooGold Style: prominent selection) */}
+                        {/* Step 2: Package Selection */}
                         <div className="glass-card p-4 md:p-8 rounded-[32px] md:rounded-[42px] border-white/5 relative overflow-hidden shadow-2xl bg-white/5 backdrop-blur-xl">
                             <div className="absolute -right-20 -top-20 w-80 h-80 bg-purple-500/5 rounded-full blur-[100px]" />
 

@@ -2,32 +2,22 @@ import { prisma } from "../lib/prisma.js";
 import { TransactionStatus } from "@prisma/client";
 import { getActiveProviderBalance, processTopUp } from "./topup-provider.service.js";
 
-// ============================================================================
-//  Stock deduction helper — used by BOTH the transaction confirm endpoint
-//  AND the admin "mark COMPLETED" action to keep everything in sync.
-//
-//  Rules:
-//    • globalStock.diamonds === -1  → Unlimited, skip deduction
-//    • globalStock.diamonds >= pkg.amount → Deduct and proceed
-//    • globalStock.diamonds <  pkg.amount → Throw (insufficient stock)
-// ============================================================================
-
+// Stock deduction helper
 export const deductGlobalStock = async (diamondAmount: number): Promise<void> => {
-    // We only use the local GlobalStock table to track diamonds.
     const stock = await prisma.globalStock.upsert({
         where: { id: "GLOBAL" },
         update: {},
         create: { id: "GLOBAL", diamonds: -1 }
     });
 
-    // Unlimited mode ("-1") means we don't track or deduct.
+    // skip if in unlimited mode (-1)
     if (stock.diamonds === -1) {
-        console.log(`[Stock] Unlimited mode, skipping local deduction for ${diamondAmount} diamonds.`);
+        console.log(`[Stock] Unlimited mode, skipping deduction for ${diamondAmount} diamonds.`);
         return;
     }
 
     if (stock.diamonds < diamondAmount) {
-        throw new Error(`Global Stock Insufficient during deduction: have ${stock.diamonds}, need ${diamondAmount}`);
+        throw new Error(`Global Stock Insufficient: have ${stock.diamonds}, need ${diamondAmount}`);
     }
 
     const updated = await prisma.globalStock.update({
@@ -38,12 +28,7 @@ export const deductGlobalStock = async (diamondAmount: number): Promise<void> =>
     console.log(`[Stock] Deducted ${diamondAmount} diamonds, remaining ${updated.diamonds}`);
 };
 
-// ============================================================================
-//  Create a new transaction
-//  — Checks global stock BEFORE creating the record so no payment is requested
-//    for something we can't fulfill.
-// ============================================================================
-
+// Create a new transaction
 export const createNewTransaction = async (data: {
     packageId: string;
     playerInfo: any;
@@ -54,16 +39,13 @@ export const createNewTransaction = async (data: {
         include: { game: true },
     });
 
-    if (!pkg) {
-        throw new Error("Package not found");
-    }
+    if (!pkg) throw new Error("Package not found");
 
     const localStock = await prisma.globalStock.findUnique({ where: { id: "GLOBAL" } });
     if (localStock && localStock.diamonds !== -1 && localStock.diamonds < pkg.amount) {
-        throw new Error(`Global Stock Insufficient: only ${localStock.diamonds} diamonds left locally`);
+        throw new Error(`Global Stock Insufficient: only ${localStock.diamonds} left`);
     }
 
-    // create transaction record
     return await prisma.transaction.create({
         data: {
             packageId: data.packageId,
@@ -75,10 +57,7 @@ export const createNewTransaction = async (data: {
     });
 };
 
-// ============================================================================
-//  Get transaction by ID
-// ============================================================================
-
+// Get transaction by ID
 export const getTransactionById = async (id: string) => {
     const transaction = await prisma.transaction.findUnique({
         where: { id },
@@ -89,26 +68,17 @@ export const getTransactionById = async (id: string) => {
         },
     });
 
-    if (!transaction) {
-        throw new Error("Transaction not found");
-    }
-
+    if (!transaction) throw new Error("Transaction not found");
     return transaction;
 };
 
-// ============================================================================
-//  Fulfill a transaction (Deliver Diamonds)
-//  — Called after payment is verified (manual confirm, webhook, or polling).
-//  — Orchestrates: processTopUp -> update status -> deduct stock.
-// ============================================================================
-
+// Deliver Diamonds (Fulfillment)
 export const fulfillTransaction = async (id: string): Promise<{
     success: boolean;
     provider: string;
     providerRef: string;
     message: string;
 }> => {
-    // 1. Load transaction with package info
     const transaction = await prisma.transaction.findUnique({
         where: { id },
         include: {
@@ -118,17 +88,14 @@ export const fulfillTransaction = async (id: string): Promise<{
         },
     });
 
-    if (!transaction) {
-        throw new Error("Transaction not found");
-    }
+    if (!transaction) throw new Error("Transaction not found");
 
-    // Already done? Skip.
     if (transaction.status === TransactionStatus.COMPLETED) {
         return {
             success: true,
             provider: "SYSTEM",
             providerRef: transaction.providerRef || "",
-            message: "Transaction already completed previously"
+            message: "Transaction already completed"
         };
     }
 
@@ -136,26 +103,24 @@ export const fulfillTransaction = async (id: string): Promise<{
         throw new Error("Cannot fulfill a failed transaction");
     }
 
-    // 3. Mark as PROCESSING to prevent race conditions
+    // Set to PROCESSING to prevent races
     await prisma.transaction.update({
         where: { id },
         data: { status: TransactionStatus.PROCESSING },
     });
 
     try {
-        // 4. Extract player info
         const playerInfo = transaction.playerInfo as { userId?: string; zoneId?: string;[key: string]: any };
         const playerId = playerInfo?.userId || playerInfo?.playerId || "";
         const zoneId = playerInfo?.zoneId;
 
-        // providerSku must be set on the Package record in admin panel
         const providerSku = (transaction.package as any)?.providerSku as string | undefined;
         if (!providerSku) {
             await prisma.transaction.update({ where: { id }, data: { status: TransactionStatus.FAILED } });
-            throw new Error("Package is missing a Provider SKU. Please configure it in the admin panel.");
+            throw new Error("Package is missing a Provider SKU.");
         }
 
-        // 5. Call the top-up provider (MooGold by default)
+        // Call provider API
         const result = await processTopUp({
             transactionId: transaction.id,
             providerSku,
@@ -166,10 +131,9 @@ export const fulfillTransaction = async (id: string): Promise<{
         });
 
         if (!result.success) {
-            throw new Error(result.message || "Provider failed to process the order.");
+            throw new Error(result.message || "Provider failed.");
         }
 
-        // 6. Mark as COMPLETED with provider reference
         await prisma.transaction.update({
             where: { id },
             data: {
@@ -178,23 +142,22 @@ export const fulfillTransaction = async (id: string): Promise<{
             },
         });
 
-        // 7. Deduct real diamonds from global stock ONLY after confirmed delivery
+        // Deduct diamond balance
         const deliveredAmount = (transaction.package as any)?.amount as number;
         await deductGlobalStock(deliveredAmount);
 
-        console.log(`[Fulfillment] ✅ TxID ${id} completed via ${result.provider}. Ref: ${result.providerRef}`);
+        console.log(`[Fulfillment] ✅ TxID ${id} completed via ${result.provider}.`);
 
         return {
             success: true,
             provider: result.provider,
             providerRef: result.providerRef,
-            message: result.message || "Diamonds delivered successfully!"
+            message: result.message || "Diamonds delivered!"
         };
 
     } catch (error: any) {
         console.error(`[Fulfillment] ❌ TxID ${id} failed:`, error.message);
 
-        // Mark transaction as FAILED so admin can retry later
         await prisma.transaction.update({
             where: { id },
             data: { status: TransactionStatus.FAILED },

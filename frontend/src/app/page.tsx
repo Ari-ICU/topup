@@ -49,7 +49,7 @@ export default function Home() {
     <>
       <Navbar />
 
-      {/* ── System Status Banner ────────────────────────────────────────── */}
+      {/* System Status Banner */}
       {systemStatus && (!systemStatus.isReady || systemStatus.isTestMode) && (
         <div className={`fixed top-24 left-1/2 -translate-x-1/2 z-[60] w-full max-w-xl px-6 animate-slide-down`}>
           <div className={`flex items-center gap-4 p-4 rounded-3xl border shadow-2xl backdrop-blur-xl ${systemStatus.isTestMode

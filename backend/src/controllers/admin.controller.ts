@@ -6,10 +6,7 @@ import { getProviderStatus } from "../services/topup-provider.service.js";
 const JWT_SECRET = process.env.JWT_SECRET || "fallback-secret-for-dev-only-123";
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "admin123";
 
-/**
- * Handles admin login by exchanging a password for a JWT.
- * No database required for the user; authenticates via static .env password.
- */
+// Admin login via static password in .env
 export const adminLogin = async (req: Request, res: Response) => {
     try {
         const { password } = req.body;
@@ -134,11 +131,10 @@ export const updatePackage = async (req: Request, res: Response) => {
         console.error(`[UpdatePackage] Error updating package ${req.params.id} with data:`, req.body);
         console.error(`[UpdatePackage] Detail:`, error);
 
-        // Handle Prisma Foreign Key constraint violation specifically (P2003)
         if (error.code === 'P2003' && error.meta?.constraint?.includes('gameId')) {
             return res.status(400).json({
                 success: false,
-                message: "Deployment error: The specified Game Sector node does not exist in the repository."
+                message: "Game not found."
             });
         }
 
@@ -243,11 +239,7 @@ export const transferRevenue = async (req: Request, res: Response) => {
     }
 };
 
-/**
- * GET /api/admin/provider-status
- * Returns the current diamond provider configuration status.
- * Used by the admin dashboard to show warnings when no real provider is set up.
- */
+// Check provider status
 export const getProviderStatusEndpoint = async (_req: Request, res: Response) => {
     try {
         const status = await getProviderStatus();

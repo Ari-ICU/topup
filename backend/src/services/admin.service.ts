@@ -33,25 +33,20 @@ export const adminService = {
             }
         });
 
-        // Sum of completed transactions (Revenue from site)
         const result = await prisma.transaction.aggregate({
             where: { status: 'COMPLETED' },
             _sum: { totalAmount: true }
         });
 
         const siteRevenue = Number(result._sum.totalAmount) || 0;
-
-        // Provider Wallet Balance (Own balance to buy diamonds)
         const providerWalletBalance = await getProviderWalletBalance();
-
-        // Local Diamond Stock
         const diamondStock = await getLocalDiamondStock();
 
         // Transferred Revenue Tracking
         const globalStockRow = await prisma.globalStock.findUnique({ where: { id: "GLOBAL" } });
         const totalTransferredRevenue = Number(globalStockRow?.totalTransferredRevenue) || 0;
 
-        // --- Analytics Chart Data ---
+        // Chart Data
         let chartData: { month: string, topup: number, card: number }[] = [];
         const now = new Date();
 
@@ -189,7 +184,6 @@ export const adminService = {
     getAllPackages: async () => {
         return prisma.package.findMany({
             include: {
-                // include the game's iconUrl so frontend can render the official logo
                 game: { select: { name: true, slug: true, iconUrl: true } }
             },
             orderBy: [
@@ -259,19 +253,12 @@ export const adminService = {
     },
 
     deletePackage: async (id: string) => {
-        // Check if package exists first
         const pkg = await prisma.package.findUnique({ where: { id } });
-        if (!pkg) {
-            throw new Error("Package not found");
-        }
+        if (!pkg) throw new Error("Package not found");
 
-        // Check if any transactions reference this package
         const txCount = await prisma.transaction.count({ where: { packageId: id } });
         if (txCount > 0) {
-            throw new Error(
-                `Cannot delete this package — it has ${txCount} linked transaction(s). ` +
-                `You can deactivate it instead by editing the package.`
-            );
+            throw new Error(`Cannot delete: ${txCount} linked transaction(s). Deactivate instead.`);
         }
 
         const deleted = await prisma.package.delete({ where: { id } });
@@ -295,7 +282,6 @@ export const adminService = {
     },
 
     updateTransactionStatus: async (id: string, status: any) => {
-        // Find existing transaction to get package and player info
         const transaction = await prisma.transaction.findUnique({
             where: { id },
             include: {
@@ -307,7 +293,7 @@ export const adminService = {
 
         if (!transaction) throw new Error("Transaction not found");
 
-        // If admin marks as COMPLETED, we initiate the top-up via Provider API
+        // Manually complete via Provider API
         if (status === "COMPLETED" && transaction.status !== "COMPLETED") {
             try {
                 const playerInfo: any = transaction.playerInfo;
@@ -320,7 +306,6 @@ export const adminService = {
                     gameSlug: transaction.package.game.slug,
                 });
 
-                // Save reference from provider
                 const updatedTransaction = await prisma.transaction.update({
                     where: { id },
                     data: {
@@ -329,20 +314,16 @@ export const adminService = {
                     },
                 });
 
-                // Deduct real diamonds from global stock ONLY after confirmed delivery
-                // Uses shared helper — handles unlimited (-1) correctly
                 await deductGlobalStock(transaction.package.amount);
-
-                console.log(`[Admin] ✅ Manually completed TxID ${id} via ${result.provider}. Stock deducted: ${transaction.package.amount}💎`);
+                console.log(`[Admin] ✅ Completed TxID ${id} via ${result.provider}. Stock: -${transaction.package.amount}`);
 
                 return updatedTransaction;
             } catch (err: any) {
                 console.error("[Admin] TopUp Failed:", err.message);
-                throw new Error("Failed to deliver diamonds via Provider API: " + err.message);
+                throw new Error("Failed to deliver diamonds: " + err.message);
             }
         }
 
-        // Just a normal status update (e.g., to FAILED or PROCESSING)
         return prisma.transaction.update({
             where: { id },
             data: { status }
@@ -364,7 +345,7 @@ export const adminService = {
                 })
             )
         );
-        // Invalidate Redis cache so bakong/moogold settings are fresh immediately
+        // Invalidate Redis cache
         await invalidateSettingsCache();
         return result;
     },
@@ -434,7 +415,7 @@ export const adminService = {
         const publicKey = settings.find(s => s.key === 'API_PUBLIC_KEY')?.value || "";
         const secretKey = settings.find(s => s.key === 'API_SECRET_KEY')?.value || "";
 
-        // Mask secret key: only show first 4 and last 4
+        // Mask secret key
         const maskedSecret = secretKey.length > 10
             ? `${secretKey.substring(0, 7)}${'.'.repeat(20)}${secretKey.substring(secretKey.length - 7)}`
             : secretKey;

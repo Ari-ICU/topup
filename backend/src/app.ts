@@ -15,19 +15,17 @@ import {
     securityLogger,
 } from "./middleware/security.middleware.js";
 
+// App configuration
 const app = express();
 const isProd = process.env.NODE_ENV === "production";
 
-// ─── 0. Trust Proxy (for Nginx / Cloudflare) ──────────────────────────────────
-// This is essential so req.ip and req.protocol work correctly behind a proxy
+// Trust Proxy for Nginx/Cloudflare
 app.set("trust proxy", 1);
 
-// ─── 1. Request ID (must be first — tags all subsequent logs) ─────────────────
-app.use(requestId);
+// Middleware
+app.use(requestId); // Request ID must be first
 
-// ─── 2. Helmet — 15+ security headers in one line ────────────────────────────
-//   Replaces our manual header block AND adds many more protections:
-//   Content Security Policy, DNS Prefetch Control, X-Download-Options, etc.
+// Security Headers (Helmet)
 app.use(
     helmet({
         contentSecurityPolicy: isProd
@@ -43,11 +41,11 @@ app.use(
                     upgradeInsecureRequests: [],
                 },
             }
-            : false, // Disable CSP in dev so browser tools work freely
+            : false,
         hsts: isProd
             ? { maxAge: 31536000, includeSubDomains: true, preload: true }
             : false,
-        crossOriginResourcePolicy: { policy: "cross-origin" }, // 🖼️ Allow images to be loaded from other origins (port 3000)
+        crossOriginResourcePolicy: { policy: "cross-origin" },
         referrerPolicy: { policy: "strict-origin-when-cross-origin" },
         frameguard: { action: "deny" },
         noSniff: true,
@@ -56,13 +54,10 @@ app.use(
     })
 );
 
-// ─── 3. IP Blocklist — deny known bad actors before anything else ─────────────
 app.use(ipBlocklist);
-
-// ─── 4. Suspicious User-Agent blocker ────────────────────────────────────────
 app.use(blockSuspiciousAgents);
 
-// ─── 5. CORS ──────────────────────────────────────────────────────────────────
+// CORS configuration
 const allowedOrigins = (process.env.ALLOWED_ORIGINS ?? "http://localhost:3000")
     .split(",")
     .map((o) => o.trim());
@@ -83,38 +78,31 @@ app.use(
     })
 );
 
-// ─── 6. Global Rate Limiter + Slow-Down ───────────────────────────────────────
-//   Apply to ALL routes. Per-route limiters (stricter) are applied in routes/.
+// Rate Limiting
 app.use(globalLimiter);
 app.use(speedLimiter);
 
-// ─── 7. Request Parsing ───────────────────────────────────────────────────────
+// Payload handling and Sanitization
 app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ extended: true, limit: "10kb" }));
-
-// ─── 8. Extra payload size check ──────────────────────────────────────────────
 app.use(largePayloadGuard);
-
-// ─── 9. Input Sanitization ────────────────────────────────────────────────────
-//   Runs AFTER parsing so req.body is populated
 app.use(sanitizeInput);
 
-// ─── 10. Logging ──────────────────────────────────────────────────────────────
+// Logging
 app.use(morgan(isProd ? "combined" : "dev"));
 app.use(securityLogger);
 
-// ─── 11. API Routes ───────────────────────────────────────────────────────────
-// Manual MIME type fix for .avif
+// Static files and API Routes
 (express.static as any).mime.define({ 'image/avif': ['avif'] });
 
 app.use("/uploads", express.static(path.join(process.cwd(), "public/uploads"), {
     setHeaders: (res: Response) => {
-        res.set("Access-Control-Allow-Origin", "*"); // Ensure CORS for static files
+        res.set("Access-Control-Allow-Origin", "*");
     }
 }));
 app.use("/api", router);
 
-// ─── 12. Health Check ─────────────────────────────────────────────────────────
+// Health Check
 app.get("/health", (_req, res) => {
     res.status(200).json({
         status: "ok",
@@ -125,12 +113,12 @@ app.get("/health", (_req, res) => {
     });
 });
 
-// ─── 13. 404 ──────────────────────────────────────────────────────────────────
+// 404 Handler
 app.use((_req, res) => {
     res.status(404).json({ success: false, message: "Route not found" });
 });
 
-// ─── 14. Global Error Handler ─────────────────────────────────────────────────
+// Global Error Handler
 app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
     console.error(`[ERROR] ${err.message}`);
     const status = err.status || err.statusCode || 500;

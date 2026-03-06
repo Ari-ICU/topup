@@ -3,45 +3,33 @@ import { getSystemSettings } from "../lib/settings.js";
 import { getMooGoldBalance, moogoldPlaceOrder } from "./moogold.service.js";
 import { getSupplierBalance, supplierPlaceOrder } from "./supplier.service.js";
 
-/**
- * Top-Up Provider Service
- * Only uses:
- *   1. Friend Supplier — primary diamond delivery (manual / API callback)
- *   2. Local DB Stock  — fallback balance source (manual admin top-up)
- */
-
-// ============================================================================
-// Shared Types
-// ============================================================================
+// Top-Up Provider Service
+// Manages diamond delivery via MooGold, Friend Supplier (API/Manual), or local stock.
 
 export interface TopUpRequest {
-    transactionId: string; // Your internal transaction ID
-    providerSku: string;   // The provider-specific product/SKU ID
-    playerId: string;      // Game user ID
-    zoneId?: string;       // Optional: server/zone ID (required for MLBB etc.)
-    amount: number;        // Diamond amount to deliver
-    gameSlug: string;      // e.g. "mobile-legends"
+    transactionId: string;
+    providerSku: string;
+    playerId: string;
+    zoneId?: string;
+    amount: number;
+    gameSlug: string;
 }
 
 export interface TopUpResult {
     success: boolean;
-    providerRef: string;   // Provider-side order/reference ID
+    providerRef: string;
     message: string;
-    provider: string;      // Which provider fulfilled the order
+    provider: string;
 }
-
-// ============================================================================
-// Provider Status — used by admin dashboard to show warnings
-// ============================================================================
 
 export type ProviderName = "MooGold" | "FriendSupplier" | "None";
 
 export interface ProviderStatus {
     activeProvider: ProviderName;
     isTestMode: boolean;
-    isReady: boolean;          // true only when a REAL provider is configured
-    missingFields: string[];   // Which .env keys are missing
-    warning: string | null;    // Human-readable warning for admin UI
+    isReady: boolean;
+    missingFields: string[];
+    warning: string | null;
 }
 
 export const getProviderStatus = async (): Promise<ProviderStatus> => {
@@ -68,13 +56,13 @@ export const getProviderStatus = async (): Promise<ProviderStatus> => {
         return {
             activeProvider: "FriendSupplier",
             isTestMode: false,
-            isReady: true, // Mark as ready because we have manual mode
+            isReady: true,
             missingFields: [],
             warning: null,
         };
     }
 
-    // 3. Fallback to Local Wallet (FriendSupplier Manual)
+    // 3. Fallback to Local Wallet
     return {
         activeProvider: "FriendSupplier",
         isTestMode: false,
@@ -84,14 +72,11 @@ export const getProviderStatus = async (): Promise<ProviderStatus> => {
     };
 };
 
-/**
- * Fetches the money available in the active provider's wallet (MooGold / Supplier / Local)
- */
+// Fetches balance from active provider
 export const getProviderWalletBalance = async (): Promise<number> => {
     const settings = await getSystemSettings();
     const getVal = (key: string) => settings.get(key);
 
-    // MooGold Wallet
     if (getVal("MOOGOLD_PARTNER_ID") && getVal("MOOGOLD_SECRET_KEY")) {
         try {
             return await getMooGoldBalance();
@@ -100,7 +85,6 @@ export const getProviderWalletBalance = async (): Promise<number> => {
         }
     }
 
-    // Friend Supplier Wallet (API)
     if (getVal("FRIEND_SUPPLIER_API_URL") && getVal("FRIEND_SUPPLIER_API_KEY")) {
         try {
             const balance = await getSupplierBalance();
@@ -110,41 +94,31 @@ export const getProviderWalletBalance = async (): Promise<number> => {
         }
     }
 
-    // Local Wallet fallback
     const stock = await prisma.globalStock.findUnique({ where: { id: "GLOBAL" } });
     return Number(stock?.providerBalance) || 0;
 };
 
-/**
- * Fetches the manual diamond stock from local DB
- */
+// Fetches manual diamond stock from local DB
 export const getLocalDiamondStock = async (): Promise<number> => {
     const localStock = await prisma.globalStock.findUnique({ where: { id: "GLOBAL" } });
     return localStock?.diamonds ?? 0;
 };
 
-/**
- * Fetches the live balance from whichever source is active (Legacy support)
- */
+// Fetches live balance (Legacy support)
 export const getActiveProviderBalance = async (): Promise<number> => {
     const wallet = await getProviderWalletBalance();
     if (wallet > 0) return wallet;
-
     return await getLocalDiamondStock();
 };
 
-// ============================================================================
-// Main dispatcher
-// ============================================================================
-
+// --- Main dispatcher ---
 export const processTopUp = async (request: TopUpRequest): Promise<TopUpResult> => {
-    console.log(`[TopUp] Initiating top-up for TxID: ${request.transactionId}, SKU: ${request.providerSku}`);
+    console.log(`[TopUp] Initiating: TxID ${request.transactionId}, SKU ${request.providerSku}`);
 
-    // Fetch live settings
     const settings = await getSystemSettings();
     const getVal = (key: string) => settings.get(key);
 
-    // 1. MooGold Fulfillment (Primary)
+    // 1. MooGold Fulfillment
     const mooPartner = getVal("MOOGOLD_PARTNER_ID");
     const mooKey = getVal("MOOGOLD_SECRET_KEY");
     if (mooPartner && mooKey && request.providerSku) {
@@ -155,24 +129,15 @@ export const processTopUp = async (request: TopUpRequest): Promise<TopUpResult> 
             transactionId: request.transactionId
         });
 
-        if (result.success) {
-            return {
-                success: true,
-                providerRef: result.orderId,
-                message: result.message,
-                provider: "MooGold"
-            };
-        }
-        // If MooGold fails but it was supposed to be the provider, we return failure
         return {
-            success: false,
+            success: result.success,
             providerRef: result.orderId || "",
             message: result.message,
             provider: "MooGold"
         };
     }
 
-    // 2. 🤝 Friend Supplier (with API endpoint)
+    // 2. Friend Supplier API
     const friendUrl = getVal("FRIEND_SUPPLIER_API_URL");
     const friendKey = getVal("FRIEND_SUPPLIER_API_KEY");
     if (friendUrl && friendKey) {
@@ -191,23 +156,19 @@ export const processTopUp = async (request: TopUpRequest): Promise<TopUpResult> 
         };
     }
 
-    // 3. 🤝 Friend Supplier — callback / manual mode
+    // 3. Friend Supplier Manual/Callback mode
     const friendSecret = getVal("FRIEND_SUPPLIER_SECRET");
     if (friendSecret) {
-        console.log(`[FriendSupplier] Manual/Callback mode — TxID ${request.transactionId} queued for friend delivery.`);
+        console.log(`[FriendSupplier] Manual mode — TxID ${request.transactionId} queued.`);
         return {
             success: true,
             providerRef: `FRIEND-MANUAL-${request.transactionId}`,
-            message: "Order queued for diamond delivery via Friend Supplier. Admin will confirm when delivered.",
+            message: "Order queued for diamond delivery via Friend Supplier.",
             provider: "FriendSupplier",
         };
     }
 
-    // No provider configured
     const status = await getProviderStatus();
     console.error(`[TopUp] ❌ BLOCKED: No provider configured. ${status.warning}`);
-    throw new Error(
-        "NO_PROVIDER: No top-up provider is configured. " +
-        "Please add credentials in the Settings page."
-    );
+    throw new Error("NO_PROVIDER: Please add credentials in Settings.");
 };

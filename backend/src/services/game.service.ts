@@ -6,17 +6,15 @@ const GAME_DETAIL_KEY = (slug: string) => `app:games:detail:${slug}`;
 const GAMES_TTL = 5 * 60; // 5 minutes
 
 export const getAllActiveGames = async () => {
-    // 1. Try cache
+    // Try cache
     const cached = await rGet(GAMES_LIST_KEY);
     if (cached) {
         try {
             return JSON.parse(cached);
-        } catch {
-            /* fall through */
-        }
+        } catch { /* ignore */ }
     }
 
-    // 2. DB query
+    // Fetch from DB
     const games = await prisma.game.findMany({
         where: { isActive: true },
         orderBy: { sortOrder: "asc" },
@@ -27,26 +25,22 @@ export const getAllActiveGames = async () => {
         },
     });
 
-    // 3. Cache result
+    // Cache result
     await rSet(GAMES_LIST_KEY, JSON.stringify(games), GAMES_TTL);
-
     return games;
 };
 
 export const getGameBySlugDetails = async (slug: string) => {
     const cacheKey = GAME_DETAIL_KEY(slug);
 
-    // 1. Try cache
+    // Try cache
     const cached = await rGet(cacheKey);
     if (cached) {
         try {
             return JSON.parse(cached);
-        } catch {
-            /* fall through */
-        }
+        } catch { /* ignore */ }
     }
 
-    // 2. DB query
     const [game, globalStock] = await Promise.all([
         prisma.game.findUnique({
             where: { slug },
@@ -62,26 +56,18 @@ export const getGameBySlugDetails = async (slug: string) => {
         prisma.globalStock.findUnique({ where: { id: "GLOBAL" } }),
     ]);
 
-    if (!game) {
-        throw new Error("Game not found");
-    }
+    if (!game) throw new Error("Game not found");
 
-    // -1 means unlimited; 0 or missing means out of stock
     const globalStockDiamonds = globalStock?.diamonds ?? 0;
-
     const result = { ...game, globalStockDiamonds };
 
-    // 3. Cache result
+    // Cache result
     await rSet(cacheKey, JSON.stringify(result), GAMES_TTL);
-
     return result;
 };
 
-/**
- * Invalidate all game-related caches.
- * Call this after any create/update/delete/reorder on games or packages.
- */
+// Invalidate all game-related caches
 export async function invalidateGameCache(): Promise<void> {
     await rFlushPattern("app:games:*");
-    console.log("[Cache] 🗑️  Game cache invalidated.");
+    console.log("[Cache] Invalidated.");
 }
