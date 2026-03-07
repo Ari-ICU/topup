@@ -11,48 +11,11 @@ import { Request, Response, NextFunction } from "express";
 //    5. Payload Size Guard    — extra check on unusually large payloads
 // ============================================================================
 
-// ─── 1. IP Blocklist (Static & Dynamic) ───────────────────────────────
-const BLOCKED_IPS = new Set<string>(
-    (process.env.BLOCKED_IPS ?? "").split(",").map((ip) => ip.trim()).filter(Boolean)
-);
-
-// Stores dynamic bans: Map<IP_Address, Expiration_Timestamp>
-const DYNAMIC_BANNED_IPS = new Map<string, number>();
-
-/**
- * Manually or automatically ban an IP for a certain number of minutes.
- * Default is 1440 minutes (24 hours).
- */
-export const banIP = (ip: string, durationMinutes: number = 24 * 60) => {
-    const expiresAt = Date.now() + durationMinutes * 60 * 1000;
-    DYNAMIC_BANNED_IPS.set(ip, expiresAt);
-    console.warn(`[Security] 🔴 IP BANNED: ${ip} for ${durationMinutes} minutes.`);
-};
+// ─── 1. IP Blocklist (Disabled) ───────────────────────────────
+// We used to have dynamic/static banning here, but it was removed per user request.
 
 export const ipBlocklist = (req: Request, res: Response, next: NextFunction) => {
-    // 🛡️ Preflight requests MUST NEVER be blocked by the IP blocklist
-    if (req.method === "OPTIONS") return next();
-
-    const clientIp = (req.headers["x-forwarded-for"] as string)?.split(",")[0]?.trim()
-        ?? req.socket.remoteAddress
-        ?? "unknown";
-
-    // Check Static Blocklist
-    if (BLOCKED_IPS.has(clientIp)) {
-        return res.status(403).json({ success: false, message: "Access denied." });
-    }
-
-    // Check Dynamic Blocklist
-    const banExpiry = DYNAMIC_BANNED_IPS.get(clientIp);
-    if (banExpiry) {
-        if (Date.now() < banExpiry) {
-            return res.status(403).json({ success: false, message: "Your IP is temporarily banned due to suspicious activity." });
-        } else {
-            // Ban expired
-            DYNAMIC_BANNED_IPS.delete(clientIp);
-        }
-    }
-
+    // IP blocking is currently disabled.
     return next();
 };
 

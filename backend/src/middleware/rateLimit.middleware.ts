@@ -2,7 +2,6 @@ import rateLimit from "express-rate-limit";
 import slowDown from "express-slow-down";
 import { RedisStore } from "rate-limit-redis";
 import { redis, isRedisAvailable } from "../lib/redis.js";
-import { banIP } from "./security.middleware.js";
 
 const isProd = process.env.NODE_ENV === "production";
 
@@ -12,10 +11,7 @@ const rateLimitHandler = (message: string) => (req: any, res: any) => {
         ?? req.socket.remoteAddress
         ?? "unknown";
 
-    console.warn(`[Security] 🛡️ Rate limit triggered: ${clientIp}. Banning...`);
-
-    // Automatically ban for 1 hour if they hit the limit
-    banIP(clientIp, 60);
+    console.warn(`[Security] 🛡️ Rate limit triggered: ${clientIp}.`);
 
     res.status(429).json({
         success: false,
