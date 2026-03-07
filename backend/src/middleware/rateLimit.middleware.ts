@@ -42,6 +42,7 @@ function store(prefix: string) {
 // Bypass function for security audits
 const skipAudit = (req: any) => {
     // 🔑 Use env var if present, otherwise use hardcoded fallback for this test build
+    // Updated Mar 7 to ensure bypass is active
     const auditKey = process.env.AUDIT_KEY || 'audit_secret_token_2026';
     return req.headers["x-audit-key"] === auditKey;
 };

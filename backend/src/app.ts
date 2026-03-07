@@ -65,21 +65,35 @@ const allowedOrigins = (process.env.ALLOWED_ORIGINS ?? "http://localhost:3000,ht
 app.use(
     cors({
         origin: (origin, callback) => {
+            // Allow requests with no origin (like mobile apps or curl)
             if (!origin) return callback(null, true);
 
             const isAllowed = allowedOrigins.includes(origin) ||
-                origin.endsWith(".vercel.app"); // Allow all Vercel previews for convenience
+                origin.endsWith(".vercel.app") ||
+                origin.endsWith("-ari-icu.vercel.app"); // Also allow specific Vercel branch previews
 
-            if (isAllowed) {
+            if (isAllowed || !isProd) {
                 callback(null, true);
             } else {
                 console.warn(`[CORS] 🚫 Blocked origin: ${origin}`);
-                callback(new Error(`CORS: origin ${origin} not allowed`));
+                // Instead of throwing an error which breaks preflight status codes,
+                // we return false to indicate it's not allowed.
+                callback(null, false);
             }
         },
         methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-        allowedHeaders: ["Content-Type", "Authorization", "X-Supplier-Token", "X-Supplier-Signature", "X-Request-ID"],
+        allowedHeaders: [
+            "Content-Type",
+            "Authorization",
+            "X-Supplier-Token",
+            "X-Supplier-Signature",
+            "X-Request-ID",
+            "X-Audit-Key",
+            "X-Requested-With",
+            "Accept",
+        ],
         credentials: true,
+        maxAge: 86400, // Cache preflight results for 24h
     })
 );
 
@@ -125,15 +139,6 @@ app.use((_req, res) => {
 
 // Global Error Handler
 app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
-    // Specifically handle CORS errors with 403
-    if (err.message?.includes("CORS: origin") && err.message?.includes("not allowed")) {
-        console.warn(`[Security] 🚫 CORS violation blocked: ${err.message}`);
-        return res.status(403).json({
-            success: false,
-            message: "Cross-Origin request blocked by security policy.",
-        });
-    }
-
     console.error(`[ERROR] ${err.message}`);
     const status = err.status || err.statusCode || 500;
     res.status(status).json({
