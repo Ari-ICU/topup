@@ -14,8 +14,11 @@ import {
     largePayloadGuard,
     securityLogger,
 } from "./middleware/security.middleware.js";
+console.log("[App] 🚀 Initializing application...");
+
 // App configuration
 const app = express();
+console.log("[App] ✅ Express instance created.");
 const isProd = process.env.NODE_ENV === "production";
 
 // Trust Proxy for Nginx/Cloudflare
@@ -103,13 +106,22 @@ app.use(largePayloadGuard);
 app.use(sanitizeInput);
 app.use(morgan(isProd ? "combined" : "dev"));
 app.use(securityLogger);
-(express.static as any).mime.define({ 'image/avif': ['avif'] });
+try {
+    if ((express.static as any).mime && (express.static as any).mime.define) {
+        (express.static as any).mime.define({ 'image/avif': ['avif'] });
+    }
+} catch (err) {
+    console.warn("[App] ⚠️ Could not define AVIF mime type, skipping.");
+}
+
 app.use("/uploads", express.static(path.join(process.cwd(), "public/uploads"), {
     setHeaders: (res: Response) => {
         res.set("Access-Control-Allow-Origin", "*");
     }
 }));
+console.log("[App] ✅ Static routes configured.");
 app.use("/api", router);
+console.log("[App] ✅ API routes configured.");
 
 // Health Check
 app.get("/health", (_req, res) => {
