@@ -50,7 +50,7 @@ const skipAudit = (req: any) => {
 // ─── 1. Global limiter — applies to ALL routes ───────────────────────────────
 export const globalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: isProd ? 200 : 1000,
+    max: isProd ? 50 : 1000,
     standardHeaders: "draft-7",
     legacyHeaders: false,
     store: store("global"),
