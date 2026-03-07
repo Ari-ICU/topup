@@ -5,10 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import {
   Zap,
-  Shield,
-  Clock,
   Users,
-  CheckCircle,
   Star,
   TrendingUp,
   ChevronRight,
