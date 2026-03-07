@@ -39,6 +39,10 @@ function store(prefix: string) {
 
 // Bypass function for security audits
 const skipAudit = (req: any) => {
+    // 🛡️ Essential: Preflight requests MUST NEVER be rate-limited or blocked
+    if (req.method === "OPTIONS") return true;
+
+    // 🔑 Use env var if present, otherwise use hardcoded fallback for this test build
     const auditKey = process.env.AUDIT_KEY || 'audit_secret_token_2026';
     return req.headers["x-audit-key"] === auditKey;
 };

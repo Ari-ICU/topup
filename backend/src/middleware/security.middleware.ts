@@ -30,6 +30,9 @@ export const banIP = (ip: string, durationMinutes: number = 24 * 60) => {
 };
 
 export const ipBlocklist = (req: Request, res: Response, next: NextFunction) => {
+    // 🛡️ Preflight requests MUST NEVER be blocked by the IP blocklist
+    if (req.method === "OPTIONS") return next();
+
     const clientIp = (req.headers["x-forwarded-for"] as string)?.split(",")[0]?.trim()
         ?? req.socket.remoteAddress
         ?? "unknown";
@@ -73,6 +76,8 @@ const BLOCKED_UA_PATTERNS = [
 ];
 
 export const blockSuspiciousAgents = (req: Request, res: Response, next: NextFunction) => {
+    if (req.method === "OPTIONS") return next();
+
     const ua = req.headers["user-agent"] ?? "";
 
     const isSuspicious = BLOCKED_UA_PATTERNS.some((pattern) => pattern.test(ua));

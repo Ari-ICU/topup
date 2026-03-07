@@ -14,7 +14,6 @@ import {
     largePayloadGuard,
     securityLogger,
 } from "./middleware/security.middleware.js";
-
 // App configuration
 const app = express();
 const isProd = process.env.NODE_ENV === "production";
@@ -22,42 +21,7 @@ const isProd = process.env.NODE_ENV === "production";
 // Trust Proxy for Nginx/Cloudflare
 app.set("trust proxy", 1);
 
-// Middleware
-app.use(requestId); // Request ID must be first
-
-// Security Headers (Helmet)
-app.use(
-    helmet({
-        contentSecurityPolicy: isProd
-            ? {
-                directives: {
-                    defaultSrc: ["'self'"],
-                    scriptSrc: ["'self'"],
-                    styleSrc: ["'self'", "'unsafe-inline'"],
-                    imgSrc: ["'self'", "data:", "https:"],
-                    connectSrc: ["'self'"],
-                    fontSrc: ["'self'", "https:", "data:"],
-                    objectSrc: ["'none'"],
-                    upgradeInsecureRequests: [],
-                },
-            }
-            : false,
-        hsts: isProd
-            ? { maxAge: 31536000, includeSubDomains: true, preload: true }
-            : false,
-        crossOriginResourcePolicy: { policy: "cross-origin" },
-        referrerPolicy: { policy: "strict-origin-when-cross-origin" },
-        frameguard: false,
-        noSniff: true,
-        xssFilter: true,
-        hidePoweredBy: true,
-    })
-);
-
-app.use(ipBlocklist);
-app.use(blockSuspiciousAgents);
-
-// CORS configuration
+// ─── 1. CORS MUST be first to ensure headers are present even on errors ─────
 const allowedOrigins = (process.env.ALLOWED_ORIGINS ?? "http://localhost:3000,https://topup-sable.vercel.app")
     .split(",")
     .map((o) => o.trim());
@@ -75,7 +39,6 @@ app.use(
                 callback(null, true);
             } else {
                 console.warn(`[CORS] 🚫 Blocked origin: ${origin}`);
-                // Throw error to be caught by global error handler and returned as 403
                 callback(new Error(`CORS: origin ${origin} not allowed`));
             }
         },
@@ -95,6 +58,42 @@ app.use(
     })
 );
 
+// Middleware
+app.use(requestId);
+
+// Security Headers (Helmet)
+app.use(
+    helmet({
+        contentSecurityPolicy: isProd
+            ? {
+                directives: {
+                    defaultSrc: ["'self'"],
+                    scriptSrc: ["'self'"],
+                    styleSrc: ["'self'", "'unsafe-inline'"],
+                    imgSrc: ["'self'", "data:", "https:"],
+                    connectSrc: ["'self'", "https://thoeurn-topup.hf.space", "https://*.vercel.app"],
+                    fontSrc: ["'self'", "https:", "data:"],
+                    objectSrc: ["'none'"],
+                    upgradeInsecureRequests: [],
+                },
+            }
+            : false,
+        hsts: isProd
+            ? { maxAge: 31536000, includeSubDomains: true, preload: true }
+            : false,
+        crossOriginResourcePolicy: { policy: "cross-origin" },
+        referrerPolicy: { policy: "strict-origin-when-cross-origin" },
+        frameguard: false,
+        noSniff: true,
+        xssFilter: true,
+        hidePoweredBy: true,
+    })
+);
+
+// Security Guards
+app.use(ipBlocklist);
+app.use(blockSuspiciousAgents);
+
 // ... Rate Limiting, Logging, and Routes remain the same ...
 app.use(globalLimiter);
 app.use(speedLimiter);
@@ -111,6 +110,17 @@ app.use("/uploads", express.static(path.join(process.cwd(), "public/uploads"), {
     }
 }));
 app.use("/api", router);
+
+// Health Check
+app.get("/health", (_req, res) => {
+    res.status(200).json({
+        status: "ok",
+        env: process.env.NODE_ENV,
+        timestamp: new Date().toISOString(),
+        uptime: Math.floor(process.uptime()),
+        redis: isRedisAvailable() ? "connected" : "unavailable",
+    });
+});
 
 app.use((_req, res) => {
     res.status(404).json({ success: false, message: "Route not found" });
