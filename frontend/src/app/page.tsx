@@ -323,12 +323,6 @@ export default function Home() {
                 <p className={`text-sm text-slate-400 leading-relaxed mb-6 ${lang === 'km' ? 'khmer-text' : ''}`}>
                   {tr(t.footer.desc, lang)}
                 </p>
-                <div className="flex items-center gap-1.5 p-3 rounded-xl bg-purple-500/5 border border-purple-500/10 w-fit">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-3.5 h-3.5 fill-amber-400 text-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.5)]" />
-                  ))}
-                  <span className="text-[11px] font-bold text-slate-300 ml-2 uppercase tracking-tighter">4.9/5 TrustScore</span>
-                </div>
               </div>
 
               {/* Payment & Trusted Col */}
