@@ -34,9 +34,9 @@ export const createNewTransaction = async (data: {
     playerInfo: any;
     paymentMethod: string;
 }) => {
-    // 🛡️ Fail early if packageId is missing
-    if (!data.packageId) {
-        throw new Error("Missing required field: packageId");
+    // 🛡️ Fail early if packageId is missing or wrong type
+    if (!data.packageId || typeof data.packageId !== 'string') {
+        throw new Error("Missing or invalid required field: packageId");
     }
 
     const pkg = await prisma.package.findUnique({

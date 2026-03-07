@@ -10,8 +10,8 @@ export const createTransaction = async (req: Request, res: Response) => {
     const { packageId, playerInfo, paymentMethod } = req.body;
 
     // 🛡️ Input Validation
-    if (!packageId || !playerInfo || !paymentMethod) {
-        return sendError(res, "Missing required fields (packageId, playerInfo, or paymentMethod)", 400);
+    if (!packageId || typeof packageId !== 'string' || !playerInfo || !paymentMethod) {
+        return sendError(res, "Missing or invalid required fields (packageId must be a string, playerInfo, or paymentMethod)", 400);
     }
 
     // Guard: Check provider readiness before creating transaction
