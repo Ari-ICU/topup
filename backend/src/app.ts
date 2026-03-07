@@ -97,7 +97,7 @@ app.use(
 app.use(ipBlocklist);
 app.use(blockSuspiciousAgents);
 
-// ... Rate Limiting, Logging, and Routes remain the same ...
+// Rate Limiting, Logging, and Routes
 app.use(globalLimiter);
 app.use(speedLimiter);
 app.use(express.json({ limit: "10kb" }));
