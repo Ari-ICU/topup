@@ -6,7 +6,7 @@ import { getSystemSettings } from "../lib/settings.js";
 
 const require = createRequire(import.meta.url);
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const { BakongKHQR, IndividualInfo, MerchantInfo, khqrData } = require("bakong-khqr") as any;
+const { BakongKHQR, IndividualInfo, khqrData } = require("bakong-khqr") as any;
 
 const QR_EXPIRY_MS = 30 * 60 * 1000; // 30 minutes
 
