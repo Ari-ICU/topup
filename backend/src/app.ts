@@ -65,20 +65,18 @@ const allowedOrigins = (process.env.ALLOWED_ORIGINS ?? "http://localhost:3000,ht
 app.use(
     cors({
         origin: (origin, callback) => {
-            // Allow requests with no origin (like mobile apps or curl)
             if (!origin) return callback(null, true);
 
             const isAllowed = allowedOrigins.includes(origin) ||
                 origin.endsWith(".vercel.app") ||
-                origin.endsWith("-ari-icu.vercel.app"); // Also allow specific Vercel branch previews
+                origin.endsWith("-ari-icu.vercel.app");
 
             if (isAllowed || !isProd) {
                 callback(null, true);
             } else {
                 console.warn(`[CORS] 🚫 Blocked origin: ${origin}`);
-                // Instead of throwing an error which breaks preflight status codes,
-                // we return false to indicate it's not allowed.
-                callback(null, false);
+                // Throw error to be caught by global error handler and returned as 403
+                callback(new Error(`CORS: origin ${origin} not allowed`));
             }
         },
         methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
@@ -93,27 +91,20 @@ app.use(
             "Accept",
         ],
         credentials: true,
-        maxAge: 86400, // Cache preflight results for 24h
+        maxAge: 86400,
     })
 );
 
-// Rate Limiting
+// ... Rate Limiting, Logging, and Routes remain the same ...
 app.use(globalLimiter);
 app.use(speedLimiter);
-
-// Payload handling and Sanitization
 app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 app.use(largePayloadGuard);
 app.use(sanitizeInput);
-
-// Logging
 app.use(morgan(isProd ? "combined" : "dev"));
 app.use(securityLogger);
-
-// Static files and API Routes
 (express.static as any).mime.define({ 'image/avif': ['avif'] });
-
 app.use("/uploads", express.static(path.join(process.cwd(), "public/uploads"), {
     setHeaders: (res: Response) => {
         res.set("Access-Control-Allow-Origin", "*");
@@ -121,24 +112,20 @@ app.use("/uploads", express.static(path.join(process.cwd(), "public/uploads"), {
 }));
 app.use("/api", router);
 
-// Health Check
-app.get("/health", (_req, res) => {
-    res.status(200).json({
-        status: "ok",
-        env: process.env.NODE_ENV,
-        timestamp: new Date().toISOString(),
-        uptime: Math.floor(process.uptime()),
-        redis: isRedisAvailable() ? "connected" : "unavailable",
-    });
-});
-
-// 404 Handler
 app.use((_req, res) => {
     res.status(404).json({ success: false, message: "Route not found" });
 });
 
 // Global Error Handler
 app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+    // Specifically handle CORS errors with 403
+    if (err.message?.includes("CORS: origin") && err.message?.includes("not allowed")) {
+        return res.status(403).json({
+            success: false,
+            message: "Cross-Origin request blocked by security policy.",
+        });
+    }
+
     console.error(`[ERROR] ${err.message}`);
     const status = err.status || err.statusCode || 500;
     res.status(status).json({
