@@ -3,14 +3,25 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Zap, Menu, X } from "lucide-react";
 import { useLang } from "@/context/lang-context";
 import { t, tr } from "@/lib/i18n";
 import { LangSwitcher } from "@/components/ui/lang-switcher";
+import { scrollToElement } from "@/lib/utils";
 
 export function Navbar() {
     const { lang } = useLang();
+    const pathname = usePathname();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+    const handleTopUpClick = (e: React.MouseEvent) => {
+        if (pathname === '/') {
+            e.preventDefault();
+            scrollToElement("games");
+        }
+        setIsMenuOpen(false);
+    };
 
     return (
         <nav className="fixed top-0 z-50 flex w-full items-center justify-between px-6 py-3 lg:px-16 nav-premium nav-shimmer-top">
@@ -41,6 +52,7 @@ export function Navbar() {
                     <LangSwitcher />
                     <Link
                         href="/#games"
+                        onClick={handleTopUpClick}
                         className="btn-primary text-sm px-5 py-2.5 rounded-lg"
                     >
                         <Zap className="w-4 h-4" />
@@ -71,7 +83,7 @@ export function Navbar() {
                             </div>
                             <Link
                                 href="/#games"
-                                onClick={() => setIsMenuOpen(false)}
+                                onClick={handleTopUpClick}
                                 className="w-full h-12 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white flex items-center justify-center gap-3 shadow-xl active:scale-95 transition-transform"
                             >
                                 <Zap className="w-5 h-5 fill-current" />

@@ -30,6 +30,7 @@ import { Navbar } from "@/components/layout/navbar";
 import { useState, useEffect } from "react";
 import { apiRequest, getAssetUrl } from "@/lib/api";
 import { Promotion } from "@/types";
+import { scrollToElement } from "@/lib/utils";
 
 export default function Home() {
   const { lang } = useLang();
@@ -111,12 +112,23 @@ export default function Home() {
               <div className="flex flex-col gap-4 sm:flex-row w-full sm:w-auto">
                 <a
                   href="#games"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    scrollToElement("games");
+                  }}
                   className="btn-primary px-8 py-4 text-base rounded-xl text-center justify-center"
                 >
                   <Gamepad2 className="w-5 h-5" />
                   <span className={lang === 'km' ? 'khmer-text font-semibold' : ''}>{tr(t.hero.browseGames, lang)}</span>
                 </a>
-                <a href="#benefits" className="btn-outline px-8 py-4 text-base rounded-xl justify-center flex items-center gap-2">
+                <a
+                  href="#workflow"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    scrollToElement("workflow");
+                  }}
+                  className="btn-outline px-8 py-4 text-base rounded-xl justify-center flex items-center gap-2"
+                >
                   <span className={lang === 'km' ? 'khmer-text font-semibold' : ''}>{tr(t.hero.howItWorks, lang)}</span>
                   <ArrowRight className="w-4 h-4" />
                 </a>
@@ -237,7 +249,7 @@ export default function Home() {
         </section>
 
         {/* ===== HOW IT WORKS ===== */}
-        <section id="benefits" className="w-full section-dark py-24 px-6 lg:px-16 relative">
+        <section id="workflow" className="w-full section-dark py-24 px-6 lg:px-16 relative">
           <div className="absolute inset-0 grid-lines opacity-30 pointer-events-none" />
           <div className="relative mx-auto max-w-7xl">
             <div className="mb-16 text-center">
