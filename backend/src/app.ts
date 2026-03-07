@@ -125,6 +125,15 @@ app.use((_req, res) => {
 
 // Global Error Handler
 app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+    // Specifically handle CORS errors with 403
+    if (err.message?.includes("CORS: origin") && err.message?.includes("not allowed")) {
+        console.warn(`[Security] 🚫 CORS violation blocked: ${err.message}`);
+        return res.status(403).json({
+            success: false,
+            message: "Cross-Origin request blocked by security policy.",
+        });
+    }
+
     console.error(`[ERROR] ${err.message}`);
     const status = err.status || err.statusCode || 500;
     res.status(status).json({
