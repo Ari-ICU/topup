@@ -34,13 +34,19 @@ export const createNewTransaction = async (data: {
     playerInfo: any;
     paymentMethod: string;
 }) => {
+    // 🛡️ Fail early if packageId is missing
+    if (!data.packageId) {
+        throw new Error("Missing required field: packageId");
+    }
+
     const pkg = await prisma.package.findUnique({
         where: { id: data.packageId },
         include: { game: true },
     });
 
-    if (!pkg) throw new Error("Package not found");
-
+    if (!pkg) {
+        throw new Error(`Package not found: ${data.packageId}`);
+    }
     const localStock = await prisma.globalStock.findUnique({ where: { id: "GLOBAL" } });
     if (localStock && localStock.diamonds !== -1 && localStock.diamonds < pkg.amount) {
         throw new Error(`Global Stock Insufficient: only ${localStock.diamonds} left`);

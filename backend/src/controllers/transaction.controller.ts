@@ -9,6 +9,11 @@ import { prisma } from "../lib/prisma.js";
 export const createTransaction = async (req: Request, res: Response) => {
     const { packageId, playerInfo, paymentMethod } = req.body;
 
+    // 🛡️ Input Validation
+    if (!packageId || !playerInfo || !paymentMethod) {
+        return sendError(res, "Missing required fields (packageId, playerInfo, or paymentMethod)", 400);
+    }
+
     // Guard: Check provider readiness before creating transaction
     const providerStatus = await getProviderStatus();
     if (!providerStatus.isReady) {
