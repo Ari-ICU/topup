@@ -1,13 +1,4 @@
-/**
- * verify.service.ts
- *
- * Game account verification service.
- *
- * Priority order:
- *  1. Live lookup via api.isan.eu.org (free public API for MLBB & Free Fire)
- *  2. Provider API (Digiflazz, UniPin, etc.) if credentials are configured
- *  3. Local format validation as final fallback — never blocks a purchase
- */
+// Game account verification service with priority: Live Lookup > Provider API > Format Validation
 
 import { getSystemSettings } from "../lib/settings.js";
 
@@ -15,11 +6,11 @@ export interface VerifyResult {
     verified: boolean;
     playerName?: string;
     reason?: string;
-    /** True when format is valid but the name couldn't be fetched live */
+    // True if format is valid but name fetching failed
     formatValid?: boolean;
 }
 
-// ─── Player ID format rules ──────────────────────────────────────────────────
+// Player ID format rules
 const GAME_FORMAT_RULES: Record<string, {
     playerIdRegex: RegExp;
     zoneIdRegex?: RegExp;
@@ -50,7 +41,7 @@ const GAME_FORMAT_RULES: Record<string, {
     },
 };
 
-// ─── 1. Live lookup via public API (free, no key required) ───────────────────
+// 1. Live lookup via public API
 async function liveVerify(
     gameSlug: string,
     userId: string,
@@ -63,7 +54,7 @@ async function liveVerify(
     } else if (gameSlug === "free-fire") {
         apiUrl = `https://api.isan.eu.org/nickname/ff?id=${userId}`;
     } else {
-        // No public lookup available for this game
+        // No public lookup for this game
         return null;
     }
 
@@ -82,17 +73,17 @@ async function liveVerify(
         }
 
         if (json?.success === false) {
-            // API responded but player was not found
+            // Player not found
             return { verified: false, formatValid: false };
         }
     } catch (err) {
         console.warn(`[verify.service] liveVerify failed for ${gameSlug}:`, err instanceof Error ? err.message : err);
     }
 
-    return null; // unreachable / timeout → caller will fall through
+    return null; // Timeout or error fallback
 }
 
-// ─── 2. Provider API lookup (Digiflazz, UniPin, etc.) ───────────────────────
+// 2. Provider API lookup
 async function providerVerify(
     gameSlug: string,
     userId: string,
@@ -102,7 +93,7 @@ async function providerVerify(
     const providerUrl = settings.get("TOPUP_PROVIDER_URL");
     const providerKey = settings.get("TOPUP_PROVIDER_KEY");
 
-    // Skip if credentials are not set or are still at example values
+    // Skip if credentials missing
     if (!providerUrl || !providerKey || providerUrl.includes("example")) {
         return null;
     }
@@ -131,7 +122,7 @@ async function providerVerify(
     return null;
 }
 
-// ─── 3. Local format-only validation (instant, no network) ───────────────────
+// 3. Local format-only validation
 function formatValidate(gameSlug: string, userId: string, zoneId?: string): VerifyResult {
     const rule = GAME_FORMAT_RULES[gameSlug];
 
@@ -164,16 +155,16 @@ function formatValidate(gameSlug: string, userId: string, zoneId?: string): Veri
     };
 }
 
-// ─── Main export ──────────────────────────────────────────────────────────────
+// Verify game account
 export async function verifyGameAccount(
     gameSlug: string,
     userId: string,
     zoneId?: string
 ): Promise<VerifyResult> {
-    // Normalize slug: remove trailing dashes and handle common pluralization differences
+    // Normalize slug
     let slug = gameSlug.toLowerCase().trim().replace(/-+$/, "");
 
-    // Map common aliases to standard keys used in GAME_FORMAT_RULES and liveVerify
+    // Map aliases to standard slug keys
     if (slug === "mobile-legend") slug = "mobile-legends";
     if (slug === "ff") slug = "free-fire";
     if (slug === "ml") slug = "mobile-legends";
@@ -181,14 +172,14 @@ export async function verifyGameAccount(
     if (slug === "cod") slug = "call-of-duty";
     if (slug === "codm") slug = "call-of-duty";
 
-    // Priority 1: live lookup (free, ML + FF)
+    // Priority 1: Live lookup
     const live = await liveVerify(slug, userId, zoneId);
     if (live !== null) return live;
 
-    // Priority 2: provider API (Digiflazz etc.)
+    // Priority 2: Provider API
     const provider = await providerVerify(slug, userId, zoneId);
     if (provider !== null) return provider;
 
-    // Priority 3: format validation only
+    // Priority 3: Format validation
     return formatValidate(slug, userId, zoneId);
 }

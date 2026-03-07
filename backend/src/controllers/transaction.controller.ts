@@ -9,9 +9,7 @@ import { prisma } from "../lib/prisma.js";
 export const createTransaction = async (req: Request, res: Response) => {
     const { packageId, playerInfo, paymentMethod } = req.body;
 
-    // ── Guard: block order creation if no real provider is ready ─────────────
-    // We check this BEFORE creating any DB record so customers get a clear error
-    // right away and no money changes hands for an unfulfillable order.
+    // Guard: Check provider readiness before creating transaction
     const providerStatus = await getProviderStatus();
     if (!providerStatus.isReady) {
         console.error(`[Transaction] ❌ Order blocked — provider not ready: ${providerStatus.warning}`);
@@ -31,20 +29,20 @@ export const createTransaction = async (req: Request, res: Response) => {
             paymentMethod,
         });
 
-        // Generate KHQR for Bakong payments — fail loudly so the user gets a real error
+        // Generate KHQR for Bakong payments
         if (paymentMethod === "BAKONG") {
             const khqr = await bakongService.generateTransactionKHQR({
                 amount: Number(transaction.totalAmount),
                 transactionId: transaction.id,
             });
 
-            // ✅ Save the MD5 hash to paymentRef so the check-payment polling can verify against Bakong API
+            // Save MD5 hash for payment verification
             await prisma.transaction.update({
                 where: { id: transaction.id },
                 data: { paymentRef: khqr.md5 },
             });
 
-            // Return transaction + payment QR data together
+            // Return transaction and QR data
             return sendSuccess(res, { ...transaction, paymentData: khqr }, "Transaction created successfully", 201);
         }
 
@@ -57,7 +55,7 @@ export const createTransaction = async (req: Request, res: Response) => {
         if (error.message.includes("Global Stock Insufficient")) {
             return sendError(res, "Sorry, this package exceeds our current diamond stock availability. Please try a smaller package or try again later.", 400);
         }
-        // Surface KHQR errors clearly (e.g. "KHQR generation failed: ...")
+        // Handle KHQR/Bakong errors
         if (error.message?.startsWith("KHQR") || error.message?.startsWith("BAKONG")) {
             return sendError(res, `Payment setup failed: ${error.message}`, 500);
         }
@@ -81,15 +79,7 @@ export const getTransactionStatus = async (req: Request, res: Response) => {
     }
 };
 
-/**
- * POST /transactions/:id/confirm
- *
- * Called after payment is verified (e.g., Bakong webhook or manual admin confirm).
- * This endpoint:
- *   1. Marks the transaction as PROCESSING
- *   2. Calls MooGold (or fallback provider) to deliver the diamonds
- *   3. Marks the transaction as COMPLETED with the provider reference
- */
+// Confirm and fulfill transaction after payment verification
 export const confirmAndFulfillTransaction = async (req: Request, res: Response) => {
     const { id } = req.params;
 
@@ -101,37 +91,32 @@ export const confirmAndFulfillTransaction = async (req: Request, res: Response) 
     }
 };
 
-/**
- * POST /transactions/:id/check-payment
- * 
- * Called by the frontend to poll for payment status (especially for KHQR).
- * If payment is confirmed by the provider, it automatically triggers fulfillment.
- */
+// Poll for payment status and trigger fulfillment if confirmed
 export const checkPaymentAndFulfill = async (req: Request, res: Response) => {
     const { id } = req.params;
 
     try {
         const transaction = await transactionService.getTransactionById(id);
 
-        // 1. If already completed, just return success
+        // Check if already completed
         if (transaction.status === "COMPLETED") {
             return sendSuccess(res, { status: "COMPLETED", message: "Transaction already completed." });
         }
 
-        // 2. Only check if it's PENDING and method is BAKONG
+        // Only check Bakong pending transactions
         if (transaction.status === "PENDING" && transaction.paymentMethod === "BAKONG") {
             const md5 = transaction.paymentRef;
             if (!md5) {
                 return sendSuccess(res, { status: "PENDING", message: "Waiting for KHQR generation..." });
             }
 
-            // 3. Check Bakong API
+            // Check Bakong API status
             const check = await bakongService.checkBakongTransactionStatus(md5);
 
             if (check.status === "SUCCESS") {
                 console.log(`[AutoCheck] 💰 Payment detected for TxID ${id}. Triggering fulfillment...`);
 
-                // 4. Trigger fulfillment automatically
+                // Trigger automatic fulfillment
                 const result = await transactionService.fulfillTransaction(id);
 
                 return sendSuccess(res, {
@@ -148,7 +133,7 @@ export const checkPaymentAndFulfill = async (req: Request, res: Response) => {
             });
         }
 
-        // For other methods or statuses, just return the current state
+        // Return current status for other methods
         return sendSuccess(res, { status: transaction.status, message: "Transaction status checked." });
 
     } catch (error: any) {
@@ -157,17 +142,12 @@ export const checkPaymentAndFulfill = async (req: Request, res: Response) => {
     }
 };
 
-/**
- * POST /transactions/bakong-callback
- * 
- * Webhook endpoint for Bakong to notify us of successful payments.
- * This is the "Push Notification" from Bakong for Merchant accounts.
- */
+// Webhook for Bakong payment notifications
 export const handleBakongWebhook = async (req: Request, res: Response) => {
-    // Bakong usually sends a JSON payload with 'data' containing the results
+    // Extract payload data
     const payload = req.body;
 
-    // Try MD5 or externalId (billNumber) or transactionId
+    // Extract MD5 and external ID
     const md5 = payload.md5 || payload.data?.md5;
     const externalId = payload.externalId || payload.data?.externalId || payload.billNumber || payload.data?.billNumber;
 
@@ -179,7 +159,7 @@ export const handleBakongWebhook = async (req: Request, res: Response) => {
     }
 
     try {
-        // Find transaction by MD5 (saved in paymentRef) or Transaction ID
+        // Find transaction by MD5 or ID
         const transaction = await prisma.transaction.findFirst({
             where: {
                 OR: [
@@ -191,23 +171,23 @@ export const handleBakongWebhook = async (req: Request, res: Response) => {
 
         if (!transaction) {
             console.warn(`[Bakong Callback] ⚠️ No transaction found matching md5: ${md5} or id: ${externalId}`);
-            // Return 200/Success so Bakong doesn't keep retrying, but log it
+            // Acknowledge webhook even if no transaction found
             return sendSuccess(res, { message: "Webhook received but no matching transaction found." });
         }
 
-        // If transaction is already completed, just tell Bakong it's okay
+        // Acknowledge if already completed
         if (transaction.status === "COMPLETED") {
             return sendSuccess(res, { message: "Transaction already completed." });
         }
 
-        // If it was failed, maybe we should reconsider, but usually completion is only for PENDING/PROCESSING
+        // Handle cases where transaction was previously failed
         if (transaction.status === "FAILED") {
             console.warn(`[Bakong Callback] ⚠️ Payment received for FAILED transaction ${transaction.id}. Attempting to fulfill anyway.`);
         }
 
         console.log(`[Bakong Callback] 💰 Payment confirmed for TxID ${transaction.id}. Triggering fulfillment...`);
 
-        // Trigger fulfillment automatically
+        // Trigger fulfillment
         const result = await transactionService.fulfillTransaction(transaction.id);
 
         return sendSuccess(res, result, "Payment confirmed and diamonds delivered via callback!");
@@ -216,7 +196,7 @@ export const handleBakongWebhook = async (req: Request, res: Response) => {
         console.error(`[Bakong Callback] ❌ Fulfillment failed for payload:`, JSON.stringify(payload));
         console.error(`[Bakong Callback] Error Detail:`, error.message);
 
-        // Return error status so the provider might retry (though Bakong usually doesn't retry often)
+        // Return error status for retry
         return sendError(res, "Callback processing failed", 500);
     }
 };

@@ -1,19 +1,4 @@
-/**
- * bakong.service.ts
- *
- * Generates Bakong KHQR codes using the official bakong-khqr npm library.
- *
- * Key notes:
- *  - Use `generateIndividual()` for personal Bakong accounts (e.g. username@aba, username@aclb).
- *    This produces a KHQR code that is scannable by ALL Cambodian banking apps.
- *  - Use `generateMerchant()` only for business/merchant Bakong accounts.
- *  - Dynamic KHQR (with amount) REQUIRES `expirationTimestamp` as a 13-digit ms timestamp string.
- *  - Currency must be the numeric code: 840 = USD, 116 = KHR (from khqrData.currency).
- *  - bakong-khqr is CommonJS — imported via createRequire to avoid ESM/CJS conflicts.
- *
- * Account ID format: "name@bankcode"
- *   Examples: thoeurnratha@aba, thoeurnratha@aclb, devit@wing, name@devb (sandbox only)
- */
+// Generates Bakong KHQR codes using the bakong-khqr library
 
 import { createRequire } from "module";
 import axios from "axios";
@@ -48,7 +33,7 @@ export const generateTransactionKHQR = async ({
         );
     }
 
-    // Validate format: must be "name@bankcode" with no spaces
+    // Validate Bakong account ID format
     if (!bakongAccountId.includes("@") || bakongAccountId.includes(" ")) {
         throw new Error(
             `BAKONG_ACCOUNT_ID format is invalid: "${bakongAccountId}". ` +
@@ -59,8 +44,7 @@ export const generateTransactionKHQR = async ({
     const currencyCode = currency === "KHR" ? khqrData.currency.khr : khqrData.currency.usd;
     const expirationTimestamp = String(Date.now() + QR_EXPIRY_MS); // 13-digit ms timestamp (required for dynamic QR)
 
-    // Use IndividualInfo for personal accounts — this QR is accepted by ALL Cambodian banking apps
-    // (ABA, Acleda, Wing, Pi Pay, TrueMoney, MetFone etc.) through the Bakong network.
+    // Use IndividualInfo for cross-bank compatibility
     const individualInfo = new IndividualInfo(
         bakongAccountId,  // bakongAccountID (e.g. "thoeurnratha@aba")
         merchantName,     // merchantName    (e.g. "TopUpPay")
@@ -92,13 +76,7 @@ export const generateTransactionKHQR = async ({
     };
 };
 
-/**
- * checkBakongTransactionStatus
- *
- * Verifies if a dynamic KHQR payment has been completed by checking its MD5 hash
- * against the Bakong Open API. The endpoint is public for sandbox/development.
- * In production you may need to pass a Bearer token via BAKONG_API_TOKEN env var.
- */
+// Verify dynamic KHQR payment status via Bakong API
 export const checkBakongTransactionStatus = async (md5: string): Promise<{
     status: "SUCCESS" | "PENDING" | "FAILED";
     message: string;
@@ -129,7 +107,7 @@ export const checkBakongTransactionStatus = async (md5: string): Promise<{
 
         const data = response.data;
 
-        // Bakong API: responseCode "0" = found/paid, non-zero = not yet paid
+        // Response code "0" indicates payment success
         if (data?.responseCode === "0" || data?.status?.code === 0) {
             return {
                 status: "SUCCESS",
@@ -138,19 +116,19 @@ export const checkBakongTransactionStatus = async (md5: string): Promise<{
             };
         }
 
-        // responseCode "6" = transaction not found yet (still pending)
+        // Handle pending response
         return {
             status: "PENDING",
             message: data?.responseMessage || data?.status?.message || "Waiting for payment...",
         };
 
     } catch (error: any) {
-        // 404 from Bakong means transaction doesn't exist yet — still pending
+        // 404 status means transaction is still pending
         if (error?.response?.status === 404) {
             return { status: "PENDING", message: "Waiting for payment..." };
         }
         console.error("[Bakong] Status check failed:", error.message);
-        // Return PENDING on network errors so the frontend keeps polling
+        // Return PENDING on network error for continued polling
         return {
             status: "PENDING",
             message: "Unable to reach Bakong API. Still waiting...",
@@ -158,10 +136,3 @@ export const checkBakongTransactionStatus = async (md5: string): Promise<{
     }
 };
 
-/**
- * BAKONG CALLBACK SETUP:
- * 1. Go to your Bakong Merchant Dashboard.
- * 2. Set your Webhook / Callback URL to: 
- *    https://yourdomain.com/api/transactions/bakong-callback
- * 3. The system will now automatically fulfill orders as soon as payment is made!
- */

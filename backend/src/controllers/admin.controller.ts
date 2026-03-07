@@ -6,7 +6,7 @@ import { getProviderStatus } from "../services/topup-provider.service.js";
 const JWT_SECRET = process.env.JWT_SECRET || "fallback-secret-for-dev-only-123";
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "admin123";
 
-// Admin login via static password in .env
+// Admin login
 export const adminLogin = async (req: Request, res: Response) => {
     try {
         const { password } = req.body;
@@ -19,7 +19,7 @@ export const adminLogin = async (req: Request, res: Response) => {
             return res.status(401).json({ success: false, message: "Invalid admin password" });
         }
 
-        // Sign token (valid for 7 days)
+        // Generate JWT token
         const token = jwt.sign(
             { role: "admin", timestamp: Date.now() },
             JWT_SECRET,
@@ -111,7 +111,7 @@ export const createPackage = async (req: Request, res: Response) => {
         console.error(`[CreatePackage] Error creating package with data:`, req.body);
         console.error(`[CreatePackage] Detail:`, error);
 
-        // Handle Prisma Foreign Key constraint violation specifically (P2003)
+        // Handle foreign key errors
         if (error.code === 'P2003' && error.meta?.constraint?.includes('gameId')) {
             return res.status(400).json({
                 success: false,
@@ -239,7 +239,7 @@ export const transferRevenue = async (req: Request, res: Response) => {
     }
 };
 
-// Check provider status
+// Get provider status
 export const getProviderStatusEndpoint = async (_req: Request, res: Response) => {
     try {
         const status = await getProviderStatus();
@@ -267,7 +267,7 @@ export const generateApiKeys = async (req: Request, res: Response) => {
     }
 };
 
-// --- Promotions ---
+// Promotions
 export const getPromotions = async (req: Request, res: Response) => {
     try {
         const data = await adminService.getAllPromotions();

@@ -7,16 +7,7 @@ import {
 import { sendSuccess, sendError } from "../utils/apiResponse.js";
 import { prisma } from "../lib/prisma.js";
 
-// ============================================================================
-//  Supplier Controller
-//
-//  Security: Every request from your friend must include one of:
-//    • Header:  X-Supplier-Token: <your secret>
-//    • OR HMAC: X-Supplier-Signature: HMAC-SHA256(secret, body)
-//
-//  Set in .env:
-//    FRIEND_SUPPLIER_SECRET=some_long_random_secret_here
-// ============================================================================
+// Supplier Controller: Handles third-party fulfilment requests with token or HMAC security
 
 // Helper to get secret from DB or Env
 const getSecret = async (): Promise<string> => {
@@ -26,9 +17,7 @@ const getSecret = async (): Promise<string> => {
     return setting?.value || process.env.FRIEND_SUPPLIER_SECRET || "";
 };
 
-/**
- * Constant-time token comparison to prevent timing attacks
- */
+// Constant-time token comparison to prevent timing attacks
 const isValidToken = async (provided: string): Promise<boolean> => {
     const secret = await getSecret();
     if (!secret) return false;
@@ -42,10 +31,7 @@ const isValidToken = async (provided: string): Promise<boolean> => {
     }
 };
 
-/**
- * Verify HMAC-SHA256 signature (more secure — use this if your friend supports it)
- * Signature = HMAC-SHA256(SECRET, raw_body_string)
- */
+// Verify HMAC-SHA256 signature
 const isValidHmac = async (signature: string, rawBody: string): Promise<boolean> => {
     const secret = await getSecret();
     if (!secret) return false;
@@ -60,32 +46,10 @@ const isValidHmac = async (signature: string, rawBody: string): Promise<boolean>
     }
 };
 
-// ============================================================================
-//  POST /api/supplier/fulfill
-//
-//  Your friend calls this URL when they have delivered diamonds to a player.
-//
-//  WHAT YOUR FRIEND NEEDS TO SEND YOU:
-//  ─────────────────────────────────────────────────────────────────────────
-//  Method:  POST
-//  URL:     https://yourwebsite.com/api/supplier/fulfill
-//  Headers:
-//    Content-Type:       application/json
-//    X-Supplier-Token:   <the secret token you give your friend>
-//
-//  Body (JSON):
-//  {
-//    "orderId":     "txn_abc123",      ← Your transaction ID (you give this)
-//    "status":      "success",          ← "success" | "failed" | "pending"
-//    "providerRef": "FRIEND-REF-001",  ← Your friend's reference number
-//    "message":     "Delivered 100💎", ← Optional message
-//    "diamonds":    100                 ← How many diamonds delivered
-//  }
-//  ─────────────────────────────────────────────────────────────────────────
-// ============================================================================
+// POST /api/supplier/fulfill: Handle delivery status from supplier
 
 export const handleSupplierFulfillment = async (req: Request, res: Response) => {
-    // ── 1. Authenticate the request ──────────────────────────────────────────
+    // 1. Authenticate request
     const token = req.headers["x-supplier-token"] as string | undefined;
     const hmacSig = req.headers["x-supplier-signature"] as string | undefined;
     const rawBody = JSON.stringify(req.body); // for HMAC verification
@@ -103,7 +67,7 @@ export const handleSupplierFulfillment = async (req: Request, res: Response) => 
         return sendError(res, "Unauthorized: Invalid or missing supplier token", 401);
     }
 
-    // ── 2. Validate the body ──────────────────────────────────────────────────
+    // 2. Validate request body
     const { orderId, status, providerRef, message, diamonds } = req.body as SupplierFulfillmentPayload;
 
     if (!orderId || typeof orderId !== "string") {
@@ -114,7 +78,7 @@ export const handleSupplierFulfillment = async (req: Request, res: Response) => 
         return sendError(res, "Invalid status. Must be: success | failed | pending", 400);
     }
 
-    // ── 3. Process the fulfillment ────────────────────────────────────────────
+    // 3. Process fulfillment
     try {
         const result = await processFriendFulfillment({
             orderId,
@@ -136,12 +100,7 @@ export const handleSupplierFulfillment = async (req: Request, res: Response) => 
     }
 };
 
-// ============================================================================
-//  GET /api/supplier/info
-//
-//  Returns connection info so your friend can verify they are connected.
-//  Also requires the supplier token.
-// ============================================================================
+// GET /api/supplier/info: Returns connection info for suppliers
 
 export const getSupplierInfo = async (req: Request, res: Response) => {
     const token = req.headers["x-supplier-token"] as string | undefined;
