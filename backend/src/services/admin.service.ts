@@ -8,6 +8,7 @@ import {
 import { deductGlobalStock } from "./transaction.service.js";
 import { invalidateGameCache } from "./game.service.js";
 import { invalidateSettingsCache } from "../lib/settings.js";
+import { getMooGoldProductList } from "./moogold.service.js";
 
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -655,6 +656,81 @@ export const adminService = {
             })
         );
         return prisma.$transaction(updates);
+    },
+
+    // --- MooGold Automation ---
+    bulkSyncMooGoldProducts: async (gameId: string, mooGoldCategoryId: string = "50") => {
+        const game = await prisma.game.findUnique({ where: { id: gameId } });
+        if (!game) throw new Error("Game not found");
+
+        // Fetch margin setting
+        const marginSetting = await prisma.systemSetting.findUnique({ where: { key: "MOOGOLD_MARGIN" } });
+        const margin = parseFloat(marginSetting?.value || "1.1"); // Default 10% profit
+
+        const products = await getMooGoldProductList();
+        if (!products || products.length === 0) throw new Error("No products found from MooGold.");
+
+        // MooGold products are usually grouped by "category" (e.g., Mobile Legends).
+        // Each product entry in the list is a specific package (e.g., 86 Diamonds).
+        // We filter products whose name contains our game's name (case-insensitive).
+        const relevantProducts = products.filter((p: any) =>
+            p.product_name?.toLowerCase().includes(game.name.toLowerCase()) ||
+            p.product_name?.toLowerCase().includes(game.slug.toLowerCase().replace(/-/g, ' '))
+        );
+
+        if (relevantProducts.length === 0) {
+            throw new Error(`No MooGold products found matching "${game.name}".`);
+        }
+
+        console.log(`[Sync] Found ${relevantProducts.length} potential products for ${game.name}.`);
+
+        let createdCount = 0;
+        let updatedCount = 0;
+
+        for (const item of relevantProducts) {
+            const productId = item.product_id?.toString() || item.pid?.toString();
+            if (!productId) continue;
+
+            // Extract numeric amount from name (e.g., "86 Diamonds" -> 86)
+            const amountMatch = item.product_name?.match(/(\d+)\s*(?:Diamonds|Gems|Coins|Diamonds)/i);
+            const amount = amountMatch ? parseInt(amountMatch[1], 10) : 0;
+
+            const rawPrice = parseFloat(item.price) || 0;
+            const price = parseFloat((rawPrice * margin).toFixed(2));
+            const name = item.product_name || `Package ${productId}`;
+
+            // Upsert the package
+            await prisma.package.upsert({
+                where: {
+                    // We identify uniqueness by gameId + amount + providerSku
+                    // Wait, Package model doesn't have a unique constraint on SKU + Game, but providerSku is unique in Prisma?
+                    // Let's check schema.prisma
+                    id: (await prisma.package.findFirst({ where: { gameId, providerSku: productId } }))?.id || "NEW"
+                },
+                create: {
+                    gameId,
+                    name,
+                    amount,
+                    price,
+                    providerSku: productId,
+                    isWeeklyPass: name.toLowerCase().includes("pass") || name.toLowerCase().includes("weekly"),
+                    sortOrder: amount || 0,
+                },
+                update: {
+                    price,
+                    name,
+                }
+            });
+
+            if ((await prisma.package.findFirst({ where: { gameId, providerSku: productId } }))) {
+                updatedCount++;
+            } else {
+                createdCount++;
+            }
+        }
+
+        await invalidateGameCache();
+        return { createdCount, updatedCount, total: relevantProducts.length };
     }
 };
 

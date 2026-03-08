@@ -367,3 +367,20 @@ export const getMooGoldProducts = async (req: Request, res: Response) => {
         res.status(500).json({ success: false, message: error.message });
     }
 };
+
+export const bulkSyncMooGoldProducts = async (req: Request, res: Response) => {
+    try {
+        const { gameId, categoryId } = req.body;
+        if (!gameId) return res.status(400).json({ success: false, message: "gameId is required" });
+
+        const result = await adminService.bulkSyncMooGoldProducts(gameId, categoryId);
+        res.json({
+            success: true,
+            data: result,
+            message: `Successfully synced ${result.total} packages (${result.createdCount} new, ${result.updatedCount} updated).`
+        });
+    } catch (error: any) {
+        console.error(`[bulkSyncMooGoldProducts] Error:`, error.message);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};

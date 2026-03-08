@@ -59,6 +59,7 @@ function AdminPackagesContent() {
     const [isUpdatingStock, setIsUpdatingStock] = useState(false);
     const [newStockValue, setNewStockValue] = useState('');
     const [showStockInput, setShowStockInput] = useState(false);
+    const [isBulkSyncing, setIsBulkSyncing] = useState(false);
 
     // Sync local search with URL
     useEffect(() => {
@@ -230,6 +231,38 @@ function AdminPackagesContent() {
         } finally {
             setIsFetchingMooGold(false);
         }
+    };
+
+    const handleBulkSync = async () => {
+        if (filterGameId === 'all') {
+            showToast('Please select a specific game to sync packages for.', 'warning');
+            return;
+        }
+
+        const selectedGame = games.find(g => g.id === filterGameId);
+
+        openConfirm(
+            'Bulk Sync Packages',
+            `This will automatically fetch all available packages for ${selectedGame?.name} from MooGold and update your local catalog. Continue?`,
+            async () => {
+                setIsBulkSyncing(true);
+                try {
+                    const result = await apiRequest<any>('/admin/moogold/products/sync', {
+                        method: 'POST',
+                        body: JSON.stringify({ gameId: filterGameId })
+                    });
+                    showToast(result.message || 'Sync completed!', 'success');
+                    await fetchPackages();
+                } catch (err: any) {
+                    console.error('Failed to bulk sync', err);
+                    showToast(err.message || 'Failed to sync packages', 'error');
+                } finally {
+                    setIsBulkSyncing(false);
+                }
+            },
+            'info',
+            'Start Sync'
+        );
     };
 
     const handleSubmitPackage = async (e: React.FormEvent) => {
@@ -528,20 +561,32 @@ function AdminPackagesContent() {
                     )}
                 </div>
 
-                <button
-                    onClick={() => {
-                        setEditingPackageId(null);
-                        setIsDuplicating(false);
-                        setIsFormDropdownOpen(false);
-                        setFormData({ name: '', gameId: '', amount: '', price: '', providerCode: 'MOOGOLD', providerSku: '', description: '', badgeText: '', isWeeklyPass: false, sortOrder: '0' });
-                        setShowForm((s) => !s);
-                    }}
-                    className="group relative px-10 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-[2.5rem] overflow-hidden shadow-[0_20px_40px_-10px_rgba(99,102,241,0.5)] transition-all hover:-translate-y-1 active:scale-95 flex items-center gap-4"
-                >
-                    <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    <Plus className="w-5 h-5 text-white" />
-                    <span className="text-xs font-black text-white uppercase tracking-[0.3em]">Add Package</span>
-                </button>
+                <div className="flex flex-wrap items-center gap-4">
+                    {filterGameId !== 'all' && (
+                        <button
+                            disabled={isBulkSyncing}
+                            onClick={handleBulkSync}
+                            className={`px-8 py-4 bg-white/5 border border-white/10 rounded-[2.5rem] text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em] hover:bg-white/10 transition-all flex items-center gap-3 ${isBulkSyncing ? 'animate-pulse opacity-50' : ''}`}
+                        >
+                            <Zap className={`w-4 h-4 ${isBulkSyncing ? 'animate-spin' : ''}`} />
+                            {isBulkSyncing ? 'Syncing...' : 'Bulk Sync'}
+                        </button>
+                    )}
+                    <button
+                        onClick={() => {
+                            setEditingPackageId(null);
+                            setIsDuplicating(false);
+                            setIsFormDropdownOpen(false);
+                            setFormData({ name: '', gameId: '', amount: '', price: '', providerCode: 'MOOGOLD', providerSku: '', description: '', badgeText: '', isWeeklyPass: false, sortOrder: '0' });
+                            setShowForm((s) => !s);
+                        }}
+                        className="group relative px-10 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-[2.5rem] overflow-hidden shadow-[0_20px_40px_-10px_rgba(99,102,241,0.5)] transition-all hover:-translate-y-1 active:scale-95 flex items-center gap-4"
+                    >
+                        <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <Plus className="w-5 h-5 text-white" />
+                        <span className="text-xs font-black text-white uppercase tracking-[0.3em]">Add Package</span>
+                    </button>
+                </div>
             </div>
 
             {/* Filter & Search Bar */}

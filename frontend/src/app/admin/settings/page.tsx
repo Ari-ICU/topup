@@ -62,6 +62,13 @@ const settingDefaults: {
             type: 'password',
             hint: 'Used to securely fetch the product catalog',
         },
+        {
+            group: 'MooGold Provider',
+            key: 'MOOGOLD_MARGIN',
+            label: 'Profit Margin (Multiplier)',
+            placeholder: 'e.g. 1.15',
+            hint: 'Multiplies the MooGold cost by this amount when syncing (e.g., 1.15 = 15% profit)',
+        },
 
         // ── Bakong KHQR ──────────────────────────────────────────────────────────
         {
