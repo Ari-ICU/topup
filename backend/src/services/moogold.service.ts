@@ -16,14 +16,10 @@ export const getMooGoldProductList = async (): Promise<any[]> => {
         const timestamp = Math.floor(Date.now() / 1000).toString();
         const payloadObj = {
             path: "product/list_product",
-            category: "50" // Direct top-up
+            category_id: 50
         };
-        const body = JSON.stringify(payloadObj);
-
-        // MooGold requires a very specific signature format: 
-        // {'path':'...','key':'...'} (single quotes, no spaces)
-        const signaturePayload = `{'path':'product/list_product','category':'50'}`;
-        const signatureString = signaturePayload + timestamp + "product/list_product";
+        const payloadStr = JSON.stringify(payloadObj);
+        const signatureString = payloadStr + timestamp + "product/list_product";
 
         const authSignature = crypto.createHmac("sha256", secretKey).update(signatureString).digest("hex");
         const authHeader = "Basic " + Buffer.from(`${partnerId}:${secretKey}`).toString("base64");
@@ -62,6 +58,52 @@ export const getMooGoldProductList = async (): Promise<any[]> => {
     }
 };
 
+// Fetch packages for a specific game ID
+export const getMooGoldGamePackages = async (mooGoldGameId: string | number): Promise<any> => {
+    const settings = await getSystemSettings();
+    const partnerId = settings.get("MOOGOLD_PARTNER_ID");
+    const secretKey = settings.get("MOOGOLD_SECRET_KEY");
+
+    if (!partnerId || !secretKey) {
+        throw new Error("MooGold credentials not found.");
+    }
+
+    try {
+        const timestamp = Math.floor(Date.now() / 1000).toString();
+        const payloadObj = {
+            path: "product/product_detail",
+            product_id: mooGoldGameId
+        };
+        const payloadStr = JSON.stringify(payloadObj);
+        const signatureString = payloadStr + timestamp + "product/product_detail";
+
+        const authSignature = crypto.createHmac("sha256", secretKey).update(signatureString).digest("hex");
+        const authHeader = "Basic " + Buffer.from(`${partnerId}:${secretKey}`).toString("base64");
+
+        const response = await axios.post("https://moogold.com/wp-json/v1/api/product/product_detail", payloadObj, {
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": authHeader,
+                "auth": authSignature,
+                "timestamp": timestamp,
+                "User-Agent": "MooGold-Node-Integration"
+            },
+            timeout: 10000,
+            validateStatus: () => true
+        });
+
+        if (response.status >= 200 && response.status < 300) {
+            return response.data;
+        }
+
+        throw new Error(response.data?.message || `MooGold error: ${response.status}`);
+    } catch (error: any) {
+        console.error(`[MooGold] Fetching packages for ${mooGoldGameId} failed:`, error.message);
+        throw new Error(error.response?.data?.message || error.message);
+    }
+};
+
 // Place an order with MooGold
 export const moogoldPlaceOrder = async (orderData: {
     productId: string;
@@ -89,9 +131,9 @@ export const moogoldPlaceOrder = async (orderData: {
             }
         };
 
-        // Format signature payload using single quotes
-        const signaturePayload = `{'path':'${path}','data':{'product_id':'${orderData.productId}','quantity':1,'player_id':'${orderData.playerId}','server_id':'${orderData.serverId || ""}'}}`;
-        const signatureString = signaturePayload + timestamp + path;
+        // Format signature payload using JSON.stringify to exactly match axios serialization
+        const payloadStr = JSON.stringify(payloadObj);
+        const signatureString = payloadStr + timestamp + path;
 
         const authSignature = crypto.createHmac("sha256", secretKey).update(signatureString).digest("hex");
         const authHeader = "Basic " + Buffer.from(`${partnerId}:${secretKey}`).toString("base64");
@@ -148,9 +190,9 @@ export const getMooGoldBalance = async (): Promise<number> => {
         const path = "user/balance";
         const payloadObj = { path };
 
-        // Match MooGold format: {'path':'user/balance'}
-        const signaturePayload = `{'path':'user/balance'}`;
-        const signatureString = signaturePayload + timestamp + path;
+        // Match MooGold format exactly:
+        const payloadStr = JSON.stringify(payloadObj);
+        const signatureString = payloadStr + timestamp + path;
 
         const authSignature = crypto.createHmac("sha256", secretKey).update(signatureString).digest("hex");
         const authHeader = "Basic " + Buffer.from(`${partnerId}:${secretKey}`).toString("base64");

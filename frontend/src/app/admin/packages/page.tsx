@@ -219,14 +219,18 @@ function AdminPackagesContent() {
     }, [fetchPackages, fetchGames]);
 
     const handleFetchMooGoldProducts = async () => {
+        if (!formData.gameId) {
+            showToast('Please select a game from the dropdown first', 'warning');
+            return;
+        }
         setIsFetchingMooGold(true);
         try {
-            const data = await apiRequest<any[]>('/admin/moogold/products');
+            const data = await apiRequest<any[]>(`/admin/moogold/products?gameId=${formData.gameId}`);
             setMooGoldProducts(data || []);
             setShowMooGoldDropdown(true);
-            showToast('MooGold catalog fetched successfully!', 'success');
+            showToast('MooGold packages fetched successfully!', 'success');
         } catch (err: any) {
-            console.error('Failed to fetch MooGold products', err);
+            console.error('Failed to fetch MooGold packages', err);
             showToast(err.message || 'Failed to sync with MooGold', 'error');
         } finally {
             setIsFetchingMooGold(false);
@@ -431,9 +435,9 @@ function AdminPackagesContent() {
             'Are you sure you want to delete this package? This action cannot be undone.',
             async () => {
                 try {
-                    await apiRequest(`/admin/packages/${id}`, { method: 'DELETE' });
+                    const response = await apiRequest(`/admin/packages/${id}`, { method: 'DELETE' });
                     setPackages((prev) => prev.filter((p) => p.id !== id));
-                    showToast('Package deleted.', 'success');
+                    showToast('Package deleted or archived successfully.', 'success');
                 } catch (err: any) {
                     console.error('Failed to delete package', err);
                     if (err?.status === 404) {
@@ -840,19 +844,19 @@ function AdminPackagesContent() {
                                                         key={idx}
                                                         type="button"
                                                         onClick={() => {
-                                                            const pSku = p.product_id || p.pid || '';
+                                                            const pSku = p.variation_id || p.product_id || p.pid || '';
                                                             setFormData({
                                                                 ...formData,
                                                                 providerSku: pSku.toString(),
-                                                                price: p.price || formData.price,
-                                                                name: formData.name || p.product_name || p.title || formData.name
+                                                                price: p.variation_price || p.price || formData.price,
+                                                                name: formData.name || p.variation_name || p.product_name || p.title || formData.name
                                                             });
                                                             setShowMooGoldDropdown(false);
                                                         }}
                                                         className="w-full text-left px-4 py-3 text-[10px] font-bold uppercase tracking-wider hover:bg-white/5 text-slate-400 hover:text-white border-b border-white/5 last:border-0 flex justify-between group"
                                                     >
-                                                        <span className="truncate mr-4">{p.product_name || p.title || `Product ${p.product_id || p.pid}`}</span>
-                                                        <span className="text-indigo-400 group-hover:text-indigo-300 shrink-0">{p.product_id || p.pid}</span>
+                                                        <span className="truncate mr-4">{p.variation_name || p.product_name || p.title || `Product ${p.variation_id || p.product_id || p.pid}`}</span>
+                                                        <span className="text-indigo-400 group-hover:text-indigo-300 shrink-0">{p.variation_id || p.product_id || p.pid}</span>
                                                     </button>
                                                 ))}
                                             </div>

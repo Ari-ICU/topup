@@ -8,7 +8,7 @@ import {
 import { deductGlobalStock } from "./transaction.service.js";
 import { invalidateGameCache } from "./game.service.js";
 import { invalidateSettingsCache } from "../lib/settings.js";
-import { getMooGoldProductList } from "./moogold.service.js";
+import { getMooGoldProductList, getMooGoldGamePackages } from "./moogold.service.js";
 
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -403,7 +403,17 @@ export const adminService = {
 
         const txCount = await prisma.transaction.count({ where: { packageId: id } });
         if (txCount > 0) {
-            throw new Error(`Cannot delete: ${txCount} linked transaction(s). Deactivate instead.`);
+            // "Soft delete" by hiding it and scrambling the SKU since Prisma doesn't have isActive
+            const deleted = await prisma.package.update({
+                where: { id },
+                data: {
+                    name: `(Archived) ${pkg.name}`,
+                    providerSku: `ARCHIVED_${Date.now()}_${pkg.providerSku}`,
+                    sortOrder: 9999 // push to bottom
+                }
+            });
+            await invalidateGameCache();
+            return deleted;
         }
 
         const deleted = await prisma.package.delete({ where: { id } });
@@ -659,6 +669,26 @@ export const adminService = {
     },
 
     // --- MooGold Automation ---
+    getMooGoldPackagesByGame: async (gameId: string) => {
+        const game = await prisma.game.findUnique({ where: { id: gameId } });
+        if (!game) throw new Error("Game not found");
+
+        const products = await getMooGoldProductList();
+        if (!products || products.length === 0) throw new Error("No products found from MooGold.");
+
+        const relevantGame = products.find((p: any) =>
+            p.post_title?.toLowerCase().includes(game.name.toLowerCase()) ||
+            p.post_title?.toLowerCase().includes(game.slug.toLowerCase().replace(/-/g, ' '))
+        );
+
+        if (!relevantGame) {
+            throw new Error(`No MooGold game found matching "${game.name}".`);
+        }
+
+        const packageList = await getMooGoldGamePackages(relevantGame.ID);
+        return packageList.Variation || packageList.product || [];
+    },
+
     bulkSyncMooGoldProducts: async (gameId: string, mooGoldCategoryId: string = "50") => {
         const game = await prisma.game.findUnique({ where: { id: gameId } });
         if (!game) throw new Error("Game not found");
@@ -669,42 +699,47 @@ export const adminService = {
 
         const products = await getMooGoldProductList();
         if (!products || products.length === 0) throw new Error("No products found from MooGold.");
-
-        // MooGold products are usually grouped by "category" (e.g., Mobile Legends).
-        // Each product entry in the list is a specific package (e.g., 86 Diamonds).
-        // We filter products whose name contains our game's name (case-insensitive).
-        const relevantProducts = products.filter((p: any) =>
-            p.product_name?.toLowerCase().includes(game.name.toLowerCase()) ||
-            p.product_name?.toLowerCase().includes(game.slug.toLowerCase().replace(/-/g, ' '))
+        // MooGold products list returns games, not packages directly.
+        // E.g., { ID: '15145', post_title: 'Mobile Legends' }
+        const relevantGame = products.find((p: any) =>
+            p.post_title?.toLowerCase().includes(game.name.toLowerCase()) ||
+            p.post_title?.toLowerCase().includes(game.slug.toLowerCase().replace(/-/g, ' '))
         );
 
-        if (relevantProducts.length === 0) {
-            throw new Error(`No MooGold products found matching "${game.name}".`);
+        if (!relevantGame) {
+            throw new Error(`No MooGold game found matching "${game.name}".`);
         }
 
-        console.log(`[Sync] Found ${relevantProducts.length} potential products for ${game.name}.`);
+        console.log(`[Sync] Found MooGold Game: ${relevantGame.post_title} (ID: ${relevantGame.ID})`);
+
+        // Now fetch the actual packages for this game ID
+        const packageList = await getMooGoldGamePackages(relevantGame.ID);
+        const itemsToProcess = packageList.Variation || packageList.product || [];
+
+        if (itemsToProcess.length === 0) {
+            throw new Error(`No packages found for game "${relevantGame.post_title}".`);
+        }
+
+        console.log(`[Sync] Found ${itemsToProcess.length} potential packages for ${game.name}.`);
 
         let createdCount = 0;
         let updatedCount = 0;
 
-        for (const item of relevantProducts) {
-            const productId = item.product_id?.toString() || item.pid?.toString();
+        for (const item of itemsToProcess) {
+            const productId = item.variation_id?.toString();
             if (!productId) continue;
 
-            // Extract numeric amount from name (e.g., "86 Diamonds" -> 86)
-            const amountMatch = item.product_name?.match(/(\d+)\s*(?:Diamonds|Gems|Coins|Diamonds)/i);
-            const amount = amountMatch ? parseInt(amountMatch[1], 10) : 0;
+            // Extract numeric amount from name (e.g., "Mobile Legends - 86 Diamonds" -> 86)
+            const amountMatch = item.variation_name?.match(/(\d+(?:,\d+)?)\s*(?:Diamonds|Gems|Coins|UC)/i);
+            const amount = amountMatch ? parseInt(amountMatch[1].replace(/,/g, ''), 10) : 0;
 
-            const rawPrice = parseFloat(item.price) || 0;
+            const rawPrice = parseFloat(item.variation_price) || 0;
             const price = parseFloat((rawPrice * margin).toFixed(2));
-            const name = item.product_name || `Package ${productId}`;
+            const name = item.variation_name?.replace(/^[^A-Z0-9]*[-–—]?\s*/i, '').replace(/ \(#\d+\)$/, '').trim() || `Package ${productId}`;
 
             // Upsert the package
             await prisma.package.upsert({
                 where: {
-                    // We identify uniqueness by gameId + amount + providerSku
-                    // Wait, Package model doesn't have a unique constraint on SKU + Game, but providerSku is unique in Prisma?
-                    // Let's check schema.prisma
                     id: (await prisma.package.findFirst({ where: { gameId, providerSku: productId } }))?.id || "NEW"
                 },
                 create: {
@@ -718,7 +753,7 @@ export const adminService = {
                 },
                 update: {
                     price,
-                    name,
+                    name, // Optionally update name to ensure it is clean
                 }
             });
 
@@ -730,7 +765,7 @@ export const adminService = {
         }
 
         await invalidateGameCache();
-        return { createdCount, updatedCount, total: relevantProducts.length };
+        return { createdCount, updatedCount, total: itemsToProcess.length };
     }
 };
 

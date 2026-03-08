@@ -360,6 +360,10 @@ export const manuallyFulfillTransaction = async (req: Request, res: Response) =>
 
 export const getMooGoldProducts = async (req: Request, res: Response) => {
     try {
+        if (req.query.gameId) {
+            const packages = await adminService.getMooGoldPackagesByGame(req.query.gameId as string);
+            return res.json({ success: true, data: packages });
+        }
         const products = await getMooGoldProductList();
         res.json({ success: true, data: products });
     } catch (error: any) {
