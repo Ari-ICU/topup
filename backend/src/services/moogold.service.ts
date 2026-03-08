@@ -1,6 +1,5 @@
 import crypto from "crypto";
 import axios from "axios";
-import { prisma } from "../lib/prisma.js";
 import { getSystemSettings } from "../lib/settings.js";
 
 // Fetch MooGold Product Catalog
@@ -15,15 +14,17 @@ export const getMooGoldProductList = async (): Promise<any[]> => {
 
     try {
         const timestamp = Math.floor(Date.now() / 1000).toString();
-        const path = "v1/api/product/list_product";
         const payloadObj = {
-            path: path,
+            path: "product/list_product",
             category: "50" // Direct top-up
         };
-        const payload = JSON.stringify(payloadObj);
+        const body = JSON.stringify(payloadObj);
 
-        // Signatures: Payload + Timestamp + Path
-        const signatureString = payload + timestamp + path;
+        // MooGold requires a very specific signature format: 
+        // {'path':'...','key':'...'} (single quotes, no spaces)
+        const signaturePayload = `{'path':'product/list_product','category':'50'}`;
+        const signatureString = signaturePayload + timestamp + "product/list_product";
+
         const authSignature = crypto.createHmac("sha256", secretKey).update(signatureString).digest("hex");
         const authHeader = "Basic " + Buffer.from(`${partnerId}:${secretKey}`).toString("base64");
 
@@ -32,15 +33,16 @@ export const getMooGoldProductList = async (): Promise<any[]> => {
                 "Accept": "application/json",
                 "Content-Type": "application/json",
                 "Authorization": authHeader,
-                "auth_signature": authSignature,
+                "auth": authSignature,
                 "timestamp": timestamp,
-                "User-Agent": "Mozilla/5.0"
+                "User-Agent": "MooGold-Node-Integration"
             },
             timeout: 10000,
             validateStatus: () => true
         });
 
         const data = response.data;
+        console.log("[MooGold] Product list data:", JSON.stringify(data));
 
         if (response.status >= 200 && response.status < 300) {
             if (data && (Array.isArray(data) || data.data)) {
@@ -75,7 +77,7 @@ export const moogoldPlaceOrder = async (orderData: {
 
     try {
         const timestamp = Math.floor(Date.now() / 1000).toString();
-        const path = "v1/api/order/create_order";
+        const path = "order/create_order";
 
         const payloadObj = {
             path,
@@ -86,9 +88,11 @@ export const moogoldPlaceOrder = async (orderData: {
                 server_id: orderData.serverId || "",
             }
         };
-        const payload = JSON.stringify(payloadObj);
 
-        const signatureString = payload + timestamp + path;
+        // Format signature payload using single quotes
+        const signaturePayload = `{'path':'${path}','data':{'product_id':'${orderData.productId}','quantity':1,'player_id':'${orderData.playerId}','server_id':'${orderData.serverId || ""}'}}`;
+        const signatureString = signaturePayload + timestamp + path;
+
         const authSignature = crypto.createHmac("sha256", secretKey).update(signatureString).digest("hex");
         const authHeader = "Basic " + Buffer.from(`${partnerId}:${secretKey}`).toString("base64");
 
@@ -97,9 +101,9 @@ export const moogoldPlaceOrder = async (orderData: {
                 "Accept": "application/json",
                 "Content-Type": "application/json",
                 "Authorization": authHeader,
-                "auth_signature": authSignature,
+                "auth": authSignature,
                 "timestamp": timestamp,
-                "User-Agent": "Mozilla/5.0"
+                "User-Agent": "MooGold-Node-Integration"
             },
             timeout: 15000,
             validateStatus: () => true
@@ -141,11 +145,13 @@ export const getMooGoldBalance = async (): Promise<number> => {
 
     try {
         const timestamp = Math.floor(Date.now() / 1000).toString();
-        const path = "v1/api/user/balance";
+        const path = "user/balance";
         const payloadObj = { path };
-        const payload = JSON.stringify(payloadObj);
 
-        const signatureString = payload + timestamp + path;
+        // Match MooGold format: {'path':'user/balance'}
+        const signaturePayload = `{'path':'user/balance'}`;
+        const signatureString = signaturePayload + timestamp + path;
+
         const authSignature = crypto.createHmac("sha256", secretKey).update(signatureString).digest("hex");
         const authHeader = "Basic " + Buffer.from(`${partnerId}:${secretKey}`).toString("base64");
 
@@ -154,17 +160,25 @@ export const getMooGoldBalance = async (): Promise<number> => {
                 "Accept": "application/json",
                 "Content-Type": "application/json",
                 "Authorization": authHeader,
-                "auth_signature": authSignature,
+                "auth": authSignature,
                 "timestamp": timestamp,
-                "User-Agent": "Mozilla/5.0"
+                "User-Agent": "MooGold-Node-Integration"
             },
             timeout: 10000,
             validateStatus: () => true
         });
 
-        if (response.status === 200 && response.data?.balance) {
-            return parseFloat(response.data.balance);
+        if (response.status === 200) {
+            if (response.data?.balance) {
+                return parseFloat(response.data.balance);
+            }
+            if (response.data?.err_code === "403") {
+                console.warn("[MooGold] Balance 403: Account not authorized for API yet.");
+            }
         }
         return 0;
-    } catch { return 0; }
+    } catch (error: any) {
+        console.error("[MooGold] Balance request failed:", error.message);
+        return 0;
+    }
 };

@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import { adminService } from "../services/admin.service.js";
 import { getProviderStatus } from "../services/topup-provider.service.js";
 import { fulfillTransaction } from "../services/transaction.service.js";
+import { getMooGoldProductList } from "../services/moogold.service.js";
 import { sendSuccess, sendError } from "../utils/apiResponse.js";
 
 const JWT_SECRET = process.env.JWT_SECRET || "fallback-secret-for-dev-only-123";
@@ -321,6 +322,7 @@ export const getActivePromotionsPublic = async (req: Request, res: Response) => 
         const data = await adminService.getActivePromotions();
         res.json({ success: true, data });
     } catch (error: any) {
+        console.error("[Promotions API] Error:", error.message);
         res.status(500).json({ success: false, message: error.message });
     }
 };
@@ -353,5 +355,15 @@ export const manuallyFulfillTransaction = async (req: Request, res: Response) =>
     } catch (error: any) {
         console.error(`[Admin] ❌ Manual fulfillment failed for TxID ${id}:`, error.message);
         return sendError(res, error.message || "Manual fulfillment failed", 500);
+    }
+};
+
+export const getMooGoldProducts = async (req: Request, res: Response) => {
+    try {
+        const products = await getMooGoldProductList();
+        res.json({ success: true, data: products });
+    } catch (error: any) {
+        console.error(`[getMooGoldProducts] Error:`, error.message);
+        res.status(500).json({ success: false, message: error.message });
     }
 };
