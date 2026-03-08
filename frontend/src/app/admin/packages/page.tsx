@@ -313,6 +313,8 @@ function AdminPackagesContent() {
             setEditingPackageId(null);
             setIsDuplicating(false);
             setIsFormDropdownOpen(false);
+            setMooGoldProducts([]);
+            setShowMooGoldDropdown(false);
             setFormData({ name: '', gameId: '', amount: '', price: '', providerCode: 'MOOGOLD', providerSku: '', description: '', badgeText: '', isWeeklyPass: false, sortOrder: '0' });
         } catch (err: any) {
             console.error('Failed to save package', err);
@@ -886,7 +888,14 @@ function AdminPackagesContent() {
                                     </div>
                                 </div>
                                 <div className="flex gap-6 pt-6">
-                                    <button type="button" onClick={() => setShowForm(false)} className="flex-1 py-5 rounded-[2.5rem] bg-white/5 text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] transition-all hover:bg-white/10 hover:text-white">Cancel</button>
+                                    <button type="button" onClick={() => {
+                                        setShowForm(false);
+                                        setEditingPackageId(null);
+                                        setIsDuplicating(false);
+                                        setMooGoldProducts([]);
+                                        setShowMooGoldDropdown(false);
+                                        setFormData({ name: '', gameId: '', amount: '', price: '', providerCode: 'MOOGOLD', providerSku: '', description: '', badgeText: '', isWeeklyPass: false, sortOrder: '0' });
+                                    }} className="flex-1 py-5 rounded-[2.5rem] bg-white/5 text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] transition-all hover:bg-white/10 hover:text-white">Cancel</button>
                                     <button disabled={isSaving} type="submit" className="flex-[2] py-5 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-[2.5rem] text-[10px] font-black text-white uppercase tracking-[0.3em] disabled:opacity-50 shadow-[0_20px_40px_-10px_rgba(99,102,241,0.5)] transition-all hover:-translate-y-1">{isSaving ? 'Saving...' : 'Save Package'}</button>
                                 </div>
                             </form>

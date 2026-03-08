@@ -407,7 +407,11 @@ function AdminGamesContent() {
                                 </div>
 
                                 <div className="flex justify-end items-center gap-6 pt-6 border-t border-white/5">
-                                    <button type="button" onClick={() => setShowForm(false)} className="text-[10px] font-black text-slate-500 uppercase tracking-[0.25em] hover:text-white transition-colors">Cancel</button>
+                                    <button type="button" onClick={() => {
+                                        setShowForm(false);
+                                        setEditingGameId(null);
+                                        setFormData({ name: '', slug: '', iconUrl: '', requiresPlayerId: true, requiresZoneId: false });
+                                    }} className="text-[10px] font-black text-slate-500 uppercase tracking-[0.25em] hover:text-white transition-colors">Cancel</button>
                                     <button
                                         disabled={isSaving || isUploading}
                                         type="submit"
