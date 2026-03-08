@@ -46,6 +46,11 @@ export const getGameBySlugDetails = async (slug: string) => {
             where: { slug },
             include: {
                 packages: {
+                    where: {
+                        NOT: {
+                            providerSku: { startsWith: 'ARCHIVED_' }
+                        }
+                    },
                     orderBy: [
                         { sortOrder: "asc" },
                         { price: "asc" },

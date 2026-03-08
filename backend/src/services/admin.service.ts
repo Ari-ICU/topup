@@ -326,6 +326,11 @@ export const adminService = {
     // --- Packages ---
     getAllPackages: async () => {
         return prisma.package.findMany({
+            where: {
+                NOT: {
+                    providerSku: { startsWith: 'ARCHIVED_' }
+                }
+            },
             include: {
                 game: { select: { name: true, slug: true, iconUrl: true } }
             },
