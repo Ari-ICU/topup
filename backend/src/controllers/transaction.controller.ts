@@ -103,32 +103,28 @@ export const checkPaymentAndFulfill = async (req: Request, res: Response) => {
     try {
         const transaction = await transactionService.getTransactionById(id);
 
-        // Check if already completed
         if (transaction.status === "COMPLETED") {
             return sendSuccess(res, { status: "COMPLETED", message: "Transaction already completed." });
         }
 
-        // Only check Bakong pending transactions
         if (transaction.status === "PENDING" && transaction.paymentMethod === "BAKONG") {
             const md5 = transaction.paymentRef;
             if (!md5) {
                 return sendSuccess(res, { status: "PENDING", message: "Waiting for KHQR generation..." });
             }
 
-            // Check Bakong API status
+            // 🛡️ SECURITY: Double-check with Bakong API (Source of Truth)
             const check = await bakongService.checkBakongTransactionStatus(md5);
 
             if (check.status === "SUCCESS") {
-                console.log(`[AutoCheck] 💰 Payment detected for TxID ${id}. Triggering fulfillment...`);
-
-                // Trigger automatic fulfillment
+                console.log(`[Security] 💰 Payment VERIFIED via API for TxID ${id}. Fulfilling...`);
                 const result = await transactionService.fulfillTransaction(id);
 
                 return sendSuccess(res, {
                     status: "COMPLETED",
                     provider: result.provider,
                     providerRef: result.providerRef,
-                    message: "Payment received and diamonds delivered!"
+                    message: "Payment verified and diamonds delivered!"
                 });
             }
 
@@ -138,70 +134,62 @@ export const checkPaymentAndFulfill = async (req: Request, res: Response) => {
             });
         }
 
-        // Return current status for other methods
         return sendSuccess(res, { status: transaction.status, message: "Transaction status checked." });
 
     } catch (error: any) {
-        console.error(`[AutoCheck] Error checking TxID ${id}:`, error.message);
-        return sendError(res, "Failed to check payment status", 500);
+        console.error(`[Security] ❌ Error verifying TxID ${id}:`, error.message);
+        return sendError(res, "Failed to verify payment status", 500);
     }
 };
 
 // Webhook for Bakong payment notifications
 export const handleBakongWebhook = async (req: Request, res: Response) => {
-    // Extract payload data
     const payload = req.body;
-
-    // Extract MD5 and external ID
     const md5 = payload.md5 || payload.data?.md5;
     const externalId = payload.externalId || payload.data?.externalId || payload.billNumber || payload.data?.billNumber;
 
-    console.log(`[Bakong Callback] 📥 Hook received. MD5: ${md5}, ID: ${externalId}`);
+    console.log(`[Bakong Hook] 📥 Received. MD5: ${md5}, ID: ${externalId}`);
 
     if (!md5 && !externalId) {
-        console.warn("[Bakong Callback] ⚠️ Received empty or invalid payload:", JSON.stringify(payload));
         return sendError(res, "Invalid payload. md5 or externalId required.", 400);
     }
 
     try {
-        // Find transaction by MD5 or ID
+        // Find transaction
         const transaction = await prisma.transaction.findFirst({
-            where: {
-                OR: [
-                    { paymentRef: md5 },
-                    { id: externalId }
-                ]
-            }
+            where: { OR: [{ paymentRef: md5 }, { id: externalId }] }
         });
 
         if (!transaction) {
-            console.warn(`[Bakong Callback] ⚠️ No transaction found matching md5: ${md5} or id: ${externalId}`);
-            // Acknowledge webhook even if no transaction found
-            return sendSuccess(res, { message: "Webhook received but no matching transaction found." });
+            console.warn(`[Bakong Hook] ⚠️ No transaction found for MD5: ${md5}`);
+            return sendSuccess(res, { message: "Ignored (no match)" });
         }
 
-        // Acknowledge if already completed
         if (transaction.status === "COMPLETED") {
-            return sendSuccess(res, { message: "Transaction already completed." });
+            return sendSuccess(res, { message: "Already completed" });
         }
 
-        // Handle cases where transaction was previously failed
-        if (transaction.status === "FAILED") {
-            console.warn(`[Bakong Callback] ⚠️ Payment received for FAILED transaction ${transaction.id}. Attempting to fulfill anyway.`);
+        // 🛡️ SECURITY: DO NOT trust the webhook payload alone.
+        // Webhooks can be spoofed. ALWAYS verify the status against the official Bakong API
+        // using the MD5 which is our unique identifier for this KHQR.
+        const verifyMd5 = transaction.paymentRef || md5;
+        if (!verifyMd5) return sendError(res, "Cannot verify without MD5", 400);
+
+        console.log(`[Bakong Hook] 🔍 Verifying TxID ${transaction.id} against Bakong API...`);
+        const check = await bakongService.checkBakongTransactionStatus(verifyMd5);
+
+        if (check.status === "SUCCESS") {
+            console.log(`[Bakong Hook] ✅ Payment CONFIRMED by API for TxID ${transaction.id}. Fulfilling...`);
+            const result = await transactionService.fulfillTransaction(transaction.id);
+            return sendSuccess(res, result, "Verified and fulfilled via webhook!");
+        } else {
+            console.warn(`[Bakong Hook] ❌ API says payment is NOT Success (${check.status}) for TxID ${transaction.id}.`);
+            return sendSuccess(res, { message: "Webhook received but payment not yet confirmed by API" });
         }
-
-        console.log(`[Bakong Callback] 💰 Payment confirmed for TxID ${transaction.id}. Triggering fulfillment...`);
-
-        // Trigger fulfillment
-        const result = await transactionService.fulfillTransaction(transaction.id);
-
-        return sendSuccess(res, result, "Payment confirmed and diamonds delivered via callback!");
 
     } catch (error: any) {
-        console.error(`[Bakong Callback] ❌ Fulfillment failed for payload:`, JSON.stringify(payload));
-        console.error(`[Bakong Callback] Error Detail:`, error.message);
-
-        // Return error status for retry
+        console.error(`[Bakong Hook] ❌ Error:`, error.message);
         return sendError(res, "Callback processing failed", 500);
     }
 };
+

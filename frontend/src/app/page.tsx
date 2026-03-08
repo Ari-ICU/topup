@@ -22,7 +22,6 @@ import {
 } from "lucide-react";
 import { useLang } from "@/context/lang-context";
 import { t, tr } from "@/lib/i18n";
-import { LangSwitcher } from "@/components/ui/lang-switcher";
 import { Navbar } from "@/components/layout/navbar";
 import { useState, useEffect } from "react";
 import { apiRequest, getAssetUrl } from "@/lib/api";

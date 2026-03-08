@@ -38,15 +38,16 @@ const skipAudit = (req: any) => {
     // 🛡️ Essential: Preflight requests MUST NEVER be rate-limited or blocked
     if (req.method === "OPTIONS") return true;
 
-    // 🔑 Use env var if present, otherwise use hardcoded fallback for this test build
-    const auditKey = process.env.AUDIT_KEY || 'audit_secret_token_2026';
+    // 🔑 Use env var if present. NEVER use hardcoded fallbacks in production.
+    const auditKey = process.env.AUDIT_KEY;
+    if (!auditKey) return false;
     return req.headers["x-audit-key"] === auditKey;
 };
 
 // ─── 1. Global limiter — applies to ALL routes ───────────────────────────────
 export const globalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: isProd ? 50 : 1000,
+    max: isProd ? 300 : 1000,
     standardHeaders: "draft-7",
     legacyHeaders: false,
     store: store("global"),

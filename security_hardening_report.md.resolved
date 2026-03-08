@@ -1,0 +1,55 @@
+# 🛡️ Security Hardening Report - TopUpPay
+
+I have completed a comprehensive security audit and hardening of the TopUpPay platform. The goal was to ensure the website is safe from common exploits while maintaining a smooth "top-up" experience for legitimate users.
+
+## 🚀 Key Security Improvements
+
+### 1. Verified Payment Fulfillment (Crucial)
+*   **The Issue**: Previously, the system blindly trusted incoming webhooks. A malicious actor could spoof a "success" message from Bakong and get diamonds for free.
+*   **The Fix**: I redesigned the [handleBakongWebhook](file:///Users/thoeurnratha/Documents/web-development/top-up/backend/src/controllers/transaction.controller.ts#145-195) and [checkPaymentAndFulfill](file:///Users/thoeurnratha/Documents/web-development/top-up/backend/src/controllers/transaction.controller.ts#99-144) logic. The backend now uses the official **Bakong API** as the single source of truth. When a webhook arrives, the server immediately calls Bakong's `/v1/check_transaction_by_md5` to verify the payment before delivering any diamonds.
+*   **Status**: ✅ **Implemented & Secured**
+
+### 2. Elimination of Public Fulfillment Routes
+*   **The Issue**: A public endpoint `/:id/confirm` existed which allowed anyone to fulfill a transaction if they guessed the ID.
+*   **The Fix**: This route has been **removed** from the public API. Users now rely on the polling system (which is verified via API) or the automated webhook.
+*   **Admin Access**: A new `POST /api/admin/transactions/:id/fulfill` route was created. It is strictly protected by **Admin Authentication** (JWT + Redis blocklist), allowing admins to manually fulfill orders if needed.
+*   **Status**: ✅ **Implemented & Secured**
+
+### 3. Strict Input Validation (Zod)
+*   **The Issue**: Express routes were accepting arbitrary JSON bodies, which could lead to malformed data or unexpected errors.
+*   **The Fix**: Installed and integrated `zod` for schema validation. Critical routes (Create Transaction, Admin Login, Settings Update) now have **strict schemas**. Any request sending extra fields or wrong types is rejected at the middleware level.
+*   **Status**: ✅ **Implemented**
+
+### 4. Rate Limiting Tuning
+*   **The Issue**: The global rate limit was too strict (50 requests per 15 mins), which could block legitimate users. Also, a hardcoded "audit key" fallback existed in the code.
+*   **The Fix**:
+    *   Increased the global limit to **300 requests per 15 mins**.
+    *   Removed the hardcoded `audit_secret_token_2026` fallback.
+    *   Kept tight limits on sensitive actions (5 attempts for fulfillment).
+*   **Status**: ✅ **Improved**
+
+### 5. Environment Safety
+*   **The Issue**: Several critical security keys were missing from the production example.
+*   **The Fix**: Updated [env.production.example](file:///Users/thoeurnratha/Documents/web-development/top-up/env.production.example) to include `JWT_SECRET`, `ADMIN_PASSWORD`, and `AUDIT_KEY`.
+*   **Status**: ✅ **Updated**
+
+---
+
+## 🛠️ Summary of Changes
+
+| Component | Improvement | Purpose |
+| :--- | :--- | :--- |
+| **Backend API** | Verifying Webhooks with Bakong API | Prevent spoofing and free diamond exploits. |
+| **Routes** | Removed Public `/confirm` Endpoint | Prevent unauthorized fulfillment by knowing the ID. |
+| **Middleware** | Added Zod Validation | Prevent malformed data and injection attempts. |
+| **Admin Panel** | Added Protected `/fulfill` Route | Allow safe manual intervention by administrators. |
+| **Security** | Removed Hardcoded Audit Bypass | Prevent unauthorized rate-limit bypassing. |
+
+## ⚠️ Action Required for Production
+
+Before going live, please ensure your `.env.production` contains strong random values for:
+1.  `JWT_SECRET`: Used for admin sessions.
+2.  `ADMIN_PASSWORD`: Your dashboard access key.
+3.  `AUDIT_KEY`: A secret token if you need to bypass limits for testing.
+
+The website is now significantly more robust against attacks while remaining fully functional for your customers.

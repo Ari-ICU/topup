@@ -29,9 +29,11 @@ import {
     reorderPromotions,
     triggerBackup,
     restoreData,
+    manuallyFulfillTransaction,
 } from "../controllers/admin.controller.js";
 import { adminLimiter } from "../middleware/rateLimit.middleware.js";
 import { adminAuth } from "../middleware/auth.middleware.js";
+import { validate, AdminLoginSchema, UpdateSettingsSchema } from "../middleware/validation.middleware.js";
 
 const router = Router();
 
@@ -39,7 +41,7 @@ const router = Router();
 router.use(adminLimiter);
 
 // Login (Public)
-router.post("/login", adminLogin);
+router.post("/login", validate({ body: AdminLoginSchema }), adminLogin);
 
 // Protected routes (Requires Auth)
 router.use(adminAuth);
@@ -63,6 +65,7 @@ router.delete("/packages/:id", deletePackage);
 // Transactions
 router.get("/transactions", getTransactions);
 router.put("/transactions/:id/status", updateTransactionStatus);
+router.post("/transactions/:id/fulfill", manuallyFulfillTransaction);
 
 // Promotions
 router.get("/promotions", getPromotions);
@@ -73,7 +76,7 @@ router.post("/promotions/reorder", reorderPromotions);
 
 // Configuration
 router.get("/settings", getSettings);
-router.put("/settings", updateSettings);
+router.put("/settings", validate({ body: UpdateSettingsSchema }), updateSettings);
 router.post("/global-stock", updateGlobalStock);
 router.post("/global-stock/sync", syncProviderStock);
 

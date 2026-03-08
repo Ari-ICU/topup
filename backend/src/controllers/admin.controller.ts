@@ -2,6 +2,8 @@ import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { adminService } from "../services/admin.service.js";
 import { getProviderStatus } from "../services/topup-provider.service.js";
+import { fulfillTransaction } from "../services/transaction.service.js";
+import { sendSuccess, sendError } from "../utils/apiResponse.js";
 
 const JWT_SECRET = process.env.JWT_SECRET || "fallback-secret-for-dev-only-123";
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "admin123";
@@ -337,5 +339,19 @@ export const restoreData = async (req: Request, res: Response) => {
         res.json({ success: true, data: result, message: "Data restored from backup" });
     } catch (error: any) {
         res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// Admin-only: Force-fulfill a transaction
+export const manuallyFulfillTransaction = async (req: Request, res: Response) => {
+    const { id } = req.params;
+    console.log(`[Admin] 👮 Manual fulfillment triggered by admin for TxID ${id}`);
+
+    try {
+        const result = await fulfillTransaction(id);
+        return sendSuccess(res, result, "Transaction fulfilled manually by admin.");
+    } catch (error: any) {
+        console.error(`[Admin] ❌ Manual fulfillment failed for TxID ${id}:`, error.message);
+        return sendError(res, error.message || "Manual fulfillment failed", 500);
     }
 };

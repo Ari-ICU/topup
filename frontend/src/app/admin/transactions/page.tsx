@@ -78,13 +78,28 @@ export default function AdminTransactionsPage() {
                 method: 'PUT',
                 body: JSON.stringify({ status }),
             });
-            // ✅ Re-fetch from server so providerRef and all fields are up to date
             await fetchTransactions();
         } catch (error: any) {
             console.error('Failed to update status', error);
-            setActionError(error?.message ?? 'Failed to update transaction. Check provider config.');
-            // Still refresh to show current server state
+            setActionError(error?.message ?? 'Failed to update transaction.');
             await fetchTransactions();
+        }
+    };
+
+    const handleFulfillTransaction = async (id: string) => {
+        setActionError(null);
+        setIsLoading(true);
+        try {
+            await apiRequest(`/admin/transactions/${id}/fulfill`, {
+                method: 'POST',
+            });
+            await fetchTransactions();
+        } catch (error: any) {
+            console.error('Fulfillment attempt failed', error);
+            setActionError(error?.message ?? 'Fulfillment failed. Connection or Supplier issue.');
+            await fetchTransactions();
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -204,19 +219,30 @@ export default function AdminTransactionsPage() {
                                             </td>
                                             <td className="px-8 py-6 text-right">
                                                 <div className="flex justify-end gap-2 ">
-                                                    {txn.status === 'PENDING' && (
+                                                    {(txn.status === 'PENDING' || txn.status === 'FAILED') && (
                                                         <>
                                                             <button
-                                                                onClick={() => handleUpdateStatus(txn.id, 'COMPLETED')}
-                                                                className="text-[9px] font-black uppercase tracking-[0.2em] bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 py-2 px-4 rounded-xl border border-emerald-500/20 transition-all active:scale-95"
+                                                                onClick={() => handleFulfillTransaction(txn.id)}
+                                                                disabled={isLoading}
+                                                                className="text-[9px] font-black uppercase tracking-[0.2em] bg-indigo-500/20 hover:bg-indigo-500/40 text-indigo-300 py-2 px-4 rounded-xl border border-indigo-500/20 transition-all active:scale-95 disabled:opacity-50"
+                                                                title="Trigger diamond delivery via provider"
                                                             >
-                                                                Release
+                                                                Fulfill
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleUpdateStatus(txn.id, 'COMPLETED')}
+                                                                disabled={isLoading}
+                                                                className="text-[9px] font-black uppercase tracking-[0.2em] bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 py-2 px-4 rounded-xl border border-emerald-500/20 transition-all active:scale-95 disabled:opacity-50"
+                                                                title="Mark as completed without delivery"
+                                                            >
+                                                                Seal
                                                             </button>
                                                             <button
                                                                 onClick={() => handleUpdateStatus(txn.id, 'FAILED')}
-                                                                className="text-[9px] font-black uppercase tracking-[0.2em] bg-red-500/10 hover:bg-red-500/20 text-red-500 py-2 px-4 rounded-xl border border-red-500/20 transition-all active:scale-95"
+                                                                disabled={isLoading}
+                                                                className="text-[9px] font-black uppercase tracking-[0.2em] bg-red-500/10 hover:bg-red-500/20 text-red-500 py-2 px-4 rounded-xl border border-red-500/20 transition-all active:scale-95 disabled:opacity-50"
                                                             >
-                                                                Reject
+                                                                X
                                                             </button>
                                                         </>
                                                     )}
