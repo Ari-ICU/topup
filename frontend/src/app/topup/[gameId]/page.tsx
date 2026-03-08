@@ -259,8 +259,28 @@ export default function TopupPage() {
     const handleNewTransaction = () => {
         resetTx();
         setUserId("");
+        setZoneId("");
         setSelectedPackage(null);
+        resetVerify();
+        setAgreedToTerms(false);
     };
+
+    // Auto-clear form on successful completion
+    useEffect(() => {
+        if (status === "COMPLETED") {
+            const timer = setTimeout(() => {
+                // We keep the COMPLETED status visible for a bit so they see the success checkmark
+                // but we clear the inputs in the background or just before they click NEW
+                // Actually, the user wants it cleared. Let's just clear the input values.
+                setUserId("");
+                setZoneId("");
+                setSelectedPackage(null);
+                setAgreedToTerms(false);
+                resetVerify();
+            }, 1000);
+            return () => clearTimeout(timer);
+        }
+    }, [status, resetVerify]);
 
     if (gameLoading) return <TopupPageLoader />;
     if (gameError || !game) return <TopupPageError message={gameError ?? "Unknown error"} onRetry={() => window.location.reload()} />;
