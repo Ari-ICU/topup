@@ -7,7 +7,7 @@ import { useParams } from "next/navigation";
 import {
     ArrowLeft, Zap, Shield, Lock, HeadphonesIcon,
     CheckCircle, CreditCard, User, Hash, Loader2, AlertCircle, Check,
-    Gamepad2, Package, ChevronRight
+    Gamepad2, Package, ChevronRight, History
 } from "lucide-react";
 
 import { apiRequest, getAssetUrl } from "@/lib/api";
@@ -194,6 +194,9 @@ export default function TopupPage() {
     const { lang } = useLang();
     const { gameId } = useParams();
 
+    // Recent Accounts state
+    const [recentAccounts, setRecentAccounts] = useState<{ userId: string; zoneId: string; name: string }[]>([]);
+
     // Form state
     const [userId, setUserId] = useState("");
     const [zoneId, setZoneId] = useState("");
@@ -204,8 +207,42 @@ export default function TopupPage() {
 
     // Custom hooks
     const { game, error: gameError, loading: gameLoading } = useGame(gameId);
-    const { isVerifying, verifyStatus, verifiedName, verifyError, verify, reset: resetVerify } = useVerifyAccount();
+    const { isVerifying, verifyStatus, verifiedName, verifyError, verify, reset: resetVerify, prefill: prefillVerify } = useVerifyAccount();
     const { isLoading, status, error: txError, paymentData, submit, reset: resetTx, setPaymentData, setStatus } = useTransaction();
+
+    // ── Load Recent IDs ──
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            const saved = localStorage.getItem(`recent_${gameId}`);
+            if (saved) {
+                try {
+                    setRecentAccounts(JSON.parse(saved));
+                } catch (e) {
+                    console.error("Failed to parse recent accounts", e);
+                }
+            }
+        }
+    }, [gameId]);
+
+    // ── Save Recent IDs on Successful Verify ──
+    useEffect(() => {
+        if (verifyStatus === "success" && verifiedName) {
+            setRecentAccounts(prev => {
+                // Find index if already exists (to move to top)
+                const existsIdx = prev.findIndex(a => a.userId === userId && a.zoneId === zoneId);
+                let updated = [...prev];
+
+                if (existsIdx !== -1) {
+                    // Update name if changed and move to top
+                    updated.splice(existsIdx, 1);
+                }
+
+                updated = [{ userId, zoneId, name: verifiedName }, ...updated].slice(0, 3); // Keep top 3
+                localStorage.setItem(`recent_${gameId}`, JSON.stringify(updated));
+                return updated;
+            });
+        }
+    }, [verifyStatus, verifiedName, userId, zoneId, gameId]);
 
     // Fetch system health
     useEffect(() => {
@@ -482,6 +519,39 @@ export default function TopupPage() {
                                     </div>
                                 )}
                             </div>
+
+                            {/* Recent Accounts */}
+                            {recentAccounts.length > 0 && (
+                                <div className="mt-6 animate-in fade-in slide-in-from-top-2 duration-500">
+                                    <div className="flex items-center gap-2 mb-3">
+                                        <History className="w-3.5 h-3.5 text-purple-500" />
+                                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">{lang === 'km' ? 'អត្តសញ្ញាណដែលប្រើថ្មីៗ' : 'Recently Used'}</label>
+                                    </div>
+                                    <div className="flex flex-wrap gap-2 md:gap-3">
+                                        {recentAccounts.map((acc, idx) => (
+                                            <button
+                                                key={idx}
+                                                onClick={() => {
+                                                    setUserId(acc.userId);
+                                                    setZoneId(acc.zoneId);
+                                                    prefillVerify(acc.name);
+                                                }}
+                                                className="px-3 md:px-5 py-2 md:py-3 rounded-2xl bg-white/5 border border-white/10 hover:border-purple-500/50 hover:bg-purple-500/10 transition-all text-left group flex items-center gap-3 relative overflow-hidden"
+                                            >
+                                                <div className="relative z-10">
+                                                    <div className="text-[10px] md:text-sm font-black text-white group-hover:text-purple-400 transition-colors uppercase italic truncate max-w-[120px]">{acc.name}</div>
+                                                    <div className="text-[8px] md:text-[10px] text-slate-500 font-bold tracking-wider">
+                                                        {acc.userId}{acc.zoneId ? ` (${acc.zoneId})` : ""}
+                                                    </div>
+                                                </div>
+                                                <div className="h-6 w-6 md:h-8 md:w-8 rounded-full bg-purple-500/10 flex items-center justify-center border border-purple-500/20 group-hover:bg-purple-500/20 transition-all relative z-10">
+                                                    <User className="w-3 h-3 md:w-4 md:h-4 text-purple-500" />
+                                                </div>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
 
                             <div className="mt-4 md:mt-8 flex flex-col sm:flex-row items-center gap-6">
                                 <button

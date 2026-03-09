@@ -97,7 +97,13 @@ export function useVerifyAccount() {
         setVerifyError(null);
     };
 
-    return { isVerifying, verifyStatus, verifiedName, verifyError, verify, reset };
+    const prefill = (name: string) => {
+        setVerifyStatus("success");
+        setVerifiedName(name);
+        setVerifyError(null);
+    };
+
+    return { isVerifying, verifyStatus, verifiedName, verifyError, verify, reset, prefill };
 }
 
 // ─── useTransaction ───────────────────────────────────────────────────────────
