@@ -14,7 +14,14 @@ const settingDefaults: {
     hint?: string;
     required?: boolean;
 }[] = [
-        // ── Friend Supplier (Diamond reseller) ───────────────────────────────────
+        {
+            group: 'Friend Supplier',
+            key: 'ENABLE_FRIEND_SUPPLIER',
+            label: 'Activate Friend Supplier',
+            type: 'toggle',
+            placeholder: '',
+            hint: 'Enable or disable the Friend Supplier provider',
+        },
         {
             group: 'Friend Supplier',
             key: 'FRIEND_SUPPLIER_SECRET',
@@ -47,6 +54,14 @@ const settingDefaults: {
             hint: 'This is the URL your friend calls to confirm diamond delivery. Copy this and send it to them.',
         },
 
+        {
+            group: 'MooGold Provider',
+            key: 'ENABLE_MOOGOLD',
+            label: 'Activate MooGold',
+            type: 'toggle',
+            placeholder: '',
+            hint: 'Enable or disable the MooGold provider',
+        },
         {
             group: 'MooGold Provider',
             key: 'MOOGOLD_PARTNER_ID',
@@ -231,11 +246,12 @@ export default function AdminSettingsPage() {
             {/* Provider info note */}
             <div className="flex items-center gap-4 px-8 py-5 rounded-2xl border border-white/5 bg-white/[0.02] text-[10px] font-black uppercase tracking-widest text-slate-500">
                 <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                <span>Active Providers:</span>
-                <span className="text-purple-400">Friend Supplier</span>
-                <span className="opacity-20">+</span>
-                <span className="text-cyan-400">Bakong KHQR</span>
-                <span className="ml-auto opacity-40">Diamonds via friend · Payment via Bakong QR</span>
+                <span>Status:</span>
+                {values['ENABLE_MOOGOLD'] === 'true' && <span className="text-amber-400">MooGold Active</span>}
+                {values['ENABLE_MOOGOLD'] === 'true' && values['ENABLE_FRIEND_SUPPLIER'] === 'true' && <span className="opacity-20">+</span>}
+                {values['ENABLE_FRIEND_SUPPLIER'] === 'true' && <span className="text-purple-400">Friend Supplier Active</span>}
+                {values['ENABLE_MOOGOLD'] !== 'true' && values['ENABLE_FRIEND_SUPPLIER'] !== 'true' && <span className="text-red-400">No Provider Active (Manual Mode)</span>}
+                <span className="ml-auto opacity-40">Payments via Bakong KHQR</span>
             </div>
 
             <div className="grid grid-cols-1 gap-10">
@@ -283,26 +299,39 @@ export default function AdminSettingsPage() {
                                             {hint && <span className="text-[8px] text-indigo-400/50 italic font-black uppercase tracking-tighter">{hint}</span>}
                                         </div>
                                         <div className="relative group/input">
-                                            <input
-                                                type={type ?? 'text'}
-                                                value={values[key] ?? ''}
-                                                onChange={(e) =>
-                                                    setValues((prev) => ({ ...prev, [key]: e.target.value }))
-                                                }
-                                                placeholder={placeholder}
-                                                className={`w-full px-6 py-4 bg-white/5 border rounded-2xl text-white font-bold text-sm placeholder-slate-700 focus:outline-none focus:ring-2 transition-all ${required && !(values[key] ?? '').trim()
-                                                    ? 'border-red-500/20 focus:ring-red-500/30'
-                                                    : 'border-white/5 focus:ring-indigo-500/30 focus:border-indigo-500/20'
-                                                    }`}
-                                            />
-                                            {key === 'FRIEND_SUPPLIER_SECRET' && (
+                                            {type === 'toggle' ? (
                                                 <button
-                                                    type="button"
-                                                    onClick={() => setValues(prev => ({ ...prev, [key]: generateRandomKey() }))}
-                                                    className="absolute right-3 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-indigo-500/10 hover:bg-indigo-500/20 rounded-xl text-[9px] font-black text-indigo-400 uppercase tracking-widest border border-indigo-500/20 transition-all opacity-0 group-hover/input:opacity-100"
+                                                    onClick={() => setValues(prev => ({ ...prev, [key]: (prev[key] === 'true' ? 'false' : 'true') }))}
+                                                    className={`w-14 h-7 rounded-full transition-all duration-300 relative border border-white/10 ${values[key] === 'true' ? 'bg-indigo-600' : 'bg-white/5'
+                                                        }`}
                                                 >
-                                                    Generate
+                                                    <div className={`absolute top-1 w-5 h-5 rounded-full bg-white shadow-lg transition-all duration-300 ${values[key] === 'true' ? 'left-8' : 'left-1'
+                                                        }`} />
                                                 </button>
+                                            ) : (
+                                                <>
+                                                    <input
+                                                        type={type ?? 'text'}
+                                                        value={values[key] ?? ''}
+                                                        onChange={(e) =>
+                                                            setValues((prev) => ({ ...prev, [key]: e.target.value }))
+                                                        }
+                                                        placeholder={placeholder}
+                                                        className={`w-full px-6 py-4 bg-white/5 border rounded-2xl text-white font-bold text-sm placeholder-slate-700 focus:outline-none focus:ring-2 transition-all ${required && !(values[key] ?? '').trim()
+                                                            ? 'border-red-500/20 focus:ring-red-500/30'
+                                                            : 'border-white/5 focus:ring-indigo-500/30 focus:border-indigo-500/20'
+                                                            }`}
+                                                    />
+                                                    {key === 'FRIEND_SUPPLIER_SECRET' && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setValues(prev => ({ ...prev, [key]: generateRandomKey() }))}
+                                                            className="absolute right-3 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-indigo-500/10 hover:bg-indigo-500/20 rounded-xl text-[9px] font-black text-indigo-400 uppercase tracking-widest border border-indigo-500/20 transition-all opacity-0 group-hover/input:opacity-100"
+                                                        >
+                                                            Generate
+                                                        </button>
+                                                    )}
+                                                </>
                                             )}
                                         </div>
                                     </div>

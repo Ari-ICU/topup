@@ -19,7 +19,7 @@ export const adminLogin = async (req: Request, res: Response) => {
         }
 
         if (password !== ADMIN_PASSWORD) {
-            return res.status(401).json({ success: false, message: "Invalid admin password" });
+            return res.status(404).json({ success: false, message: "Route not found" });
         }
 
         // Generate JWT token

@@ -581,21 +581,23 @@ export const adminService = {
     getApiKeys: async () => {
         const settings = await prisma.systemSetting.findMany({
             where: {
-                key: { in: ['API_PUBLIC_KEY', 'API_SECRET_KEY'] }
+                key: { in: ['API_PUBLIC_KEY', 'API_SECRET_KEY', 'FRIEND_SUPPLIER_SECRET'] }
             }
         });
 
         const publicKey = settings.find(s => s.key === 'API_PUBLIC_KEY')?.value || "";
         const secretKey = settings.find(s => s.key === 'API_SECRET_KEY')?.value || "";
+        const supplierSecret = settings.find(s => s.key === 'FRIEND_SUPPLIER_SECRET')?.value || "";
 
-        // Mask secret key
+        // Mask internal secret key
         const maskedSecret = secretKey.length > 10
             ? `${secretKey.substring(0, 7)}${'.'.repeat(20)}${secretKey.substring(secretKey.length - 7)}`
             : secretKey;
 
         return {
             publicKey,
-            secretKey: maskedSecret
+            secretKey: maskedSecret,
+            supplierSecret
         };
     },
 

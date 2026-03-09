@@ -38,9 +38,10 @@ export const getProviderStatus = async (): Promise<ProviderStatus> => {
     const getVal = (key: string) => settings.get(key);
 
     // 1. Check MooGold
+    const mooActive = getVal("ENABLE_MOOGOLD") === "true";
     const mooPartner = getVal("MOOGOLD_PARTNER_ID");
     const mooKey = getVal("MOOGOLD_SECRET_KEY");
-    if (mooPartner && mooKey) {
+    if (mooActive && mooPartner && mooKey) {
         return {
             activeProvider: "MooGold",
             isTestMode: false,
@@ -51,9 +52,10 @@ export const getProviderStatus = async (): Promise<ProviderStatus> => {
     }
 
     // 2. Check Friend Supplier API
+    const supplierActive = getVal("ENABLE_FRIEND_SUPPLIER") === "true";
     const supplierUrl = getVal("FRIEND_SUPPLIER_API_URL");
     const supplierKey = getVal("FRIEND_SUPPLIER_API_KEY");
-    if (supplierUrl && supplierKey) {
+    if (supplierActive && supplierUrl && supplierKey) {
         return {
             activeProvider: "FriendSupplier",
             isTestMode: false,
@@ -78,7 +80,8 @@ export const getProviderWalletBalance = async (): Promise<number> => {
     const settings = await getSystemSettings();
     const getVal = (key: string) => settings.get(key);
 
-    if (getVal("MOOGOLD_PARTNER_ID") && getVal("MOOGOLD_SECRET_KEY")) {
+    const mooActive = getVal("ENABLE_MOOGOLD") === "true";
+    if (mooActive && getVal("MOOGOLD_PARTNER_ID") && getVal("MOOGOLD_SECRET_KEY")) {
         try {
             return await getMooGoldBalance();
         } catch {
@@ -86,7 +89,8 @@ export const getProviderWalletBalance = async (): Promise<number> => {
         }
     }
 
-    if (getVal("FRIEND_SUPPLIER_API_URL") && getVal("FRIEND_SUPPLIER_API_KEY")) {
+    const supplierActive = getVal("ENABLE_FRIEND_SUPPLIER") === "true";
+    if (supplierActive && getVal("FRIEND_SUPPLIER_API_URL") && getVal("FRIEND_SUPPLIER_API_KEY")) {
         try {
             const balance = await getSupplierBalance();
             return balance === -1 ? 0 : balance;
@@ -120,9 +124,10 @@ export const processTopUp = async (request: TopUpRequest): Promise<TopUpResult> 
     const getVal = (key: string) => settings.get(key);
 
     // 1. MooGold Fulfillment
+    const mooActive = getVal("ENABLE_MOOGOLD") === "true";
     const mooPartner = getVal("MOOGOLD_PARTNER_ID");
     const mooKey = getVal("MOOGOLD_SECRET_KEY");
-    if (mooPartner && mooKey && request.providerSku) {
+    if (mooActive && mooPartner && mooKey && request.providerSku) {
         const result = await moogoldPlaceOrder({
             productId: request.providerSku,
             categoryId: request.categoryId || "50", // Fallback to 50 if missing (often works for direct top up, but not all games)
@@ -140,9 +145,10 @@ export const processTopUp = async (request: TopUpRequest): Promise<TopUpResult> 
     }
 
     // 2. Friend Supplier API
+    const supplierActive = getVal("ENABLE_FRIEND_SUPPLIER") === "true";
     const friendUrl = getVal("FRIEND_SUPPLIER_API_URL");
     const friendKey = getVal("FRIEND_SUPPLIER_API_KEY");
-    if (friendUrl && friendKey) {
+    if (supplierActive && friendUrl && friendKey) {
         const result = await supplierPlaceOrder({
             transactionId: request.transactionId,
             playerId: request.playerId,

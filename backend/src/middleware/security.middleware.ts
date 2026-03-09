@@ -47,7 +47,7 @@ export const blockSuspiciousAgents = (req: Request, res: Response, next: NextFun
 
     if (isSuspicious) {
         console.warn(`[Security] 🤖 Suspicious User-Agent blocked: "${ua}" from ${req.ip}`);
-        return res.status(403).json({ success: false, message: "Access denied." });
+        return res.status(404).json({ success: false, message: "Route not found" });
     }
 
     return next();

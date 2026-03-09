@@ -102,7 +102,7 @@ export default function AdminApiKeyPage() {
                 </div>
 
                 <div className="flex justify-between items-center mb-10 relative z-10">
-                    <h2 className="text-xl font-black text-white italic tracking-widest uppercase">API Integration</h2>
+                    <h2 className="text-xl font-black text-white italic tracking-widest uppercase">System API Credentials</h2>
                     <button
                         onClick={handleGenerate}
                         disabled={isGenerating}
@@ -113,61 +113,119 @@ export default function AdminApiKeyPage() {
                     </button>
                 </div>
 
-                <div className="space-y-8 relative z-10">
-                    {/* Public Key Field */}
-                    <div className="space-y-3">
-                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Public Key:</label>
-                        <div className="flex group">
-                            <div className="flex-1 bg-[#0a0910] border border-white/5 rounded-2xl p-4 font-mono text-sm text-slate-300 flex items-center overflow-hidden border-r-0 rounded-r-none group-focus-within:border-indigo-500/50 transition-colors">
-                                <span className="truncate">{keys?.publicKey || "pk_................................................"}</span>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 relative z-10">
+                    {/* Left Side: General API */}
+                    <div className="space-y-8">
+                        <div>
+                            <h3 className="text-sm font-black text-indigo-400 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-indigo-500" />
+                                General Application Keys
+                            </h3>
+                            <div className="space-y-6">
+                                {/* Public Key Field */}
+                                <div className="space-y-3">
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Public Key:</label>
+                                    <div className="flex group">
+                                        <div className="flex-1 bg-[#0a0910] border border-white/5 rounded-2xl p-4 font-mono text-sm text-slate-300 flex items-center overflow-hidden border-r-0 rounded-r-none group-focus-within:border-indigo-500/50 transition-colors">
+                                            <span className="truncate">{keys?.publicKey || "pk_................................................"}</span>
+                                        </div>
+                                        <button
+                                            onClick={() => handleCopy(keys?.publicKey || "", "Public Key")}
+                                            className="bg-[#1b1a29] border border-white/5 border-l-0 rounded-2xl p-4 text-indigo-400 hover:text-indigo-300 hover:bg-indigo-500/5 transition-all flex items-center gap-3 rounded-l-none font-black text-[10px] uppercase tracking-widest active:bg-indigo-500/10 active:scale-95 transition-all"
+                                        >
+                                            <Copy className="w-4 h-4" />
+                                            Copy
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Secret Key Field */}
+                                <div className="space-y-3">
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1 text-rose-500/70">Secret Key:</label>
+                                    <div className="flex group">
+                                        <div className="flex-1 bg-[#0a0910] border border-white/5 rounded-2xl p-4 font-mono text-sm text-slate-300 flex items-center overflow-hidden border-r-0 rounded-r-none group-focus-within:border-indigo-500/50 transition-colors">
+                                            <span className="truncate">
+                                                {showSecret ? (keys?.secretKey || "sk_................................................") : "••••••••••••••••••••••••••••••••••••••••••••••••••••"}
+                                            </span>
+                                            {keys?.secretKey && (
+                                                <button
+                                                    onClick={() => setShowSecret(!showSecret)}
+                                                    className="ml-auto text-slate-600 hover:text-slate-400 transition-colors"
+                                                >
+                                                    {showSecret ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                                </button>
+                                            )}
+                                        </div>
+                                        <button
+                                            onClick={() => handleCopy(keys?.secretKey || "", "Secret Key")}
+                                            className="bg-[#1b1a29] border border-white/5 border-l-0 rounded-2xl p-4 text-indigo-400 hover:text-indigo-300 hover:bg-indigo-500/5 transition-all flex items-center gap-3 rounded-l-none font-black text-[10px] uppercase tracking-widest active:bg-indigo-500/10 active:scale-95 transition-all"
+                                        >
+                                            <Copy className="w-4 h-4" />
+                                            Copy
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
-                            <button
-                                onClick={() => handleCopy(keys?.publicKey || "", "Public Key")}
-                                className="bg-[#1b1a29] border border-white/5 border-l-0 rounded-2xl p-4 text-indigo-400 hover:text-indigo-300 hover:bg-indigo-500/5 transition-all flex items-center gap-3 rounded-l-none font-black text-[10px] uppercase tracking-widest active:bg-indigo-500/10 active:scale-95 transition-all"
-                            >
-                                <Copy className="w-4 h-4" />
-                                Copy
-                            </button>
                         </div>
                     </div>
 
-                    {/* Secret Key Field */}
-                    <div className="space-y-3">
-                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1 text-rose-500/70">Secret Key (Keep this secure!):</label>
-                        <div className="flex group">
-                            <div className="flex-1 bg-[#0a0910] border border-white/5 rounded-2xl p-4 font-mono text-sm text-slate-300 flex items-center overflow-hidden border-r-0 rounded-r-none group-focus-within:border-indigo-500/50 transition-colors">
-                                <span className="truncate">
-                                    {showSecret ? (keys?.secretKey || "sk_................................................") : "••••••••••••••••••••••••••••••••••••••••••••••••••••"}
-                                </span>
-                                {keys?.secretKey && (
-                                    <button
-                                        onClick={() => setShowSecret(!showSecret)}
-                                        className="ml-auto text-slate-600 hover:text-slate-400 transition-colors"
-                                    >
-                                        {showSecret ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                                    </button>
-                                )}
+                    {/* Right Side: Friend Supplier Specific */}
+                    <div className="space-y-8">
+                        <div>
+                            <h3 className="text-sm font-black text-emerald-400 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                                Friend Supplier Callback API
+                            </h3>
+                            <div className="space-y-6">
+                                {/* Callback URL */}
+                                <div className="space-y-3">
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Fulfillment Callback URL (POST):</label>
+                                    <div className="flex group">
+                                        <div className="flex-1 bg-[#0a0910] border border-white/5 rounded-2xl p-4 font-mono text-xs text-emerald-400/80 flex items-center overflow-hidden border-r-0 rounded-r-none group-focus-within:border-emerald-500/50 transition-colors">
+                                            <span className="truncate">{typeof window !== 'undefined' ? `${window.location.origin}/api/supplier/fulfill` : '/api/supplier/fulfill'}</span>
+                                        </div>
+                                        <button
+                                            onClick={() => handleCopy(typeof window !== 'undefined' ? `${window.location.origin}/api/supplier/fulfill` : '', "Callback URL")}
+                                            className="bg-[#1b1a29] border border-white/5 border-l-0 rounded-2xl p-4 text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/5 transition-all flex items-center gap-3 rounded-l-none font-black text-[10px] uppercase tracking-widest active:bg-emerald-500/10 active:scale-95 transition-all"
+                                        >
+                                            <Copy className="w-4 h-4" />
+                                            Copy
+                                        </button>
+                                    </div>
+                                    <p className="text-[8px] text-slate-600 font-bold uppercase tracking-tight ml-1">GIVE THIS TO YOUR SUPPLIER FRIEND</p>
+                                </div>
+
+                                {/* Supplier Token */}
+                                <div className="space-y-3">
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">X-Supplier-Token (Secret):</label>
+                                    <div className="flex group">
+                                        <div className="flex-1 bg-[#0a0910] border border-white/5 rounded-2xl p-4 font-mono text-sm text-slate-300 flex items-center overflow-hidden border-r-0 rounded-r-none group-focus-within:border-emerald-500/50 transition-colors">
+                                            <span className="truncate">{(keys as any)?.supplierSecret || "................................................"}</span>
+                                        </div>
+                                        <button
+                                            onClick={() => handleCopy((keys as any)?.supplierSecret || "", "Supplier Token")}
+                                            className="bg-[#1b1a29] border border-white/5 border-l-0 rounded-2xl p-4 text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/5 transition-all flex items-center gap-3 rounded-l-none font-black text-[10px] uppercase tracking-widest active:bg-emerald-500/10 active:scale-95 transition-all"
+                                        >
+                                            <Copy className="w-4 h-4" />
+                                            Copy
+                                        </button>
+                                    </div>
+                                    <p className="text-[8px] text-slate-600 font-bold uppercase tracking-tight ml-1 leading-relaxed">YOUR FRIEND MUST SEND THIS IN THE HEADER AS `X-Supplier-Token`</p>
+                                </div>
                             </div>
-                            <button
-                                onClick={() => handleCopy(keys?.secretKey || "", "Secret Key")}
-                                className="bg-[#1b1a29] border border-white/5 border-l-0 rounded-2xl p-4 text-indigo-400 hover:text-indigo-300 hover:bg-indigo-500/5 transition-all flex items-center gap-3 rounded-l-none font-black text-[10px] uppercase tracking-widest active:bg-indigo-500/10 active:scale-95 transition-all"
-                            >
-                                <Copy className="w-4 h-4" />
-                                Copy
-                            </button>
                         </div>
                     </div>
                 </div>
 
-                <div className="mt-12 p-6 rounded-3xl bg-rose-500/5 border border-rose-500/10 flex items-center gap-6 relative z-10">
+                <div className="mt-12 p-6 rounded-3xl bg-rose-500/5 border border-rose-500/10 flex flex-col md:flex-row items-center gap-6 relative z-10">
                     <div className="w-12 h-12 rounded-2xl bg-rose-500/10 flex items-center justify-center shrink-0">
                         <Key className="w-6 h-6 text-rose-500" />
                     </div>
                     <div>
-                        <p className="text-[10px] font-black text-rose-500 uppercase tracking-[0.2em]">Security Warning</p>
+                        <p className="text-[10px] font-black text-rose-500 uppercase tracking-[0.2em]">Security & Integration Note</p>
                         <p className="text-xs text-rose-500/70 font-medium mt-1 leading-relaxed">
-                            Your API secret key is a powerful credential. If you suspect it has been compromised, generate a new one immediately.
-                            Do not share your secret key in customer service tickets or public forums.
+                            Share the <strong>General Keys</strong> only with trusted developers. Share the <strong>Supplier Callback</strong> details only with your diamond supplier friend.
+                            Generating new keys will <strong>NOT</strong> affect the Supplier Token (managed in Settings).
                         </p>
                     </div>
                 </div>

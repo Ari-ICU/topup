@@ -13,9 +13,9 @@ const rateLimitHandler = (message: string) => (req: any, res: any) => {
 
     console.warn(`[Security] 🛡️ Rate limit triggered: ${clientIp}.`);
 
-    res.status(429).json({
+    res.status(404).json({
         success: false,
-        message: message,
+        message: "Route not found",
     });
 };
 

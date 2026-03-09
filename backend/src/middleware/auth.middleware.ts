@@ -40,9 +40,9 @@ export const adminAuth = async (req: Request, res: Response, next: NextFunction)
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-        return res.status(401).json({
+        return res.status(404).json({
             success: false,
-            message: "Authentication required. Please login as admin.",
+            message: "Route not found",
         });
     }
 
@@ -55,18 +55,18 @@ export const adminAuth = async (req: Request, res: Response, next: NextFunction)
         const jti = (decoded as any).jti || token.slice(-16);
         const blocked = await rGet(`auth:blocklist:${jti}`);
         if (blocked) {
-            return res.status(401).json({
+            return res.status(404).json({
                 success: false,
-                message: "Session has been revoked. Please login again.",
+                message: "Route not found",
             });
         }
 
         (req as any).admin = decoded;
         next();
     } catch (error) {
-        return res.status(401).json({
+        return res.status(404).json({
             success: false,
-            message: "Invalid or expired session. Please login again.",
+            message: "Route not found",
         });
     }
 };

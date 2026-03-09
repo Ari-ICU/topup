@@ -142,9 +142,9 @@ app.use((_req, res) => {
 app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
     // Specifically handle CORS errors with 403
     if (err.message?.includes("CORS: origin") && err.message?.includes("not allowed")) {
-        return res.status(403).json({
+        return res.status(404).json({
             success: false,
-            message: "Cross-Origin request blocked by security policy.",
+            message: "Route not found",
         });
     }
 

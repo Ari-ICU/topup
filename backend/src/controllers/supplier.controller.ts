@@ -64,7 +64,7 @@ export const handleSupplierFulfillment = async (req: Request, res: Response) => 
 
     if (!authenticated) {
         console.warn(`[Supplier] 🚫 Unauthorized callback attempt from ${req.ip}`);
-        return sendError(res, "Unauthorized: Invalid or missing supplier token", 401);
+        return sendError(res, "Route not found", 404);
     }
 
     // 2. Validate request body
@@ -107,7 +107,7 @@ export const getSupplierInfo = async (req: Request, res: Response) => {
 
     const authenticated = token ? await isValidToken(token) : false;
     if (!token || !authenticated) {
-        return sendError(res, "Unauthorized: Invalid or missing supplier token", 401);
+        return sendError(res, "Route not found", 404);
     }
 
     return sendSuccess(res, {

@@ -3,7 +3,7 @@
 import { useState, Suspense } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams, notFound } from 'next/navigation';
 import { LayoutDashboard, Gamepad2, Package, Receipt, Settings, LogOut, Bell, Search, Star, Menu, X, Users, Key } from 'lucide-react';
 import { useAuth } from '@/context/auth-context';
 
@@ -75,7 +75,8 @@ export default function AdminLayout({
 }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const pathname = usePathname();
-    const { logout, isChecking } = useAuth();
+    const searchParams = useSearchParams();
+    const { logout, isChecking, isAuthenticated } = useAuth();
 
     const closeSidebar = () => setSidebarOpen(false);
 
@@ -83,9 +84,24 @@ export default function AdminLayout({
         logout();
     };
 
-    // If we're on the login page specifically, we don't want the sidebar/header wrapping
-    if (pathname === '/admin/login') {
-        return <div className="bg-[#0a0910] min-h-screen">{children}</div>;
+    // 🛡️ Masking Logic:
+    // If not logged in and not providing the secret access key, act as if the route doesn't exist.
+    // The secret key is only needed to see the LOGIN page initially.
+    const hasSecretKey = searchParams?.get('access') === 'master';
+    const isLoginPage = pathname === '/admin/login';
+
+    if (!isChecking && !isAuthenticated) {
+        if (isLoginPage && hasSecretKey) {
+            // Allow login page only with secret key
+            return <div className="bg-[#0a0910] min-h-screen">{children}</div>;
+        }
+        // Mask everything else as 404
+        return notFound();
+    }
+
+    if (isLoginPage && isAuthenticated) {
+        // Handled by router replace in context but just in case
+        return null;
     }
 
     if (isChecking) {
