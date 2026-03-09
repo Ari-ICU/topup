@@ -115,6 +115,7 @@ export const checkPaymentAndFulfill = async (req: Request, res: Response) => {
 
             // 🛡️ SECURITY: Double-check with Bakong API (Source of Truth)
             const check = await bakongService.checkBakongTransactionStatus(md5);
+            console.log(`[Bakong] Manual check for TxID ${id}: ${check.status} (${check.message})`);
 
             if (check.status === "SUCCESS") {
                 console.log(`[Security] 💰 Payment VERIFIED via API for TxID ${id}. Fulfilling...`);

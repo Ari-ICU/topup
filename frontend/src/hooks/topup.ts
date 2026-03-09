@@ -124,8 +124,14 @@ export function useTransaction() {
 
                 if (res.status === "COMPLETED") {
                     console.log(`[useTransaction] ✅ Payment confirmed for ${transactionId}`);
+                    setPaymentData(null);
                     setStatus("COMPLETED");
                     clearInterval(pollInterval);
+                } else if (res.status === "PROCESSING") {
+                    // Payment verified, but delivery is still in progress
+                    console.log(`[useTransaction] 💰 Payment verified, delivering... ${transactionId}`);
+                    setPaymentData(null); // Hide QR modal now that user has paid
+                    setStatus("PROCESSING");
                 }
             } catch (err) {
                 console.warn("[useTransaction] Polling check failed (will retry):", err);
