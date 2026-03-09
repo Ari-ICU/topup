@@ -457,9 +457,13 @@ export const adminService = {
         if (status === "COMPLETED" && transaction.status !== "COMPLETED") {
             try {
                 const playerInfo: any = transaction.playerInfo;
+                const inputConfig: any = transaction.package.game.inputConfig || {};
+                const categoryId = inputConfig.moogoldCategory || "50"; // MooGold order/create_order expects a category ID (e.g. 50 for direct top-ups)
+
                 const result = await processTopUp({
                     transactionId: transaction.id,
                     providerSku: transaction.package.providerSku,
+                    categoryId,
                     playerId: playerInfo.playerId || playerInfo.userId || "",
                     zoneId: playerInfo.zoneId,
                     amount: transaction.package.amount,
@@ -720,6 +724,19 @@ export const adminService = {
         }
 
         console.log(`[Sync] Found MooGold Game: ${relevantGame.post_title} (ID: ${relevantGame.ID})`);
+
+        // Store the MooGold IDs in game's inputConfig for later use during fulfillment
+        const currentInputConfig = (game.inputConfig as any) || {};
+        await prisma.game.update({
+            where: { id: gameId },
+            data: {
+                inputConfig: {
+                    ...currentInputConfig,
+                    moogoldId: relevantGame.ID.toString(),
+                    moogoldCategory: mooGoldCategoryId // Use the category ID that successfully listed this product
+                }
+            }
+        });
 
         // Now fetch the actual packages for this game ID
         const packageList = await getMooGoldGamePackages(relevantGame.ID);

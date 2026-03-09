@@ -9,6 +9,7 @@ import { getSupplierBalance, supplierPlaceOrder } from "./supplier.service.js";
 export interface TopUpRequest {
     transactionId: string;
     providerSku: string;
+    categoryId?: string; // Add optional categoryId for MooGold
     playerId: string;
     zoneId?: string;
     amount: number;
@@ -124,6 +125,7 @@ export const processTopUp = async (request: TopUpRequest): Promise<TopUpResult> 
     if (mooPartner && mooKey && request.providerSku) {
         const result = await moogoldPlaceOrder({
             productId: request.providerSku,
+            categoryId: request.categoryId || "50", // Fallback to 50 if missing (often works for direct top up, but not all games)
             playerId: request.playerId,
             serverId: request.zoneId,
             transactionId: request.transactionId

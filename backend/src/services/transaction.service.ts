@@ -127,9 +127,13 @@ export const fulfillTransaction = async (id: string): Promise<{
         }
 
         // Call provider API
+        const inputConfig: any = (transaction.package as any)?.game?.inputConfig || {};
+        const categoryId = inputConfig.moogoldCategory || "50"; // Use moogoldCategory fallback to 50 for direct topups
+
         const result = await processTopUp({
             transactionId: transaction.id,
             providerSku,
+            categoryId,
             playerId,
             zoneId,
             amount: (transaction.package as any)?.amount as number,

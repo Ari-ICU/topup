@@ -104,9 +104,9 @@ export const getMooGoldGamePackages = async (mooGoldGameId: string | number): Pr
     }
 };
 
-// Place an order with MooGold
 export const moogoldPlaceOrder = async (orderData: {
     productId: string;
+    categoryId: string;
     playerId: string;
     serverId?: string;
     transactionId: string;
@@ -124,10 +124,19 @@ export const moogoldPlaceOrder = async (orderData: {
         const payloadObj = {
             path,
             data: {
-                product_id: orderData.productId,
-                quantity: 1,
-                player_id: orderData.playerId,
-                server_id: orderData.serverId || "",
+                "category": orderData.categoryId?.toString() || "50",
+                "product-id": orderData.productId?.toString(),
+                "quantity": "1",
+                // Mobile Legends
+                "User ID": orderData.playerId,
+                "Zone ID": orderData.serverId || "",
+                // Free Fire & others
+                "Player ID": orderData.playerId,
+                // PUBG & others
+                "Character ID": orderData.playerId,
+                // Server labels
+                "Server": orderData.serverId || "",
+                "Server ID": orderData.serverId || "",
             }
         };
 
