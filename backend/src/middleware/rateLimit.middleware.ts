@@ -91,7 +91,7 @@ export const supplierLimiter = rateLimit({
 // ─── 5. Heavy action limiter (confirm/fulfill) ───────────────────────────────
 export const heavyActionLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: isProd ? 5 : 50,
+    max: isProd ? 10 : 100,
     standardHeaders: "draft-7",
     legacyHeaders: false,
     store: store("heavy"),
@@ -99,7 +99,18 @@ export const heavyActionLimiter = rateLimit({
     handler: rateLimitHandler("Too many fulfillment attempts. IP temporarily restricted."),
 });
 
-// ─── 6. Slow-Down Middleware ──────────────────────────────────────────────────
+// ─── 6. Polling limiter (check-payment) ───────────────────────────────────────
+export const pollingLimiter = rateLimit({
+    windowMs: 5 * 60 * 1000, // 5 minute window
+    max: isProd ? 100 : 500, // Allow 100 requests in 5 mins (plenty for 4s polling)
+    standardHeaders: "draft-7",
+    legacyHeaders: false,
+    store: store("polling"),
+    skip: skipAudit,
+    handler: rateLimitHandler("Please wait a moment while we verify your payment."),
+});
+
+// ─── 7. Slow-Down Middleware ──────────────────────────────────────────────────
 export const speedLimiter = slowDown({
     windowMs: 15 * 60 * 1000,
     delayAfter: isProd ? 50 : 500,

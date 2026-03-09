@@ -1,6 +1,6 @@
 import { Router } from "express";
 import * as transactionController from "../controllers/transaction.controller.js";
-import { transactionLimiter, heavyActionLimiter } from "../middleware/rateLimit.middleware.js";
+import { transactionLimiter, heavyActionLimiter, pollingLimiter } from "../middleware/rateLimit.middleware.js";
 import { validate, CreateTransactionSchema } from "../middleware/validation.middleware.js";
 
 const router = Router();
@@ -17,7 +17,7 @@ router.get("/:id", transactionController.getTransactionStatus);
 // router.post("/:id/confirm", heavyActionLimiter, transactionController.confirmAndFulfillTransaction);
 
 // Polling endpoint for automated payment verification (Safe: checks API)
-router.post("/:id/check-payment", heavyActionLimiter, transactionController.checkPaymentAndFulfill);
+router.post("/:id/check-payment", pollingLimiter, transactionController.checkPaymentAndFulfill);
 
 // Webhook for Bakong (Push notification) - Safe: handler now verifies with API
 router.post("/bakong-callback", transactionController.handleBakongWebhook);
