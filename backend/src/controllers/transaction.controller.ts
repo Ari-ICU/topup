@@ -102,6 +102,7 @@ export const checkPaymentAndFulfill = async (req: Request, res: Response) => {
 
     try {
         const transaction = await transactionService.getTransactionById(id);
+        console.log(`[Debug] Checking TxID ${id}: status=${transaction.status}, method=${transaction.paymentMethod}`);
 
         if (transaction.status === "COMPLETED") {
             return sendSuccess(res, { status: "COMPLETED", message: "Transaction already completed." });

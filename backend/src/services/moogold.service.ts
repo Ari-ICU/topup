@@ -161,10 +161,12 @@ export const moogoldPlaceOrder = async (orderData: {
             };
         }
 
+        console.error(`[MooGold] ❌ Order failed with status ${response.status}:`, JSON.stringify(data));
+
         return {
             success: false,
             orderId: data.order_id?.toString() || "",
-            message: data.message || `Error: ${response.status}`
+            message: data.message || data.err_message || data.err_msg || `MooGold Error ${data.err_code || response.status}: Please check your MooGold balance or SKU settings.`
         };
 
     } catch (error: any) {

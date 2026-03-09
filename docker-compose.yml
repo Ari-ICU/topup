@@ -26,12 +26,13 @@ services:
       dockerfile: Dockerfile
     ports:
       - "4000:4000"
+    command: npm run dev
     environment:
       - DATABASE_URL=postgresql://postgres:password@db:5432/topup_db?schema=public
       - PORT=4000
       - NODE_ENV=development
-      - BAKONG_ACCOUNT_ID=thoeurnratha@devb
-      - BAKONG_MERCHANT_NAME=TopUpPay Sandbox
+      - BAKONG_ACCOUNT_ID=thoeurnratha@aba
+      - BAKONG_MERCHANT_NAME=TopUpPay
       - BAKONG_MERCHANT_CITY=Phnom Penh
       - BAKONG_ACQUIRING_BANK=ABA Bank
       - REDIS_URL=redis://redis:6379

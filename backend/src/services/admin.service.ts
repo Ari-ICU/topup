@@ -466,6 +466,10 @@ export const adminService = {
                     gameSlug: transaction.package.game.slug,
                 });
 
+                if (!result.success) {
+                    throw new Error(result.message || "Provider delivery failed.");
+                }
+
                 const updatedTransaction = await prisma.transaction.update({
                     where: { id },
                     data: {

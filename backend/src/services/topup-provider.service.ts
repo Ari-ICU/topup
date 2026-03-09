@@ -131,7 +131,7 @@ export const processTopUp = async (request: TopUpRequest): Promise<TopUpResult> 
 
         return {
             success: result.success,
-            providerRef: result.orderId || "",
+            providerRef: result.orderId || null as any,
             message: result.message,
             provider: "MooGold"
         };
@@ -150,7 +150,7 @@ export const processTopUp = async (request: TopUpRequest): Promise<TopUpResult> 
         });
         return {
             success: result.success,
-            providerRef: result.supplierRef,
+            providerRef: result.supplierRef || null as any,
             message: result.message,
             provider: "FriendSupplier",
         };
