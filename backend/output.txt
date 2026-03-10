@@ -1,0 +1,32 @@
+warn The configuration property `package.json#prisma` is deprecated and will be removed in Prisma 7. Please migrate to a Prisma config file (e.g., `prisma.config.ts`).
+For more information, see: https://pris.ly/prisma-config
+
+Loaded Prisma config from prisma.config.ts.
+
+warn The Prisma config file in prisma.config.ts overrides the deprecated `package.json#prisma` property in package.json.
+  For more information, see: https://pris.ly/prisma-config
+
+Prisma config detected, skipping environment variable loading.
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "topup_db", schema "public" at "localhost:5050"
+
+- The migration `20260310124700_add_reseller` was modified after it was applied.
+- Drift detected: Your database schema is not in sync with your migration history.
+
+The following is a summary of the differences between the expected database schema given your migrations files, and the actual schema of the database.
+
+It should be understood as the set of changes to get from the expected schema to the actual schema.
+
+[+] Added tables
+  - Reseller
+
+[*] Changed the `Reseller` table
+  [+] Added unique index on columns (email)
+  [+] Added unique index on columns (partnerId)
+  [+] Added unique index on columns (userId)
+
+
+We need to reset the "public" schema at "localhost:5050"
+
+You may use prisma migrate reset to drop the development database.
+All data will be lost.
