@@ -36,9 +36,9 @@ model Package {
   price        Decimal       @db.Decimal(10, 2)
   providerSku  String
   description  String?
-  badgeText    String?
   isWeeklyPass Boolean       @default(false)
   sortOrder    Int           @default(0)
+  badgeText    String?
   game         Game          @relation(fields: [gameId], references: [id])
   transactions Transaction[]
 }
@@ -46,9 +46,9 @@ model Package {
 model GlobalStock {
   id                      String   @id @default("GLOBAL")
   diamonds                Int      @default(0)
+  updatedAt               DateTime @updatedAt
   providerBalance         Decimal  @default(0) @db.Decimal(10, 2)
   totalTransferredRevenue Decimal  @default(0) @db.Decimal(10, 2)
-  updatedAt               DateTime @updatedAt
 }
 
 model Transaction {
@@ -75,26 +75,17 @@ model SystemSetting {
 }
 
 model Promotion {
-  id          String   @id @default(cuid())
-  title       String
-  subtitle    String?
-  badgeText   String?
-  badgeColor  String   @default("purple")
-  imageUrl    String
-  linkUrl     String?
-  isActive    Boolean  @default(true)
-  sortOrder   Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
-
-
-enum TransactionStatus {
-  PENDING
-  PROCESSING
-  COMPLETED
-  FAILED
-  EXPIRED
+  id         String   @id @default(cuid())
+  title      String
+  subtitle   String?
+  badgeText  String?
+  badgeColor String   @default("purple")
+  imageUrl   String
+  linkUrl    String?
+  isActive   Boolean  @default(true)
+  sortOrder  Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
 model Reseller {
@@ -107,4 +98,12 @@ model Reseller {
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+enum TransactionStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  EXPIRED
 }

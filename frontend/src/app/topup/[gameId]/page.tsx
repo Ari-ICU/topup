@@ -248,11 +248,7 @@ export default function TopupPage() {
     useEffect(() => {
         apiRequest<{ isReady: boolean; isTestMode: boolean; message: string }>('/games/status')
             .then(data => setSystemStatus(data))
-            .catch(() => setSystemStatus({
-                isReady: false,
-                isTestMode: false,
-                message: "Connection lost. Using local fallback data. Transactions may be delayed."
-            }));
+            .catch(() => setSystemStatus(null));
     }, []);
 
     // Derived values

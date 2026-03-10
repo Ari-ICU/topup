@@ -460,7 +460,7 @@ export const adminService = {
             try {
                 const playerInfo: any = transaction.playerInfo;
                 const inputConfig: any = transaction.package.game.inputConfig || {};
-                const categoryId = inputConfig.moogoldCategory || "50"; // Master order/create_order expects a category ID
+                const categoryId = inputConfig.moogoldCategory || ""; // Must be configured in Game Admin (Input Config)
 
                 const result = await processTopUp({
                     transactionId: transaction.id,
@@ -780,7 +780,7 @@ export const adminService = {
         return packageList.Variation || packageList.product || [];
     },
 
-    bulkSyncProviderProducts: async (gameId: string, supplyCategoryId: string = "50") => {
+    bulkSyncProviderProducts: async (gameId: string, supplyCategoryId?: string) => {
         const game = await prisma.game.findUnique({ where: { id: gameId } });
         if (!game) throw new Error("Game not found");
 

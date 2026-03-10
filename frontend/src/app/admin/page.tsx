@@ -197,7 +197,7 @@ export default function AdminDashboardPage() {
                             <div className="p-6 bg-white/[0.02] rounded-3xl border border-white/5 group/card transition-all hover:bg-white/[0.04]">
                                 <div className="flex justify-between items-start mb-4">
                                     <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Provider Wallet</p>
-                                    <a href="https://moogold.com/my-account/wallet/" target="_blank" className="px-3 py-1 bg-amber-500/10 text-amber-500 text-[8px] font-black uppercase tracking-widest rounded-lg border border-amber-500/20 hover:bg-amber-500 hover:text-white transition-all shadow-lg shadow-amber-500/10">
+                                    <a href="https://moogold.com/account/wallet/" target="_blank" className="px-3 py-1 bg-amber-500/10 text-amber-500 text-[8px] font-black uppercase tracking-widest rounded-lg border border-amber-500/20 hover:bg-amber-500 hover:text-white transition-all shadow-lg shadow-amber-500/10">
                                         Deposit Funds
                                     </a>
                                 </div>

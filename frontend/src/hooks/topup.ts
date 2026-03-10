@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { apiRequest } from "@/lib/api";
 import { Game, GamePackage, TransactionStatus, VerifyStatus } from "@/types";
 
-import { FALLBACK_GAMES } from "@/constants/fallback-data";
 
 // ─── useGameData ─────────────────────────────────────────────────────────────
 // Fetches game details and packages from the API for the given gameId/slug.
@@ -23,16 +22,8 @@ export function useGame(gameId: string | string[] | undefined) {
                 setGame(data);
                 setError(null);
             } catch (err: any) {
-                console.warn(`[useGame] API failed for ${gameId}, checking fallbacks...`);
-
-                // Try to find in fallback data
-                const fallback = FALLBACK_GAMES.find(g => g.slug === gameId || g.id === gameId);
-                if (fallback) {
-                    setGame(fallback);
-                    setError(null);
-                } else {
-                    setError(err.message ?? "Failed to load game.");
-                }
+                console.error(`[useGame] API failed for ${gameId}:`, err);
+                setError(err.message ?? "Failed to load game.");
             } finally {
                 setLoading(false);
             }

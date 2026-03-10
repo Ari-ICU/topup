@@ -18,7 +18,6 @@ interface Game {
     _count?: { packages: number };
 }
 
-import { FALLBACK_GAMES } from "@/constants/fallback-data";
 
 export function GameGrid() {
     const { lang } = useLang();
@@ -32,12 +31,12 @@ export function GameGrid() {
                 if (data && data.length > 0) {
                     setGames(data);
                 } else {
-                    console.warn("[GameGrid] No games returned from API, using fallback data.");
-                    setGames(FALLBACK_GAMES as any);
+                    console.warn("[GameGrid] No games returned from API.");
+                    setGames([]);
                 }
             } catch (error) {
-                console.error("Failed to fetch games, showing fallbacks:", error);
-                setGames(FALLBACK_GAMES as any);
+                console.error("Failed to fetch games:", error);
+                setGames([]);
             } finally {
                 setLoading(false);
             }

@@ -38,12 +38,7 @@ export default function Home() {
   useEffect(() => {
     apiRequest<{ isReady: boolean; isTestMode: boolean; message: string; showResellerCta: boolean }>('/games/status')
       .then(data => setSystemStatus(data))
-      .catch(() => setSystemStatus({
-        isReady: false,
-        isTestMode: false,
-        showResellerCta: true,
-        message: "Connection issues detected. Some services might be limited."
-      }));
+      .catch(() => setSystemStatus(null));
 
     // Fetch promotions
     apiRequest<Promotion[]>('/promotions')

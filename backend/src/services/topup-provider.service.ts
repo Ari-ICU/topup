@@ -52,13 +52,13 @@ export const getProviderStatus = async (): Promise<ProviderStatus> => {
         };
     }
 
-    // 2. Fallback to Local Wallet
+    // 2. No provider configured (Remove Manual Mode Fallback)
     return {
         activeProvider: "None",
         isTestMode: false,
-        isReady: true,
-        missingFields: [],
-        warning: "ℹ️ Operating in Manual Mode (Local Wallet).",
+        isReady: false,
+        missingFields: ["MOOGOLD_PARTNER_ID", "MOOGOLD_SECRET_KEY"],
+        warning: "No active top-up provider configured. Deliveries are disabled.",
         showResellerCta: getVal("SHOW_RESELLER_CTA") !== "false",
     };
 };
@@ -118,7 +118,7 @@ export const processTopUp = async (request: TopUpRequest): Promise<TopUpResult> 
     if (mooActive && mooPartner && mooKey && request.providerSku) {
         const result = await executeSupplyOrder({
             productId: request.providerSku,
-            categoryId: request.categoryId || "50", // Fallback to 50 if missing (often works for direct top up, but not all games)
+            categoryId: request.categoryId || "", // Category ID must be specified per game in admin.
             playerId: request.playerId,
             serverId: request.zoneId,
             transactionId: request.transactionId
@@ -132,11 +132,11 @@ export const processTopUp = async (request: TopUpRequest): Promise<TopUpResult> 
         };
     }
 
-    // 2. Local Wallet/Manual Mode
+    // 2. No active provider (Manual Mode Fallback Removed)
     return {
-        success: true,
-        providerRef: `MANUAL-${request.transactionId}`,
-        message: "Order placed. Awaiting manual fulfillment from local stock.",
+        success: false,
+        providerRef: "ERROR",
+        message: "No active delivery provider. Contact Support.",
         provider: "None",
     };
 };
