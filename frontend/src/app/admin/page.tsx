@@ -225,13 +225,6 @@ export default function AdminDashboardPage() {
                         textColor="text-orange-400"
                     />
                     <StatCard
-                        title="Stock"
-                        value={stats.globalStockDiamonds === -1 ? '∞' : stats.globalStockDiamonds.toLocaleString()}
-                        icon={Package}
-                        iconColor="bg-purple-500/10"
-                        textColor="text-purple-400"
-                    />
-                    <StatCard
                         title="Games"
                         value={stats.activeGames.toString()}
                         icon={Gamepad2}

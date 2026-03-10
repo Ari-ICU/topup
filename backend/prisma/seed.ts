@@ -87,12 +87,12 @@ async function main() {
     await prisma.globalStock.upsert({
         where: { id: "GLOBAL" },
         update: {
-            diamonds: 0,
+            diamonds: -1, // -1 = Unlimited Stock (Real app relies on provider balance)
             providerBalance: 0.00,
         },
         create: {
             id: "GLOBAL",
-            diamonds: 0,
+            diamonds: -1,
             providerBalance: 0.00,
         },
     });
