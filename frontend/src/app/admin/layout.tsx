@@ -186,11 +186,7 @@ function AdminLayoutContent({
                                 <Menu className="w-6 h-6 text-white" />
                             </button>
 
-                            <Suspense fallback={
-                                <div className="flex relative w-full max-w-sm">
-                                    <div className="w-full h-10 bg-white/5 rounded-xl animate-pulse" />
-                                </div>
-                            }>
+                            <Suspense fallback={<SearchBarFallback />}>
                                 <AdminSearchBar />
                             </Suspense>
                         </div>
@@ -224,6 +220,12 @@ function AdminLayoutContent({
         </div>
     );
 }
+
+const SearchBarFallback = () => (
+    <div className="flex relative w-full max-w-sm">
+        <div className="w-full h-10 bg-white/5 rounded-xl animate-pulse" />
+    </div>
+);
 
 const LoadingFallback = () => (
     <div className="min-h-screen bg-[#0a0910] flex items-center justify-center">
