@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, Suspense } from 'react';
+import React, { useState, Suspense } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams, notFound } from 'next/navigation';
@@ -225,17 +225,19 @@ function AdminLayoutContent({
     );
 }
 
+const LoadingFallback = () => (
+    <div className="min-h-screen bg-[#0a0910] flex items-center justify-center">
+        <div className="w-12 h-12 border-4 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin"></div>
+    </div>
+);
+
 export default function AdminLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
     return (
-        <Suspense fallback={
-            <div className="min-h-screen bg-[#0a0910] flex items-center justify-center">
-                <div className="w-12 h-12 border-4 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin"></div>
-            </div>
-        }>
+        <Suspense fallback={<LoadingFallback />}>
             <AdminLayoutContent>{children}</AdminLayoutContent>
         </Suspense>
     );
