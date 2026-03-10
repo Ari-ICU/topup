@@ -7,7 +7,7 @@ import { useParams } from "next/navigation";
 import {
     ArrowLeft, Zap, Shield, Lock, HeadphonesIcon,
     CheckCircle, CreditCard, User, Hash, Loader2, AlertCircle, Check,
-    Gamepad2, Package, ChevronRight, History
+    Gamepad2, Package, ChevronRight, History, ArrowRight
 } from "lucide-react";
 
 import { apiRequest, getAssetUrl } from "@/lib/api";
@@ -793,27 +793,52 @@ export default function TopupPage() {
                                             </div>
                                         )}
 
-                                        <div className="relative pt-4">
+                                        <div className="relative pt-4 group/btn">
+                                            {/* Glow Background Pulse */}
+                                            {isFormValid && !isLoading && (
+                                                <div className="absolute inset-0 bg-emerald-500/20 blur-2xl rounded-full scale-90 group-hover/btn:scale-110 group-hover/btn:bg-emerald-500/30 transition-all duration-700 animate-pulse-glow" />
+                                            )}
+
                                             <button
                                                 onClick={handleSubmit}
                                                 disabled={!isFormValid || isLoading}
-                                                className="w-full relative group h-16 transition-all active:scale-95 disabled:opacity-50 disabled:grayscale"
+                                                className="w-full relative h-[68px] transition-all active:scale-95 disabled:opacity-40 disabled:grayscale overflow-hidden"
                                             >
-                                                {/* Skewed background layer */}
-                                                <div className={`absolute inset-0 -skew-x-12 rounded-lg transition-all duration-500
+                                                {/* Back Layer (Skewed Shape) */}
+                                                <div className={`absolute inset-0 -skew-x-[15deg] rounded-xl transition-all duration-500 transform
                                                     ${isFormValid && !isLoading
-                                                        ? 'bg-gradient-to-r from-[#22c55e] to-[#16a34a] shadow-[0_10px_30px_rgba(34,197,94,0.3)]'
+                                                        ? 'bg-slate-700 group-hover/btn:bg-slate-600 shadow-2xl'
                                                         : 'bg-slate-800'
                                                     }`}
                                                 />
 
-                                                <div className="relative h-full flex items-center justify-center gap-3 text-white">
+                                                {/* Main Color Layer */}
+                                                <div className={`absolute inset-0.5 -skew-x-[15deg] rounded-lg transition-all duration-500
+                                                    ${isFormValid && !isLoading
+                                                        ? 'bg-gradient-to-br from-[#22c55e] via-[#16a34a] to-[#0ea041] shadow-[0_10px_40px_rgba(34,197,94,0.4)] group-hover/btn:translate-y-[-2px] group-hover/btn:shadow-[0_15px_50px_rgba(34,197,94,0.6)]'
+                                                        : 'bg-slate-900 group-hover/btn:bg-slate-800'
+                                                    }`}
+                                                />
+
+                                                {/* Gloss Shimmer Overlay */}
+                                                {isFormValid && !isLoading && (
+                                                    <div className="absolute inset-0 -skew-x-[15deg] bg-gradient-to-tr from-white/20 via-transparent to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity" />
+                                                )}
+
+                                                <div className="relative h-full flex items-center justify-center gap-4 text-white z-10 px-8">
                                                     {isLoading ? (
-                                                        <Loader2 className="w-6 h-6 animate-spin" />
+                                                        <Loader2 className="w-7 h-7 animate-spin text-emerald-950" />
                                                     ) : (
-                                                        <span className="font-display font-black text-2xl italic tracking-widest text-[#050505]">
-                                                            {lang === 'km' ? tr(t.topup.buyNow, lang) : 'BUY NOW'}
-                                                        </span>
+                                                        <>
+                                                            <span className="font-display font-black text-2xl md:text-3xl italic tracking-tighter text-[#050505] drop-shadow-sm select-none">
+                                                                {lang === 'km' ? tr(t.topup.buyNow, lang) : 'BUY NOW'}
+                                                            </span>
+                                                            {isFormValid && (
+                                                                <div className="bg-[#050505] p-1.5 rounded-lg -skew-x-6 group-hover/btn:rotate-12 transition-transform">
+                                                                    <ArrowRight className="w-5 h-5 text-emerald-500" />
+                                                                </div>
+                                                            )}
+                                                        </>
                                                     )}
                                                 </div>
                                             </button>
