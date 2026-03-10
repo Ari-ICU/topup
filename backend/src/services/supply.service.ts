@@ -222,17 +222,18 @@ export const getSupplyBalance = async (): Promise<number> => {
         });
 
         if (response.status === 200) {
-            if (response.data?.balance) {
+            if (response.data?.balance !== undefined) {
                 return parseFloat(response.data.balance);
             }
             if (response.data?.err_code === "403") {
                 console.warn("[Supply] Balance 403: Account not authorized for API yet.");
+                return null as any;
             }
         }
-        return 0;
+        return null as any;
     } catch (error: any) {
         console.error("[Supply] Balance request failed:", error.message);
-        return 0;
+        return null as any;
     }
 };
 // Verify Player Account via Master Supply
