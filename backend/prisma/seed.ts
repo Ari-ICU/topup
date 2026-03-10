@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 async function main() {
     console.log("🚀 Starting database seed...");
 
-    const activeSlugs = ["free-fire", "mobile-legends"];
+    const activeSlugs = ["mobile-legends"];
 
     // 1. CLEANUP: Games that are NOT in our active list
     const gamesToRemove = await prisma.game.findMany({
@@ -34,43 +34,6 @@ async function main() {
         await prisma.package.deleteMany({ where: { gameId: { in: ids } } });
     }
 
-    // 3. Free Fire (FF)
-    await prisma.game.upsert({
-        where: { slug: "free-fire" },
-        update: {
-            name: "Free Fire",
-            iconUrl: "/free-fire-log.png",
-            inputConfig: { playerId: "string" },
-            sortOrder: 1,
-            packages: {
-                create: [
-                    { name: "100 Diamonds", amount: 100, price: 1.25, providerSku: "ff_100", sortOrder: 1 },
-                    { name: "210 Diamonds", amount: 210, price: 2.40, providerSku: "ff_210", sortOrder: 2 },
-                    { name: "310 Diamonds", amount: 310, price: 3.50, providerSku: "ff_310", sortOrder: 3 },
-                    { name: "530 Diamonds", amount: 530, price: 6.00, providerSku: "ff_530", sortOrder: 4 },
-                    { name: "1080 Diamonds", amount: 1080, price: 11.50, providerSku: "ff_1080", sortOrder: 5 },
-                    { name: "2200 Diamonds", amount: 2200, price: 23.00, providerSku: "ff_2200", sortOrder: 6 },
-                ],
-            },
-        },
-        create: {
-            slug: "free-fire",
-            name: "Free Fire",
-            iconUrl: "/free-fire-log.png",
-            inputConfig: { playerId: "string" },
-            sortOrder: 1,
-            packages: {
-                create: [
-                    { name: "100 Diamonds", amount: 100, price: 1.25, providerSku: "ff_100", sortOrder: 1 },
-                    { name: "210 Diamonds", amount: 210, price: 2.40, providerSku: "ff_210", sortOrder: 2 },
-                    { name: "310 Diamonds", amount: 310, price: 3.50, providerSku: "ff_310", sortOrder: 3 },
-                    { name: "530 Diamonds", amount: 530, price: 6.00, providerSku: "ff_530", sortOrder: 4 },
-                    { name: "1080 Diamonds", amount: 1080, price: 11.50, providerSku: "ff_1080", sortOrder: 5 },
-                    { name: "2200 Diamonds", amount: 2200, price: 23.00, providerSku: "ff_2200", sortOrder: 6 },
-                ],
-            },
-        },
-    });
 
     // 4. Mobile Legends (MLBB)
     await prisma.game.upsert({
@@ -137,7 +100,7 @@ async function main() {
     // 6. PROMOTIONS
     const promotions = [
         {
-            title: "Weekend Rebate",
+            title: "MLBB Weekend Rebate",
             subtitle: "Get up to 50% extra diamonds on Mobile Legends",
             imageUrl: "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=2070&auto=format&fit=crop",
             linkUrl: "/game/mobile-legends",
@@ -145,16 +108,6 @@ async function main() {
             badgeColor: "orange",
             isActive: true,
             sortOrder: 1,
-        },
-        {
-            title: "New Player Bonus",
-            subtitle: "Double your first top-up for Free Fire",
-            imageUrl: "https://images.unsplash.com/photo-1616588589676-62b3bd4ff6d2?q=80&w=2069&auto=format&fit=crop",
-            linkUrl: "/game/free-fire",
-            badgeText: "LIMITED",
-            badgeColor: "purple",
-            isActive: true,
-            sortOrder: 2,
         }
     ];
 
