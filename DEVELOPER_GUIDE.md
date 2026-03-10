@@ -266,7 +266,7 @@ integrating a new supplier, make sure you understand how these pieces fit:
   `adminService.getOverview`.
 
 To go live you must populate real credentials (e.g., `MOOGOLD_PARTNER_ID`,
-`MOOGOLD_API_KEY`, `DIGIFLAZZ_USERNAME`, etc.) either via environment variables
+`MOOGOLD_SECRET_KEY`, etc.) either via environment variables
 or the `systemSetting` table.  Ensure `MOOGOLD_TEST_MODE` is set to `false`.
 
 

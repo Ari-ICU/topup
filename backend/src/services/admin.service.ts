@@ -577,49 +577,6 @@ export const adminService = {
         return updated;
     },
 
-    // --- API Keys ---
-    getApiKeys: async () => {
-        const settings = await prisma.systemSetting.findMany({
-            where: {
-                key: { in: ['API_PUBLIC_KEY', 'API_SECRET_KEY'] }
-            }
-        });
-
-        const publicKey = settings.find(s => s.key === 'API_PUBLIC_KEY')?.value || "";
-        const secretKey = settings.find(s => s.key === 'API_SECRET_KEY')?.value || "";
-
-
-        // Mask internal secret key
-        const maskedSecret = secretKey.length > 10
-            ? `${secretKey.substring(0, 7)}${'.'.repeat(20)}${secretKey.substring(secretKey.length - 7)}`
-            : secretKey;
-
-        return {
-            publicKey,
-            secretKey: maskedSecret,
-        };
-    },
-
-    generateApiKeys: async () => {
-        const { randomBytes } = await import('node:crypto');
-        const publicKey = `pk_${randomBytes(24).toString('hex')}`;
-        const secretKey = `sk_${randomBytes(32).toString('hex')}`;
-
-        await prisma.$transaction([
-            prisma.systemSetting.upsert({
-                where: { key: 'API_PUBLIC_KEY' },
-                update: { value: publicKey },
-                create: { key: 'API_PUBLIC_KEY', value: publicKey }
-            }),
-            prisma.systemSetting.upsert({
-                where: { key: 'API_SECRET_KEY' },
-                update: { value: secretKey },
-                create: { key: 'API_SECRET_KEY', value: secretKey }
-            })
-        ]);
-
-        return { publicKey, secretKey };
-    },
 
     // --- Promotions ---
     getAllPromotions: async () => {

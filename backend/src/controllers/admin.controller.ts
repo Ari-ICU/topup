@@ -252,23 +252,6 @@ export const getProviderStatusEndpoint = async (_req: Request, res: Response) =>
     }
 };
 
-export const getApiKeys = async (req: Request, res: Response) => {
-    try {
-        const data = await adminService.getApiKeys();
-        res.json({ success: true, data });
-    } catch (error: any) {
-        res.status(500).json({ success: false, message: error.message });
-    }
-};
-
-export const generateApiKeys = async (req: Request, res: Response) => {
-    try {
-        const data = await adminService.generateApiKeys();
-        res.json({ success: true, data });
-    } catch (error: any) {
-        res.status(500).json({ success: false, message: error.message });
-    }
-};
 
 // Promotions
 export const getPromotions = async (req: Request, res: Response) => {

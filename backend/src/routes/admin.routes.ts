@@ -19,8 +19,6 @@ import {
     updateGlobalStock,
     syncProviderStock,
     getProviderStatusEndpoint,
-    getApiKeys,
-    generateApiKeys,
     transferRevenue,
     getPromotions,
     createPromotion,
@@ -92,8 +90,5 @@ router.post("/wallet/transfer", transferRevenue);
 router.post("/maintenance/backup", triggerBackup);
 router.post("/maintenance/restore", restoreData);
 
-// Security
-router.get("/api-keys", getApiKeys);
-router.post("/api-keys/generate", generateApiKeys);
 
 export default router;

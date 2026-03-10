@@ -37,7 +37,7 @@ Features:
 ### ✅ Phase 4: Payment & Top-Up Providers - Complete
 - **Account Verification** - Robust Next.js API proxy (`/api/verify/[game]`) checking real player names via external APIs with fallback.
 - **Payment Methods** - ABA, Wing, Bakong KHQR (Sandbox/Production modes dynamically set in SystemSettings).
-- **Top-Up Providers** - Integrated with MooGold (primary), Digiflazz, and Smile.One (with priority fallbacks and MooGold test mode).
+- **Top-Up Providers** - Integrated with MooGold (primary) with local wallet manual mode fallback.
 - **Stock Management** - Counting stock in packages and transactions.
 
 ### ✅ Phase 5: API Integration - Complete
@@ -94,7 +94,7 @@ All frontend pages are fully connected to the backend API:
 ### Backend
 - **Framework**: Node.js & Express.js (ESM compliant)
 - **Database**: PostgreSQL 17 with Prisma ORM
-- **Providers**: Bakong KHQR, MooGold, Digiflazz, Smile.One
+- **Providers**: Bakong KHQR, MooGold
 
 ### Infrastructure
 - **Container**: Docker & Docker Compose

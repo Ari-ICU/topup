@@ -1,6 +1,6 @@
 # 🎮 TopUpPay — Gaming Top-Up Platform
 
-> A full-stack, production-ready gaming top-up platform supporting multiple game titles, payment via **Bakong KHQR** (Cambodia's national QR payment), and multiple diamond/in-game currency providers (MooGold, Digiflazz, Smile.One, Friend Supplier).
+> A full-stack, production-ready gaming top-up platform supporting multiple game titles, payment via **Bakong KHQR** (Cambodia's national QR payment), and MooGold provider integration.
 
 ---
 
@@ -19,8 +19,7 @@
 11. [Admin Panel Guide](#-admin-panel-guide)
 12. [Payment Integration](#-payment-integration-bakong-khqr)
 13. [Top-Up Provider Integration](#-top-up-provider-integration)
-14. [Friend Supplier API](#-friend-supplier-api)
-15. [Troubleshooting](#-troubleshooting)
+14. [Troubleshooting](#-troubleshooting)
 
 ---
 
@@ -35,10 +34,9 @@
 | 🕹️ Game catalogue | Dynamically managed games & packages via admin panel |
 | 💳 KHQR payments | Dynamic QR generation via `bakong-khqr`, polled in real-time |
 | 🔗 ABA Deep Link | One-tap "Open in ABA App" button for direct mobile payment |
-| 📦 Multi-provider | MooGold (primary) → Friend Supplier API → Friend Supplier manual mode |
+| 📦 Multi-provider | MooGold (primary) → Local Wallet manual mode |
 | 👤 Account verification | Verifies player ID/server before checkout (ML, FF, etc.) |
-| 🛡️ Admin panel | Full management of games, packages, transactions, settings, API keys |
-| 🔑 API key system | Public/secret key pair for supplier integration |
+| 🛡️ Admin panel | Full management of games, packages, transactions, settings |
 | 📊 Dashboard | Revenue stats, recent transactions, stock overview |
 
 ---
@@ -90,13 +88,11 @@ top-up/
 │   │   │   ├── admin.controller.ts
 │   │   │   ├── game.controller.ts
 │   │   │   ├── transaction.controller.ts
-│   │   │   └── supplier.controller.ts
 │   │   ├── services/             # Business logic (thick layer)
-│   │   │   ├── admin.service.ts        # Admin CRUD, settings, API keys
+│   │   │   ├── admin.service.ts        # Admin CRUD, settings
 │   │   │   ├── bakong.service.ts       # KHQR generation & status polling
 │   │   │   ├── game.service.ts         # Game catalogue queries
 │   │   │   ├── moogold.service.ts      # MooGold provider integration
-│   │   │   ├── supplier.service.ts     # Friend supplier integration
 │   │   │   ├── topup-provider.service.ts # Provider orchestration & fallback
 │   │   │   ├── transaction.service.ts  # Transaction lifecycle management
 │   │   │   └── verify.service.ts       # Player account verification
@@ -105,7 +101,6 @@ top-up/
 │   │   │   ├── admin.routes.ts
 │   │   │   ├── game.routes.ts
 │   │   │   ├── transaction.routes.ts
-│   │   │   ├── supplier.routes.ts
 │   │   │   └── upload.routes.ts
 │   │   ├── middleware/           # Auth, error handling, rate limiting
 │   │   ├── lib/                  # Prisma client, system settings cache
@@ -131,9 +126,7 @@ top-up/
 │   │   │       ├── games/        # Game management
 │   │   │       ├── packages/     # Package management
 │   │   │       ├── transactions/ # Transaction management
-│   │   │       ├── settings/     # Site settings (KHQR, providers)
-│   │   │       ├── supplier/     # Friend supplier configuration
-│   │   │       └── api-key/      # API key management
+│   │   │       └── settings/     # Site settings (KHQR, providers)
 │   │   ├── components/           # Shared UI components
 │   │   ├── context/              # React context (auth, cart, etc.)
 │   │   ├── hooks/                # Custom React hooks
@@ -191,7 +184,6 @@ PENDING → PROCESSING → COMPLETED
 | `GET` | `/api/transactions/:id` | Get transaction status |
 | `GET` | `/api/transactions/:id/khqr-status` | Poll KHQR payment status |
 | `POST` | `/api/verify-account` | Verify player ID before purchase |
-| `POST` | `/api/supplier/fulfill` | Callback from friend supplier |
 | `GET` | `/health` | Backend health check |
 
 ### Admin Endpoints (JWT required)
@@ -204,7 +196,6 @@ PENDING → PROCESSING → COMPLETED
 | `GET/POST/PATCH/DELETE` | `/api/admin/packages` | Package CRUD |
 | `GET/PATCH` | `/api/admin/transactions` | Transaction list & update |
 | `GET/POST` | `/api/admin/settings` | System settings |
-| `GET/POST` | `/api/admin/api-keys` | API key management |
 | `POST` | `/api/upload/image` | Upload game icon/banner |
 
 ---
@@ -298,12 +289,7 @@ BAKONG_ACQUIRING_BANK=ABA Bank
 MOOGOLD_PARTNER_ID=your_partner_id
 MOOGOLD_SECRET_KEY=your_secret_key
 
-# ─── Friend Supplier (Fallback) ──────────────────────────────
-# Generate: openssl rand -hex 32
-FRIEND_SUPPLIER_SECRET=your_shared_secret
-# Optional — only if friend has their own API system:
-FRIEND_SUPPLIER_API_URL=https://friend-system.com/api/order
-FRIEND_SUPPLIER_API_KEY=key_from_your_friend
+# MOOGOLD_SECRET_KEY=your_secret_key
 
 # ─── Optional: Monitoring & Alerting ──────────────────────────
 # SENTRY_DSN=https://xxx@sentry.io/xxx
@@ -439,9 +425,6 @@ Opens at **http://localhost:5555**
 | `MOOGOLD_PARTNER_ID` | ⬜ | MooGold reseller ID |
 | `MOOGOLD_API_KEY` | ⬜ | MooGold API key |
 | `MOOGOLD_TEST_MODE` | ⬜ | `true` to simulate orders locally |
-| `FRIEND_SUPPLIER_SECRET` | ⬜ | Shared secret with friend supplier |
-| `FRIEND_SUPPLIER_API_URL` | ⬜ | Friend's order endpoint (if they have their own API) |
-| `FRIEND_SUPPLIER_API_KEY` | ⬜ | API key your friend gave you (for their system) |
 | `ALLOWED_ORIGINS` | ⬜ | Comma-separated CORS origins (production) |
 
 ### Frontend (`frontend/.env.local`)
@@ -604,10 +587,6 @@ Configure via admin UI (stored in `SystemSetting` table):
 - `BAKONG_MERCHANT_NAME` / `BAKONG_MERCHANT_CITY`
 - Provider API keys
 
-### API Keys (`/admin/api-key`)
-- Generate a **public key** + **secret key** pair
-- Share these with your friend supplier so they can authenticate callback requests
-
 ---
 
 ## 💳 Payment Integration (Bakong KHQR)
@@ -656,14 +635,9 @@ For reliable payment status polling in production:
 
 ## 📦 Top-Up Provider Integration
 
-Providers are tried in this **priority order**:
-
-```
 1. MooGold (primary)
         ↓  (if MooGold not configured)
-2. Friend Supplier — API mode  (FRIEND_SUPPLIER_API_URL + FRIEND_SUPPLIER_API_KEY set)
-        ↓  (if no API URL)
-3. Friend Supplier — Manual / Callback mode  (FRIEND_SUPPLIER_SECRET set)
+2. Local Wallet / Manual Mode
         ↓  (if nothing configured)
 ❌ Error: No provider configured
 ```
@@ -671,120 +645,6 @@ Providers are tried in this **priority order**:
 ---
 
 ### 1. MooGold (Primary Provider)
-
-MooGold is a Cambodia & SEA-friendly diamond reseller. It fulfills orders **automatically** via API.
-
-**Setup steps:**
-1. Sign up at [moogold.com](https://moogold.com) → click **"Become a Reseller"**
-2. Get your credentials from **Dashboard → API Settings**:
-   - `Partner ID`
-   - `Secret Key`
-3. Enter them in **Admin → Settings**:
-   ```
-   MOOGOLD_PARTNER_ID=your_partner_id
-   MOOGOLD_SECRET_KEY=your_secret_key
-   ```
-4. Once both are set, MooGold becomes the active provider automatically
-
-**Test mode simulation** (no real money spent):
-```env
-MOOGOLD_TEST_MODE=true
-MOOGOLD_TEST_OUTCOME=success          # or: failure / insufficient_balance
-MOOGOLD_TEST_DELAY_MS=1500            # Simulated API latency
-```
-
-> 💡 MooGold takes priority over Friend Supplier whenever both `MOOGOLD_PARTNER_ID` and `MOOGOLD_SECRET_KEY` are configured.
-
----
-
-### 2. Friend Supplier (Fallback Provider)
-
-A personal reseller / friend who delivers diamonds either via **their own API** or **manually**. This is used when MooGold is not configured.
-
-**Two sub-modes (auto-detected):**
-
-| Mode | Trigger | Behaviour |
-|---|---|---|
-| **API Mode** | `FRIEND_SUPPLIER_API_URL` + `FRIEND_SUPPLIER_API_KEY` set | Backend sends order to friend's endpoint automatically |
-| **Manual / Callback Mode** | Only `FRIEND_SUPPLIER_SECRET` set | Order is queued; friend delivers manually and calls back |
-
-**Request sent to friend's API (API mode):**
-```json
-{
-  "transactionId": "tx_abc123",
-  "playerId": "12345678",
-  "zoneId": "2001",
-  "diamonds": 86,
-  "game": "mobile-legends"
-}
-```
-
-**Callback your friend sends back (manual mode):**
-```json
-{
-  "transactionId": "tx_abc123",
-  "status": "completed",
-  "providerRef": "ORDER_REF_FROM_SUPPLIER",
-  "secret": "your_shared_secret"
-}
-```
-
-> ⚠️ If **neither** MooGold **nor** Friend Supplier is configured, the system throws an error and blocks the top-up.
-
----
-
-## 🤝 Friend Supplier Setup
-
-### Step 1 — Generate a shared secret
-
-```bash
-openssl rand -hex 32
-```
-
-### Step 2 — Set it in Admin → Settings
-
-In Admin → Settings, set:
-```
-FRIEND_SUPPLIER_SECRET=your_generated_secret
-```
-
-### Step 3 — Share these details with your friend
-
-| What | Value |
-|---|---|
-| Callback URL | `https://yourdomain.com/api/supplier/fulfill` |
-| Shared Secret | *(the secret from Step 1)* |
-
-### Step 4 — Friend sends order callback
-
-Your friend POSTs this when diamonds are delivered:
-
-```json
-{
-  "transactionId": "tx_abc123",
-  "status": "completed",
-  "providerRef": "THEIR_ORDER_REFERENCE",
-  "secret": "your_shared_secret"
-}
-```
-
-### Optional: Your friend has their own API
-
-If your friend has an API system and you want to send orders **to** their system automatically:
-
-```env
-FRIEND_SUPPLIER_API_URL=https://friend-system.com/api/order
-FRIEND_SUPPLIER_API_KEY=key_they_gave_you
-```
-
-When these are set, the backend will automatically call your friend's API when a new order comes in.
-
-### Admin → Supplier Page
-
-In Admin → Supplier, you can:
-- View your callback URL to copy and share with your friend
-- Generate and rotate the shared secret key
-- Test the connection to your friend's system
 
 ---
 

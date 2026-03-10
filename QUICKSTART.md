@@ -2,7 +2,7 @@
 
 ## What's Been Done
 
-Your platform is **fully integrated** with robust frontend APIs, provider connections (MooGold, Digiflazz), and advanced UI features (Drag-and-Drop, Glowing Themes).
+Your platform is **fully integrated** with robust frontend APIs, provider connections (MooGold), and advanced UI features (Drag-and-Drop, Glowing Themes).
 
 ### ✅ Completed
 - Dynamic Backend (`SystemSetting`) for live toggle of Test Modes and Real Payments
@@ -73,7 +73,7 @@ Backend polls check-payment → Bakong confirms
       ↓
 fulfillTransaction() → delivers diamonds
       ↓
-Transaction = COMPLETED, providerRef = "MOOGOLD-xxx" or "FRIEND-MANUAL-xxx"
+Transaction = COMPLETED, providerRef = "MOOGOLD-xxx" or "MANUAL-xxx"
 
 
 
@@ -92,11 +92,11 @@ Customer scans QR / taps "Open ABA"
     Backend auto-calls fulfillTransaction()
               ↓
     processTopUp() runs → delivers diamonds
-    (via Friend Supplier or MooGold)
+    (via MooGold or Local Wallet)
               ↓
     Transaction updated:
       status     = "COMPLETED"
-      providerRef = "FRIEND-MANUAL-xxx" or "MOOGOLD-xxx"  ← set automatically
+      providerRef = "MANUAL-xxx" or "MOOGOLD-xxx"  ← set automatically
               ↓
     Frontend polling detects COMPLETED
               ↓
