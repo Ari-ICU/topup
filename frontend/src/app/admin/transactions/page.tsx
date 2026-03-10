@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { apiRequest } from '@/lib/api';
-import { Receipt, Clock, CheckCircle, XCircle, RefreshCw } from 'lucide-react';
+import { Receipt, Clock, CheckCircle, XCircle, RefreshCw, LayoutGrid } from 'lucide-react';
+import { StatusDropdown } from '@/components/ui/status-dropdown';
 
 type TransactionStatus = 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED' | 'EXPIRED';
 
@@ -177,7 +178,7 @@ export default function AdminTransactionsPage() {
                         placeholder="Search IDs, Player, Game or Payment Ref..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-14 pr-12 py-4 bg-white/[0.03] border border-white/5 rounded-2xl text-white text-[11px] font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all placeholder:text-slate-700 uppercase tracking-widest"
+                        className="w-full pl-14 pr-12 py-4 bg-white/[0.03] border-2 border-white/5 rounded-full text-white text-[11px] font-bold focus:outline-none focus:border-indigo-500/50 focus:bg-[#0f0f1d]/50 transition-all placeholder:text-slate-700 uppercase tracking-widest"
                     />
                     {searchQuery && (
                         <button
@@ -189,18 +190,10 @@ export default function AdminTransactionsPage() {
                     )}
                 </div>
                 <div className="md:col-span-4 relative group">
-                    <select
-                        value={statusFilter}
-                        onChange={(e) => setStatusFilter(e.target.value as any)}
-                        className="w-full px-6 py-4 bg-white/[0.03] border border-white/5 rounded-2xl text-white text-[10px] font-black uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all appearance-none cursor-pointer"
-                    >
-                        <option value="ALL" className="bg-slate-900">ALL STATUSES</option>
-                        <option value="PENDING" className="bg-slate-900">PENDING</option>
-                        <option value="PROCESSING" className="bg-slate-900">PROCESSING</option>
-                        <option value="COMPLETED" className="bg-slate-900">COMPLETED</option>
-                        <option value="FAILED" className="bg-slate-900">FAILED</option>
-                        <option value="EXPIRED" className="bg-slate-900">EXPIRED</option>
-                    </select>
+                    <StatusDropdown 
+                        value={statusFilter} 
+                        onChange={(status) => setStatusFilter(status)} 
+                    />
                 </div>
             </div>
 
