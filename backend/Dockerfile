@@ -32,5 +32,9 @@ ENV PORT=7860
 ENV NODE_ENV=production
 EXPOSE 7860
 
-# Start the application using the production script
-CMD ["npm", "start"]
+# Copy migration entrypoint and make it executable
+COPY --chown=node:node entrypoint.sh ./entrypoint.sh
+RUN chmod +x entrypoint.sh
+
+# Start the application using the entrypoint script
+ENTRYPOINT ["./entrypoint.sh"]
