@@ -49,8 +49,6 @@ app.use(
         allowedHeaders: [
             "Content-Type",
             "Authorization",
-            "X-Supplier-Token",
-            "X-Supplier-Signature",
             "X-Request-ID",
             "X-Audit-Key",
             "X-Requested-With",

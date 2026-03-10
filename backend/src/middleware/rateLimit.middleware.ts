@@ -77,16 +77,6 @@ export const adminLimiter = rateLimit({
     handler: rateLimitHandler("Too many admin attempts. IP temporarily restricted."),
 });
 
-// ─── 4. Supplier (friend) limiter ─────────────────────────────────────────────
-export const supplierLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: isProd ? 30 : 200,
-    standardHeaders: "draft-7",
-    legacyHeaders: false,
-    store: store("supplier"),
-    skip: skipAudit,
-    handler: rateLimitHandler("Too many supplier callbacks. IP temporarily restricted."),
-});
 
 // ─── 5. Heavy action limiter (confirm/fulfill) ───────────────────────────────
 export const heavyActionLimiter = rateLimit({

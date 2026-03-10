@@ -14,45 +14,7 @@ const settingDefaults: {
     hint?: string;
     required?: boolean;
 }[] = [
-        {
-            group: 'Friend Supplier',
-            key: 'ENABLE_FRIEND_SUPPLIER',
-            label: 'Activate Friend Supplier',
-            type: 'toggle',
-            placeholder: '',
-            hint: 'Enable or disable the Friend Supplier provider',
-        },
-        {
-            group: 'Friend Supplier',
-            key: 'FRIEND_SUPPLIER_SECRET',
-            label: 'Shared Secret (give this to your friend)',
-            placeholder: 'e.g. a long random string like abc123xyz...',
-            type: 'password',
-            required: true,
-            hint: 'Your friend puts this in every request so you know it\'s really them',
-        },
-        {
-            group: 'Friend Supplier',
-            key: 'FRIEND_SUPPLIER_API_URL',
-            label: "Friend's API URL (optional)",
-            placeholder: 'https://friend-system.com/api/order',
-            hint: 'Only needed if your friend has their own API. Leave blank if they call you.',
-        },
-        {
-            group: 'Friend Supplier',
-            key: 'FRIEND_SUPPLIER_API_KEY',
-            label: "Friend's API Key (optional)",
-            placeholder: 'Your friend gave you this key',
-            type: 'password',
-            hint: 'Only needed if your friend has their own API.',
-        },
-        {
-            group: 'Friend Supplier',
-            key: 'FRIEND_SUPPLIER_CALLBACK_URL',
-            label: 'Callback URL (give this to your friend)',
-            placeholder: 'https://yourwebsite.com/api/supplier/fulfill',
-            hint: 'This is the URL your friend calls to confirm diamond delivery. Copy this and send it to them.',
-        },
+
 
         {
             group: 'MooGold Provider',
@@ -126,20 +88,12 @@ const settingDefaults: {
     ];
 
 const groupIcons: Record<string, React.ElementType> = {
-    'Friend Supplier': Users,
     'Bakong KHQR': CreditCard,
     'MooGold Provider': Zap,
 };
 
 // --- Utils ---
-const generateRandomKey = (length: number = 32) => {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let result = '';
-    for (let i = 0; i < length; i++) {
-        result += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return result;
-};
+
 
 const groups = [...new Set(settingDefaults.map((s) => s.group))];
 const groupKeys = (group: string) => settingDefaults.filter(s => s.group === group).map(s => s.key);
@@ -248,9 +202,7 @@ export default function AdminSettingsPage() {
                 <ShieldCheck className="w-4 h-4 text-emerald-400" />
                 <span>Status:</span>
                 {values['ENABLE_MOOGOLD'] === 'true' && <span className="text-amber-400">MooGold Active</span>}
-                {values['ENABLE_MOOGOLD'] === 'true' && values['ENABLE_FRIEND_SUPPLIER'] === 'true' && <span className="opacity-20">+</span>}
-                {values['ENABLE_FRIEND_SUPPLIER'] === 'true' && <span className="text-purple-400">Friend Supplier Active</span>}
-                {values['ENABLE_MOOGOLD'] !== 'true' && values['ENABLE_FRIEND_SUPPLIER'] !== 'true' && <span className="text-red-400">No Provider Active (Manual Mode)</span>}
+                {values['ENABLE_MOOGOLD'] !== 'true' && <span className="text-red-400">No Provider Active (Manual Mode)</span>}
                 <span className="ml-auto opacity-40">Payments via Bakong KHQR</span>
             </div>
 
@@ -322,15 +274,7 @@ export default function AdminSettingsPage() {
                                                             : 'border-white/5 focus:ring-indigo-500/30 focus:border-indigo-500/20'
                                                             }`}
                                                     />
-                                                    {key === 'FRIEND_SUPPLIER_SECRET' && (
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => setValues(prev => ({ ...prev, [key]: generateRandomKey() }))}
-                                                            className="absolute right-3 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-indigo-500/10 hover:bg-indigo-500/20 rounded-xl text-[9px] font-black text-indigo-400 uppercase tracking-widest border border-indigo-500/20 transition-all opacity-0 group-hover/input:opacity-100"
-                                                        >
-                                                            Generate
-                                                        </button>
-                                                    )}
+
                                                 </>
                                             )}
                                         </div>

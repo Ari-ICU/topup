@@ -111,7 +111,7 @@ export default function AdminTransactionsPage() {
             await fetchTransactions();
         } catch (error: any) {
             console.error('Fulfillment attempt failed', error);
-            setActionError(error?.message ?? 'Fulfillment failed. Connection or Supplier issue.');
+            setActionError(error?.message ?? 'Fulfillment failed. Connection or Provider issue.');
             await fetchTransactions();
         } finally {
             setIsLoading(false);

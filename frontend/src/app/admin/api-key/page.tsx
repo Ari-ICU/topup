@@ -169,52 +169,7 @@ export default function AdminApiKeyPage() {
                         </div>
                     </div>
 
-                    {/* Right Side: Friend Supplier Specific */}
-                    <div className="space-y-8">
-                        <div>
-                            <h3 className="text-sm font-black text-emerald-400 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                                Friend Supplier Callback API
-                            </h3>
-                            <div className="space-y-6">
-                                {/* Callback URL */}
-                                <div className="space-y-3">
-                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Fulfillment Callback URL (POST):</label>
-                                    <div className="flex group">
-                                        <div className="flex-1 bg-[#0a0910] border border-white/5 rounded-2xl p-4 font-mono text-xs text-emerald-400/80 flex items-center overflow-hidden border-r-0 rounded-r-none group-focus-within:border-emerald-500/50 transition-colors">
-                                            <span className="truncate">{typeof window !== 'undefined' ? `${window.location.origin}/api/supplier/fulfill` : '/api/supplier/fulfill'}</span>
-                                        </div>
-                                        <button
-                                            onClick={() => handleCopy(typeof window !== 'undefined' ? `${window.location.origin}/api/supplier/fulfill` : '', "Callback URL")}
-                                            className="bg-[#1b1a29] border border-white/5 border-l-0 rounded-2xl p-4 text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/5 transition-all flex items-center gap-3 rounded-l-none font-black text-[10px] uppercase tracking-widest active:bg-emerald-500/10 active:scale-95 transition-all"
-                                        >
-                                            <Copy className="w-4 h-4" />
-                                            Copy
-                                        </button>
-                                    </div>
-                                    <p className="text-[8px] text-slate-600 font-bold uppercase tracking-tight ml-1">GIVE THIS TO YOUR SUPPLIER FRIEND</p>
-                                </div>
 
-                                {/* Supplier Token */}
-                                <div className="space-y-3">
-                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">X-Supplier-Token (Secret):</label>
-                                    <div className="flex group">
-                                        <div className="flex-1 bg-[#0a0910] border border-white/5 rounded-2xl p-4 font-mono text-sm text-slate-300 flex items-center overflow-hidden border-r-0 rounded-r-none group-focus-within:border-emerald-500/50 transition-colors">
-                                            <span className="truncate">{(keys as any)?.supplierSecret || "................................................"}</span>
-                                        </div>
-                                        <button
-                                            onClick={() => handleCopy((keys as any)?.supplierSecret || "", "Supplier Token")}
-                                            className="bg-[#1b1a29] border border-white/5 border-l-0 rounded-2xl p-4 text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/5 transition-all flex items-center gap-3 rounded-l-none font-black text-[10px] uppercase tracking-widest active:bg-emerald-500/10 active:scale-95 transition-all"
-                                        >
-                                            <Copy className="w-4 h-4" />
-                                            Copy
-                                        </button>
-                                    </div>
-                                    <p className="text-[8px] text-slate-600 font-bold uppercase tracking-tight ml-1 leading-relaxed">YOUR FRIEND MUST SEND THIS IN THE HEADER AS `X-Supplier-Token`</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
                 <div className="mt-12 p-6 rounded-3xl bg-rose-500/5 border border-rose-500/10 flex flex-col md:flex-row items-center gap-6 relative z-10">
@@ -224,8 +179,7 @@ export default function AdminApiKeyPage() {
                     <div>
                         <p className="text-[10px] font-black text-rose-500 uppercase tracking-[0.2em]">Security & Integration Note</p>
                         <p className="text-xs text-rose-500/70 font-medium mt-1 leading-relaxed">
-                            Share the <strong>General Keys</strong> only with trusted developers. Share the <strong>Supplier Callback</strong> details only with your diamond supplier friend.
-                            Generating new keys will <strong>NOT</strong> affect the Supplier Token (managed in Settings).
+                            Share the <strong>General Keys</strong> only with trusted developers. Generating new keys will <strong>invalidate</strong> your current ones immediately.
                         </p>
                     </div>
                 </div>

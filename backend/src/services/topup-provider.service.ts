@@ -1,10 +1,9 @@
 import { prisma } from "../lib/prisma.js";
 import { getSystemSettings } from "../lib/settings.js";
 import { getMooGoldBalance, moogoldPlaceOrder } from "./moogold.service.js";
-import { getSupplierBalance, supplierPlaceOrder } from "./supplier.service.js";
 
 // Top-Up Provider Service
-// Manages diamond delivery via MooGold, Friend Supplier (API/Manual), or local stock.
+// Manages diamond delivery via MooGold or local stock.
 
 export interface TopUpRequest {
     transactionId: string;
@@ -23,7 +22,7 @@ export interface TopUpResult {
     provider: string;
 }
 
-export type ProviderName = "MooGold" | "FriendSupplier" | "None";
+export type ProviderName = "MooGold" | "None";
 
 export interface ProviderStatus {
     activeProvider: ProviderName;
@@ -51,23 +50,9 @@ export const getProviderStatus = async (): Promise<ProviderStatus> => {
         };
     }
 
-    // 2. Check Friend Supplier API
-    const supplierActive = getVal("ENABLE_FRIEND_SUPPLIER") === "true";
-    const supplierUrl = getVal("FRIEND_SUPPLIER_API_URL");
-    const supplierKey = getVal("FRIEND_SUPPLIER_API_KEY");
-    if (supplierActive && supplierUrl && supplierKey) {
-        return {
-            activeProvider: "FriendSupplier",
-            isTestMode: false,
-            isReady: true,
-            missingFields: [],
-            warning: null,
-        };
-    }
-
-    // 3. Fallback to Local Wallet
+    // 2. Fallback to Local Wallet
     return {
-        activeProvider: "FriendSupplier",
+        activeProvider: "None",
         isTestMode: false,
         isReady: true,
         missingFields: [],
@@ -89,15 +74,7 @@ export const getProviderWalletBalance = async (): Promise<number> => {
         }
     }
 
-    const supplierActive = getVal("ENABLE_FRIEND_SUPPLIER") === "true";
-    if (supplierActive && getVal("FRIEND_SUPPLIER_API_URL") && getVal("FRIEND_SUPPLIER_API_KEY")) {
-        try {
-            const balance = await getSupplierBalance();
-            return balance === -1 ? 0 : balance;
-        } catch {
-            return 0;
-        }
-    }
+
 
     const stock = await prisma.globalStock.findUnique({ where: { id: "GLOBAL" } });
     return Number(stock?.providerBalance) || 0;
@@ -144,39 +121,11 @@ export const processTopUp = async (request: TopUpRequest): Promise<TopUpResult> 
         };
     }
 
-    // 2. Friend Supplier API
-    const supplierActive = getVal("ENABLE_FRIEND_SUPPLIER") === "true";
-    const friendUrl = getVal("FRIEND_SUPPLIER_API_URL");
-    const friendKey = getVal("FRIEND_SUPPLIER_API_KEY");
-    if (supplierActive && friendUrl && friendKey) {
-        const result = await supplierPlaceOrder({
-            transactionId: request.transactionId,
-            playerId: request.playerId,
-            zoneId: request.zoneId,
-            diamonds: request.amount,
-            game: request.gameSlug,
-        });
-        return {
-            success: result.success,
-            providerRef: result.supplierRef || null as any,
-            message: result.message,
-            provider: "FriendSupplier",
-        };
-    }
-
-    // 3. Friend Supplier Manual/Callback mode
-    const friendSecret = getVal("FRIEND_SUPPLIER_SECRET");
-    if (friendSecret) {
-        console.log(`[FriendSupplier] Manual mode — TxID ${request.transactionId} queued.`);
-        return {
-            success: true,
-            providerRef: `FRIEND-MANUAL-${request.transactionId}`,
-            message: "Order queued for diamond delivery via Friend Supplier.",
-            provider: "FriendSupplier",
-        };
-    }
-
-    const status = await getProviderStatus();
-    console.error(`[TopUp] ❌ BLOCKED: No provider configured. ${status.warning}`);
-    throw new Error("NO_PROVIDER: Please add credentials in Settings.");
+    // 2. Local Wallet/Manual Mode
+    return {
+        success: true,
+        providerRef: `MANUAL-${request.transactionId}`,
+        message: "Order placed. Awaiting manual fulfillment from local stock.",
+        provider: "None",
+    };
 };
