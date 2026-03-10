@@ -120,17 +120,17 @@ async function main() {
         },
     });
 
-    // 5. GLOBAL STOCK & BALANCE (For Testing)
+    // 5. GLOBAL STOCK & BALANCE (Initial State)
     await prisma.globalStock.upsert({
         where: { id: "GLOBAL" },
         update: {
-            diamonds: 1000000,
-            providerBalance: 1000.00,
+            diamonds: 0,
+            providerBalance: 0.00,
         },
         create: {
             id: "GLOBAL",
-            diamonds: 1000000,
-            providerBalance: 1000.00,
+            diamonds: 0,
+            providerBalance: 0.00,
         },
     });
 

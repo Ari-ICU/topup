@@ -8,5 +8,8 @@ echo "[entrypoint] Running Prisma migrations..."
 npx prisma migrate resolve --applied 20260308045646_add_promotions || echo "Migration already resolved or resolve not needed"
 npx prisma migrate deploy
 
+echo "[entrypoint] Seeding database..."
+npx prisma db seed
+
 echo "[entrypoint] Starting server..."
 exec node dist/server.js
