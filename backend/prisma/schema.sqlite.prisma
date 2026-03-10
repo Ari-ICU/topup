@@ -1,0 +1,102 @@
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id           String        @id @default(cuid())
+  email        String?       @unique
+  name         String?
+  createdAt    DateTime      @default(now())
+  transactions Transaction[]
+}
+
+model Game {
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  name        String
+  iconUrl     String?
+  bannerUrl   String?
+  inputConfig String    // SQLite uses String for JSON-like data, parse with JSON.parse()
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  sortOrder   Int       @default(0)
+  packages    Package[]
+}
+
+model Package {
+  id           String        @id @default(cuid())
+  gameId       String
+  name         String
+  amount       Int
+  price        Float         // SQLite uses Float for decimals
+  providerSku  String
+  description  String?
+  isWeeklyPass Boolean       @default(false)
+  sortOrder    Int           @default(0)
+  badgeText    String?
+  game         Game          @relation(fields: [gameId], references: [id])
+  transactions Transaction[]
+}
+
+model GlobalStock {
+  id                      String   @id @default("GLOBAL")
+  diamonds                Int      @default(0)
+  updatedAt               DateTime @updatedAt
+  providerBalance         Float    @default(0)
+  totalTransferredRevenue Float    @default(0)
+}
+
+model Transaction {
+  id            String            @id @default(cuid())
+  userId        String?
+  packageId     String
+  status        String            // SQLite stores enums as Strings
+  paymentMethod String
+  paymentRef    String?           @unique
+  providerRef   String?           @unique
+  playerInfo    String            // Store JSON as String
+  totalAmount   Float
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  package       Package           @relation(fields: [packageId], references: [id])
+  user          User?             @relation(fields: [userId], references: [id])
+}
+
+model SystemSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
+model Promotion {
+  id         String   @id @default(cuid())
+  title      String
+  subtitle   String?
+  badgeText  String?
+  badgeColor String   @default("purple")
+  imageUrl   String
+  linkUrl    String?
+  isActive   Boolean  @default(true)
+  sortOrder  Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Reseller {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  userId    String   @unique
+  partnerId String   @unique
+  secretKey String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

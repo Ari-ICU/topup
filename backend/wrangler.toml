@@ -1,0 +1,21 @@
+name = "topup-backend"
+main = "src/server.ts"
+compatibility_date = "2024-03-01"
+compatibility_flags = [ "nodejs_compat" ]
+
+[vars]
+NODE_ENV = "production"
+PORT = "4000"
+
+[[d1_databases]]
+binding = "DB" # Map to env.DB
+database_name = "topup_db"
+database_id = "PASTE_D1_DATABASE_ID_HERE"
+
+[[r2_buckets]]
+binding = "BUCKET" # Map to env.BUCKET
+bucket_name = "topup-uploads"
+
+[env.production]
+JWT_SECRET = "placeholder"
+ALLOWED_ORIGINS = "https://yourdomain.com"

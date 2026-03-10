@@ -1,0 +1,65 @@
+# 💎 "ULTIMATE" CLOUDFLARE PRODUCTION GUIDE (100% Cloudflare)
+
+This setup uses only Cloudflare products for a faster, cheaper, and more unified stack.
+
+---
+
+### **1. DATABASE: Cloudflare D1 (SQL)**
+D1 is Cloudflare's native database. No external DB needed.
+
+1.  **Create your D1 Database:**
+    Open terminal in `backend/` and run:
+    `npx wrangler d1 create topup_db`
+2.  **Copy the `database_id`** from the output into your `backend/wrangler.toml`.
+3.  **Deploy Schema:**
+    `npx wrangler d1 execute topup_db --file=./prisma/migrations/init.sql` (if you have one)
+    *Or use Prisma:* `npx prisma db push --accept-data-loss` (Local) then deploy.
+
+---
+
+### **2. STORAGE: Cloudflare R2 (Object Storage)**
+Replaces local `public/uploads`. Perfect for game icons.
+
+1.  **Create your R2 Bucket:**
+    `npx wrangler r2 bucket create topup-uploads`
+2.  The binding `BUCKET` is already in your `wrangler.toml`.
+3.  **Public Access:** In Cloudflare Dashboard, go to R2 -> topup-uploads -> Settings -> "Connect a Custom Domain" (e.g., `images.yourdomain.com`).
+
+---
+
+### **3. BACKEND: Cloudflare Workers**
+The script runs your Express API on the Edge.
+
+1.  **Install Adapters:**
+    `cd backend && npm install serverless-http`
+2.  **Deploy code:**
+    `npx wrangler deploy`
+3.  **Secrets:** In Dashboard -> Settings -> Variables, add:
+    *   `JWT_SECRET`: (Long random string)
+    *   `ALLOWED_ORIGINS`: `https://yourdomain.com`
+
+---
+
+### **4. FRONTEND: Cloudflare Pages**
+1.  **Dashboard**: Create Pages Application -> Connect GitHub -> `frontend/` folder.
+2.  **Framework**: `Next.js`.
+3.  **Build Command**: `npm run build`.
+4.  **Env Variables**:
+    *   `NEXT_PUBLIC_API_URL`: `https://api.yourdomain.com`
+5.  **Deploy**.
+
+---
+
+### **5. DNS: The Final Link**
+In your Cloudflare DNS settings:
+
+*   **yourdomain.com** -> Linked to "Pages" (Automatic).
+*   **api.yourdomain.com** -> CNAME to your Worker URL (`topup-backend.yourname.workers.dev`).
+*   **images.yourdomain.com** -> Linked to "R2 Bucket" (In R2 Settings).
+
+---
+
+### **6. UPDATING BAKONG**
+Callback URL: `https://api.yourdomain.com/api/callback/bakong`
+
+🚀 **Result**: Everything is inside Cloudflare. High speed, zero latency between DB/API, and full DDoS protection!
