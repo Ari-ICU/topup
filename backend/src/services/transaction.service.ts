@@ -128,7 +128,7 @@ export const fulfillTransaction = async (id: string): Promise<{
 
         // Call provider API
         const inputConfig: any = (transaction.package as any)?.game?.inputConfig || {};
-        const categoryId = inputConfig.moogoldCategory || "50"; // Use moogoldCategory fallback to 50 for direct topups
+        const categoryId = inputConfig.supplyCategory || inputConfig.moogoldCategory || "50"; // Generic supply category
 
         const result = await processTopUp({
             transactionId: transaction.id,

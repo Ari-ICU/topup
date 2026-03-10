@@ -1,6 +1,6 @@
 # 🎮 TopUpPay — Gaming Top-Up Platform
 
-> A full-stack, production-ready gaming top-up platform supporting multiple game titles, payment via **Bakong KHQR** (Cambodia's national QR payment), and MooGold provider integration.
+> A full-stack, production-ready gaming top-up platform supporting multiple game titles, payment via **Bakong KHQR** (Cambodia's national QR payment), and direct Reseller API integration for partners.
 
 ---
 
@@ -34,9 +34,10 @@
 | 🕹️ Game catalogue | Dynamically managed games & packages via admin panel |
 | 💳 KHQR payments | Dynamic QR generation via `bakong-khqr`, polled in real-time |
 | 🔗 ABA Deep Link | One-tap "Open in ABA App" button for direct mobile payment |
-| 📦 Multi-provider | MooGold (primary) → Local Wallet manual mode |
+| 📦 Master Supply | Unified supply engine with global coverage and automated fallback |
 | 👤 Account verification | Verifies player ID/server before checkout (ML, FF, etc.) |
 | 🛡️ Admin panel | Full management of games, packages, transactions, settings |
+| 🔑 Reseller API | Allow others to resell your services via master API keys |
 | 📊 Dashboard | Revenue stats, recent transactions, stock overview |
 
 ---
@@ -92,8 +93,8 @@ top-up/
 │   │   │   ├── admin.service.ts        # Admin CRUD, settings
 │   │   │   ├── bakong.service.ts       # KHQR generation & status polling
 │   │   │   ├── game.service.ts         # Game catalogue queries
-│   │   │   ├── moogold.service.ts      # MooGold provider integration
-│   │   │   ├── topup-provider.service.ts # Provider orchestration & fallback
+│   │   │   ├── supply.service.ts       # Core supply integration logic
+│   │   │   ├── topup-provider.service.ts # Master orchestration & fallback
 │   │   │   ├── transaction.service.ts  # Transaction lifecycle management
 │   │   │   └── verify.service.ts       # Player account verification
 │   │   ├── routes/               # Route definitions
@@ -196,6 +197,8 @@ PENDING → PROCESSING → COMPLETED
 | `GET/POST/PATCH/DELETE` | `/api/admin/packages` | Package CRUD |
 | `GET/PATCH` | `/api/admin/transactions` | Transaction list & update |
 | `GET/POST` | `/api/admin/settings` | System settings |
+| `GET/POST` | `/api/admin/api-keys` | Reseller API management |
+| `POST` | `/api/reseller/order` | Place order (Reseller only) |
 | `POST` | `/api/upload/image` | Upload game icon/banner |
 
 ---

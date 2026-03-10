@@ -40,10 +40,11 @@ Features:
 - **Top-Up Providers** - Integrated with MooGold (primary) with local wallet manual mode fallback.
 - **Stock Management** - Counting stock in packages and transactions.
 
-### ✅ Phase 5: API Integration - Complete
+### ✅ Phase 5: API Integration & Reselling - Complete
 All frontend pages are fully connected to the backend API:
 - ✅ Admin Dashboard, Games, Packages, Reviews, and Transactions fully utilize backend endpoints.
 - ✅ Dynamic provider balance tracking and synchronization.
+- ✅ **Reseller API** - Master Api Key system for external partners to place orders directly.
 
 ---
 

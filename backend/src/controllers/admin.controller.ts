@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import { adminService } from "../services/admin.service.js";
 import { getProviderStatus } from "../services/topup-provider.service.js";
 import { fulfillTransaction } from "../services/transaction.service.js";
-import { getMooGoldProductList } from "../services/moogold.service.js";
+import { getProviderProductList } from "../services/supply.service.js";
 import { sendSuccess, sendError } from "../utils/apiResponse.js";
 
 const JWT_SECRET = process.env.JWT_SECRET || "fallback-secret-for-dev-only-123";
@@ -253,6 +253,24 @@ export const getProviderStatusEndpoint = async (_req: Request, res: Response) =>
 };
 
 
+export const getApiKeys = async (req: Request, res: Response) => {
+    try {
+        const data = await adminService.getApiKeys();
+        res.json({ success: true, data });
+    } catch (error: any) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+export const generateApiKeys = async (req: Request, res: Response) => {
+    try {
+        const data = await adminService.generateApiKeys();
+        res.json({ success: true, data });
+    } catch (error: any) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
 // Promotions
 export const getPromotions = async (req: Request, res: Response) => {
     try {
@@ -341,33 +359,33 @@ export const manuallyFulfillTransaction = async (req: Request, res: Response) =>
     }
 };
 
-export const getMooGoldProducts = async (req: Request, res: Response) => {
+export const getProviderProducts = async (req: Request, res: Response) => {
     try {
         if (req.query.gameId) {
-            const packages = await adminService.getMooGoldPackagesByGame(req.query.gameId as string);
+            const packages = await adminService.getProviderPackagesByGame(req.query.gameId as string);
             return res.json({ success: true, data: packages });
         }
-        const products = await getMooGoldProductList();
+        const products = await getProviderProductList();
         res.json({ success: true, data: products });
     } catch (error: any) {
-        console.error(`[getMooGoldProducts] Error:`, error.message);
+        console.error(`[getProviderProducts] Error:`, error.message);
         res.status(500).json({ success: false, message: error.message });
     }
 };
 
-export const bulkSyncMooGoldProducts = async (req: Request, res: Response) => {
+export const bulkSyncProviderProducts = async (req: Request, res: Response) => {
     try {
         const { gameId, categoryId } = req.body;
         if (!gameId) return res.status(400).json({ success: false, message: "gameId is required" });
 
-        const result = await adminService.bulkSyncMooGoldProducts(gameId, categoryId);
+        const result = await adminService.bulkSyncProviderProducts(gameId, categoryId);
         res.json({
             success: true,
             data: result,
             message: `Successfully synced ${result.total} packages (${result.createdCount} new, ${result.updatedCount} updated).`
         });
     } catch (error: any) {
-        console.error(`[bulkSyncMooGoldProducts] Error:`, error.message);
+        console.error(`[bulkSyncProviderProducts] Error:`, error.message);
         res.status(500).json({ success: false, message: error.message });
     }
 };

@@ -8,7 +8,7 @@ import {
 import { deductGlobalStock } from "./transaction.service.js";
 import { invalidateGameCache } from "./game.service.js";
 import { invalidateSettingsCache } from "../lib/settings.js";
-import { getMooGoldProductList, getMooGoldGamePackages } from "./moogold.service.js";
+import { getProviderProductList, getProviderGamePackages } from "./supply.service.js";
 
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -458,7 +458,7 @@ export const adminService = {
             try {
                 const playerInfo: any = transaction.playerInfo;
                 const inputConfig: any = transaction.package.game.inputConfig || {};
-                const categoryId = inputConfig.moogoldCategory || "50"; // MooGold order/create_order expects a category ID (e.g. 50 for direct top-ups)
+                const categoryId = inputConfig.moogoldCategory || "50"; // Master order/create_order expects a category ID
 
                 const result = await processTopUp({
                     transactionId: transaction.id,
@@ -578,6 +578,50 @@ export const adminService = {
     },
 
 
+    // --- Reseller API Access ---
+    getApiKeys: async () => {
+        const settings = await prisma.systemSetting.findMany({
+            where: {
+                key: { in: ['API_PUBLIC_KEY', 'API_SECRET_KEY'] }
+            }
+        });
+
+        const publicKey = settings.find(s => s.key === 'API_PUBLIC_KEY')?.value || "";
+        const secretKey = settings.find(s => s.key === 'API_SECRET_KEY')?.value || "";
+
+        // Mask internal secret key for dashboard display
+        const maskedSecret = secretKey.length > 10
+            ? `${secretKey.substring(0, 7)}${'.'.repeat(20)}${secretKey.substring(secretKey.length - 7)}`
+            : secretKey;
+
+        return {
+            publicKey,
+            secretKey: maskedSecret,
+            fullSecretKey: secretKey // Internal use if needed
+        };
+    },
+
+    generateApiKeys: async () => {
+        const { randomBytes } = await import('node:crypto');
+        const publicKey = `pk_${randomBytes(24).toString('hex')}`;
+        const secretKey = `sk_${randomBytes(32).toString('hex')}`;
+
+        await prisma.$transaction([
+            prisma.systemSetting.upsert({
+                where: { key: 'API_PUBLIC_KEY' },
+                update: { value: publicKey },
+                create: { key: 'API_PUBLIC_KEY', value: publicKey }
+            }),
+            prisma.systemSetting.upsert({
+                where: { key: 'API_SECRET_KEY' },
+                update: { value: secretKey },
+                create: { key: 'API_SECRET_KEY', value: secretKey }
+            })
+        ]);
+
+        return { publicKey, secretKey };
+    },
+
     // --- Promotions ---
     getAllPromotions: async () => {
         return prisma.promotion.findMany({
@@ -639,13 +683,13 @@ export const adminService = {
         return prisma.$transaction(updates);
     },
 
-    // --- MooGold Automation ---
-    getMooGoldPackagesByGame: async (gameId: string) => {
+    // --- Master Supply Automation ---
+    getProviderPackagesByGame: async (gameId: string) => {
         const game = await prisma.game.findUnique({ where: { id: gameId } });
         if (!game) throw new Error("Game not found");
 
-        const products = await getMooGoldProductList();
-        if (!products || products.length === 0) throw new Error("No products found from MooGold.");
+        const products = await getProviderProductList();
+        if (!products || products.length === 0) throw new Error("No products found from Master Supply.");
 
         const relevantGame = products.find((p: any) =>
             p.post_title?.toLowerCase().includes(game.name.toLowerCase()) ||
@@ -653,14 +697,14 @@ export const adminService = {
         );
 
         if (!relevantGame) {
-            throw new Error(`No MooGold game found matching "${game.name}".`);
+            throw new Error(`No Supply game found matching "${game.name}".`);
         }
 
-        const packageList = await getMooGoldGamePackages(relevantGame.ID);
+        const packageList = await getProviderGamePackages(relevantGame.ID);
         return packageList.Variation || packageList.product || [];
     },
 
-    bulkSyncMooGoldProducts: async (gameId: string, mooGoldCategoryId: string = "50") => {
+    bulkSyncProviderProducts: async (gameId: string, supplyCategoryId: string = "50") => {
         const game = await prisma.game.findUnique({ where: { id: gameId } });
         if (!game) throw new Error("Game not found");
 
@@ -668,36 +712,35 @@ export const adminService = {
         const marginSetting = await prisma.systemSetting.findUnique({ where: { key: "MOOGOLD_MARGIN" } });
         const margin = parseFloat(marginSetting?.value || "1.1"); // Default 10% profit
 
-        const products = await getMooGoldProductList();
-        if (!products || products.length === 0) throw new Error("No products found from MooGold.");
-        // MooGold products list returns games, not packages directly.
-        // E.g., { ID: '15145', post_title: 'Mobile Legends' }
+        const products = await getProviderProductList();
+        if (!products || products.length === 0) throw new Error("No products found from Supply.");
+        
         const relevantGame = products.find((p: any) =>
             p.post_title?.toLowerCase().includes(game.name.toLowerCase()) ||
             p.post_title?.toLowerCase().includes(game.slug.toLowerCase().replace(/-/g, ' '))
         );
 
         if (!relevantGame) {
-            throw new Error(`No MooGold game found matching "${game.name}".`);
+            throw new Error(`No Supply game found matching "${game.name}".`);
         }
 
-        console.log(`[Sync] Found MooGold Game: ${relevantGame.post_title} (ID: ${relevantGame.ID})`);
+        console.log(`[Sync] Found Supply Game: ${relevantGame.post_title} (ID: ${relevantGame.ID})`);
 
-        // Store the MooGold IDs in game's inputConfig for later use during fulfillment
+        // Store the Supply IDs in game's inputConfig for later use during fulfillment
         const currentInputConfig = (game.inputConfig as any) || {};
         await prisma.game.update({
             where: { id: gameId },
             data: {
                 inputConfig: {
                     ...currentInputConfig,
-                    moogoldId: relevantGame.ID.toString(),
-                    moogoldCategory: mooGoldCategoryId // Use the category ID that successfully listed this product
+                    supplyId: relevantGame.ID.toString(),
+                    supplyCategory: supplyCategoryId // Use the category ID that successfully listed this product
                 }
             }
         });
 
         // Now fetch the actual packages for this game ID
-        const packageList = await getMooGoldGamePackages(relevantGame.ID);
+        const packageList = await getProviderGamePackages(relevantGame.ID);
         const itemsToProcess = packageList.Variation || packageList.product || [];
 
         if (itemsToProcess.length === 0) {

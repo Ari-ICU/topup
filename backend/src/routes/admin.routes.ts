@@ -19,6 +19,8 @@ import {
     updateGlobalStock,
     syncProviderStock,
     getProviderStatusEndpoint,
+    getApiKeys,
+    generateApiKeys,
     transferRevenue,
     getPromotions,
     createPromotion,
@@ -28,8 +30,8 @@ import {
     triggerBackup,
     restoreData,
     manuallyFulfillTransaction,
-    getMooGoldProducts,
-    bulkSyncMooGoldProducts,
+    getProviderProducts,
+    bulkSyncProviderProducts,
 } from "../controllers/admin.controller.js";
 import { adminLimiter } from "../middleware/rateLimit.middleware.js";
 import { adminAuth } from "../middleware/auth.middleware.js";
@@ -82,13 +84,17 @@ router.post("/global-stock/sync", syncProviderStock);
 
 // System status and transfers
 router.get("/provider-status", getProviderStatusEndpoint);
-router.get("/moogold/products", getMooGoldProducts);
-router.post("/moogold/products/sync", bulkSyncMooGoldProducts);
+router.get("/supply/products", getProviderProducts);
+router.post("/supply/products/sync", bulkSyncProviderProducts);
 router.post("/wallet/transfer", transferRevenue);
 
 // Maintenance / Data Safety
 router.post("/maintenance/backup", triggerBackup);
 router.post("/maintenance/restore", restoreData);
 
+
+// Reseller API Management
+router.get("/api-keys", getApiKeys);
+router.post("/api-keys/generate", generateApiKeys);
 
 export default router;

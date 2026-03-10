@@ -156,6 +156,7 @@ export default function AdminLayout({
 
                         <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.25em] px-4 mb-4 mt-8">System</p>
 
+                        <SidebarItem icon={Key} label="Reseller Api" href="/admin/api-key" isActive={pathname === '/admin/api-key'} onClick={closeSidebar} />
                         <SidebarItem icon={Settings} label="Settings" href="/admin/settings" isActive={pathname === '/admin/settings'} onClick={closeSidebar} />
                     </nav>
                 </div>

@@ -1,6 +1,6 @@
 import { prisma } from "../lib/prisma.js";
 import { getSystemSettings } from "../lib/settings.js";
-import { getMooGoldBalance, moogoldPlaceOrder } from "./moogold.service.js";
+import { getSupplyBalance, executeSupplyOrder } from "./supply.service.js";
 
 // Top-Up Provider Service
 // Manages diamond delivery via MooGold or local stock.
@@ -8,7 +8,7 @@ import { getMooGoldBalance, moogoldPlaceOrder } from "./moogold.service.js";
 export interface TopUpRequest {
     transactionId: string;
     providerSku: string;
-    categoryId?: string; // Add optional categoryId for MooGold
+    categoryId?: string; // Optional supply category
     playerId: string;
     zoneId?: string;
     amount: number;
@@ -22,7 +22,7 @@ export interface TopUpResult {
     provider: string;
 }
 
-export type ProviderName = "MooGold" | "None";
+export type ProviderName = "SupplyEngine" | "None";
 
 export interface ProviderStatus {
     activeProvider: ProviderName;
@@ -42,7 +42,7 @@ export const getProviderStatus = async (): Promise<ProviderStatus> => {
     const mooKey = getVal("MOOGOLD_SECRET_KEY");
     if (mooActive && mooPartner && mooKey) {
         return {
-            activeProvider: "MooGold",
+            activeProvider: "SupplyEngine",
             isTestMode: false,
             isReady: true,
             missingFields: [],
@@ -68,7 +68,7 @@ export const getProviderWalletBalance = async (): Promise<number> => {
     const mooActive = getVal("ENABLE_MOOGOLD") === "true";
     if (mooActive && getVal("MOOGOLD_PARTNER_ID") && getVal("MOOGOLD_SECRET_KEY")) {
         try {
-            return await getMooGoldBalance();
+            return await getSupplyBalance();
         } catch {
             return 0;
         }
@@ -105,7 +105,7 @@ export const processTopUp = async (request: TopUpRequest): Promise<TopUpResult> 
     const mooPartner = getVal("MOOGOLD_PARTNER_ID");
     const mooKey = getVal("MOOGOLD_SECRET_KEY");
     if (mooActive && mooPartner && mooKey && request.providerSku) {
-        const result = await moogoldPlaceOrder({
+        const result = await executeSupplyOrder({
             productId: request.providerSku,
             categoryId: request.categoryId || "50", // Fallback to 50 if missing (often works for direct top up, but not all games)
             playerId: request.playerId,
@@ -117,7 +117,7 @@ export const processTopUp = async (request: TopUpRequest): Promise<TopUpResult> 
             success: result.success,
             providerRef: result.orderId || null as any,
             message: result.message,
-            provider: "MooGold"
+            provider: "SupplyEngine"
         };
     }
 

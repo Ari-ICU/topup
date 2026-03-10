@@ -70,3 +70,40 @@ export const adminAuth = async (req: Request, res: Response, next: NextFunction)
         });
     }
 };
+
+/**
+ * Middleware to verify Reseller API Keys.
+ * Expects "X-API-Key" and "X-API-Secret" headers
+ */
+export const resellerAuth = async (req: Request, res: Response, next: NextFunction) => {
+    const apiKey = (req.headers["x-api-key"] || req.headers["X-API-KEY"]) as string;
+    const apiSecret = (req.headers["x-api-secret"] || req.headers["X-API-SECRET"]) as string;
+
+    if (!apiKey || !apiSecret) {
+        return res.status(401).json({
+            success: false,
+            message: "Authentication failed: Missing API credentials",
+        });
+    }
+
+    try {
+        const { adminService } = await import("../services/admin.service.js");
+        const keys = await adminService.getApiKeys();
+
+        // Check against master keys (restored earlier)
+        if (apiKey !== keys.publicKey || apiSecret !== (keys as any).fullSecretKey) {
+            return res.status(401).json({
+                success: false,
+                message: "Authentication failed: Invalid API credentials",
+            });
+        }
+
+        next();
+    } catch (error) {
+        console.error("[Auth] Reseller auth error:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error during authentication",
+        });
+    }
+};

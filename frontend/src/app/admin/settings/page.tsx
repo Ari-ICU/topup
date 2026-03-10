@@ -17,34 +17,34 @@ const settingDefaults: {
 
 
         {
-            group: 'MooGold Provider',
+            group: 'Master Supply',
             key: 'ENABLE_MOOGOLD',
-            label: 'Activate MooGold',
+            label: 'Activate Supply Engine',
             type: 'toggle',
             placeholder: '',
-            hint: 'Enable or disable the MooGold provider',
+            hint: 'Enable or disable the Master Supply provider',
         },
         {
-            group: 'MooGold Provider',
+            group: 'Master Supply',
             key: 'MOOGOLD_PARTNER_ID',
-            label: 'Partner ID',
+            label: 'Supply Partner ID',
             placeholder: 'e.g. 123456',
-            hint: 'Your Account Partner ID from MooGold Dashboard',
+            hint: 'Your Account Partner ID from the Supply Provider Dashboard',
         },
         {
-            group: 'MooGold Provider',
+            group: 'Master Supply',
             key: 'MOOGOLD_SECRET_KEY',
-            label: 'API Secret Key',
-            placeholder: 'e.g. moogold_key_123',
+            label: 'Supply API Secret',
+            placeholder: 'e.g. key_123',
             type: 'password',
             hint: 'Used to securely fetch the product catalog',
         },
         {
-            group: 'MooGold Provider',
+            group: 'Master Supply',
             key: 'MOOGOLD_MARGIN',
             label: 'Profit Margin (Multiplier)',
             placeholder: 'e.g. 1.15',
-            hint: 'Multiplies the MooGold cost by this amount when syncing (e.g., 1.15 = 15% profit)',
+            hint: 'Multiplies the supply cost by this amount when syncing (e.g., 1.15 = 15% profit)',
         },
 
         // ── Bakong KHQR ──────────────────────────────────────────────────────────
@@ -89,7 +89,7 @@ const settingDefaults: {
 
 const groupIcons: Record<string, React.ElementType> = {
     'Bakong KHQR': CreditCard,
-    'MooGold Provider': Zap,
+    'Master Supply': Zap,
 };
 
 // --- Utils ---
@@ -201,7 +201,7 @@ export default function AdminSettingsPage() {
             <div className="flex items-center gap-4 px-8 py-5 rounded-2xl border border-white/5 bg-white/[0.02] text-[10px] font-black uppercase tracking-widest text-slate-500">
                 <ShieldCheck className="w-4 h-4 text-emerald-400" />
                 <span>Status:</span>
-                {values['ENABLE_MOOGOLD'] === 'true' && <span className="text-amber-400">MooGold Active</span>}
+                {values['ENABLE_MOOGOLD'] === 'true' && <span className="text-amber-400">Supply Engine Active</span>}
                 {values['ENABLE_MOOGOLD'] !== 'true' && <span className="text-red-400">No Provider Active (Manual Mode)</span>}
                 <span className="ml-auto opacity-40">Payments via Bakong KHQR</span>
             </div>

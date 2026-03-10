@@ -48,10 +48,10 @@ function AdminPackagesContent() {
     const searchParams = useSearchParams();
     const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
 
-    // MooGold Autocomplete states
-    const [mooGoldProducts, setMooGoldProducts] = useState<any[]>([]);
-    const [isFetchingMooGold, setIsFetchingMooGold] = useState(false);
-    const [showMooGoldDropdown, setShowMooGoldDropdown] = useState(false);
+    // Master Supply Autocomplete states
+    const [supplyProducts, setSupplyProducts] = useState<any[]>([]);
+    const [isFetchingSupply, setIsFetchingSupply] = useState(false);
+    const [showSupplyDropdown, setShowSupplyDropdown] = useState(false);
 
     // Global Stock states
     const [globalStock, setGlobalStock] = useState<number | null>(null);
@@ -199,8 +199,8 @@ function AdminPackagesContent() {
 
     // ── Auto-generate Provider SKU ──────────────────────────────────────────
     useEffect(() => {
-        // If we are currently fetching from MooGold or selecting from the dropdown, don't override
-        if (isFetchingMooGold || showMooGoldDropdown) return;
+        // If we are currently fetching from Supply or selecting from the dropdown, don't override
+        if (isFetchingSupply || showSupplyDropdown) return;
 
         // Auto-generate if it's a new package or if we want to enforce auto-generation
         // Format: slug_amount (e.g., free-fire_100)
@@ -211,29 +211,29 @@ function AdminPackagesContent() {
                 setFormData(prev => ({ ...prev, providerSku: generatedSku }));
             }
         }
-    }, [formData.gameId, formData.amount, games, isFetchingMooGold, showMooGoldDropdown, editingPackageId, isDuplicating]);
+    }, [formData.gameId, formData.amount, games, isFetchingSupply, showSupplyDropdown, editingPackageId, isDuplicating]);
 
     useEffect(() => {
         fetchPackages();
         fetchGames();
     }, [fetchPackages, fetchGames]);
 
-    const handleFetchMooGoldProducts = async () => {
+    const handleSyncSupply = async () => {
         if (!formData.gameId) {
             showToast('Please select a game from the dropdown first', 'warning');
             return;
         }
-        setIsFetchingMooGold(true);
+        setIsFetchingSupply(true);
         try {
-            const data = await apiRequest<any[]>(`/admin/moogold/products?gameId=${formData.gameId}`);
-            setMooGoldProducts(data || []);
-            setShowMooGoldDropdown(true);
-            showToast('MooGold packages fetched successfully!', 'success');
+            const data = await apiRequest<any[]>(`/admin/supply/products?gameId=${formData.gameId}`);
+            setSupplyProducts(data || []);
+            setShowSupplyDropdown(true);
+            showToast('Supply packages fetched successfully!', 'success');
         } catch (err: any) {
-            console.error('Failed to fetch MooGold packages', err);
-            showToast(err.message || 'Failed to sync with MooGold', 'error');
+            console.error('Failed to fetch supply packages', err);
+            showToast(err.message || 'Failed to sync with Master Supply', 'error');
         } finally {
-            setIsFetchingMooGold(false);
+            setIsFetchingSupply(false);
         }
     };
 
@@ -247,11 +247,11 @@ function AdminPackagesContent() {
 
         openConfirm(
             'Bulk Sync Packages',
-            `This will automatically fetch all available packages for ${selectedGame?.name} from MooGold and update your local catalog. Continue?`,
+            `This will automatically fetch all available packages for ${selectedGame?.name} from Master Supply and update your local catalog. Continue?`,
             async () => {
                 setIsBulkSyncing(true);
                 try {
-                    const result = await apiRequest<any>('/admin/moogold/products/sync', {
+                    const result = await apiRequest<any>('/admin/supply/products/sync', {
                         method: 'POST',
                         body: JSON.stringify({ gameId: filterGameId })
                     });
@@ -313,8 +313,8 @@ function AdminPackagesContent() {
             setEditingPackageId(null);
             setIsDuplicating(false);
             setIsFormDropdownOpen(false);
-            setMooGoldProducts([]);
-            setShowMooGoldDropdown(false);
+            setSupplyProducts([]);
+            setShowSupplyDropdown(false);
             setFormData({ name: '', gameId: '', amount: '', price: '', providerCode: 'MOOGOLD', providerSku: '', description: '', badgeText: '', isWeeklyPass: false, sortOrder: '0' });
         } catch (err: any) {
             console.error('Failed to save package', err);
@@ -825,11 +825,11 @@ function AdminPackagesContent() {
                                             <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Internal SKU (Provider ID)</label>
                                             <button
                                                 type="button"
-                                                onClick={handleFetchMooGoldProducts}
-                                                disabled={isFetchingMooGold}
+                                                onClick={handleSyncSupply}
+                                                disabled={isFetchingSupply}
                                                 className="text-[9px] font-black uppercase text-indigo-400 hover:text-indigo-300 transition-colors bg-indigo-500/10 px-3 py-1.5 rounded-lg disabled:opacity-50"
                                             >
-                                                {isFetchingMooGold ? "SYNCING..." : "SYNC FROM MOOGOLD"}
+                                                {isFetchingSupply ? "SYNCING..." : "SYNC FROM SUPPLY"}
                                             </button>
                                         </div>
                                         <input
@@ -839,9 +839,9 @@ function AdminPackagesContent() {
                                             className="w-full px-8 py-5 bg-white/5 border border-white/5 rounded-[2rem] text-indigo-400 font-mono text-[11px] uppercase placeholder-slate-700 cursor-not-allowed opacity-80"
                                             placeholder="Auto-generated e.g. mlbb_100"
                                         />
-                                        {showMooGoldDropdown && mooGoldProducts.length > 0 && (
+                                        {showSupplyDropdown && supplyProducts.length > 0 && (
                                             <div className="absolute z-50 top-full mt-2 w-full bg-[#0a0a0f] border border-white/10 rounded-2xl shadow-2xl py-2 max-h-48 overflow-y-auto backdrop-blur-3xl custom-scrollbar">
-                                                {mooGoldProducts.map((p, idx) => (
+                                                {supplyProducts.map((p, idx) => (
                                                     <button
                                                         key={idx}
                                                         type="button"
@@ -853,7 +853,7 @@ function AdminPackagesContent() {
                                                                 price: p.variation_price || p.price || formData.price,
                                                                 name: formData.name || p.variation_name || p.product_name || p.title || formData.name
                                                             });
-                                                            setShowMooGoldDropdown(false);
+                                                            setShowSupplyDropdown(false);
                                                         }}
                                                         className="w-full text-left px-4 py-3 text-[10px] font-bold uppercase tracking-wider hover:bg-white/5 text-slate-400 hover:text-white border-b border-white/5 last:border-0 flex justify-between group"
                                                     >
@@ -892,8 +892,8 @@ function AdminPackagesContent() {
                                         setShowForm(false);
                                         setEditingPackageId(null);
                                         setIsDuplicating(false);
-                                        setMooGoldProducts([]);
-                                        setShowMooGoldDropdown(false);
+                                        setSupplyProducts([]);
+                                        setShowSupplyDropdown(false);
                                         setFormData({ name: '', gameId: '', amount: '', price: '', providerCode: 'MOOGOLD', providerSku: '', description: '', badgeText: '', isWeeklyPass: false, sortOrder: '0' });
                                     }} className="flex-1 py-5 rounded-[2.5rem] bg-white/5 text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] transition-all hover:bg-white/10 hover:text-white">Cancel</button>
                                     <button disabled={isSaving} type="submit" className="flex-[2] py-5 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-[2.5rem] text-[10px] font-black text-white uppercase tracking-[0.3em] disabled:opacity-50 shadow-[0_20px_40px_-10px_rgba(99,102,241,0.5)] transition-all hover:-translate-y-1">{isSaving ? 'Saving...' : 'Save Package'}</button>
