@@ -85,11 +85,22 @@ const settingDefaults: {
             placeholder: 'https://yourwebsite.com/api/transactions/bakong-callback',
             hint: 'Copy this URL and set it in your Bakong Dashboard to enable instant delivery.',
         },
+        
+        // ── Public Interface ─────────────────────────────────────────────────────
+        {
+            group: 'Public Interface',
+            key: 'SHOW_RESELLER_CTA',
+            label: 'Show Reseller Partnership Section',
+            type: 'toggle',
+            placeholder: '',
+            hint: 'Toggle visibility of "Become a Partner" section on the landing page',
+        },
     ];
 
 const groupIcons: Record<string, React.ElementType> = {
     'Bakong KHQR': CreditCard,
     'Master Supply': Zap,
+    'Public Interface': Users,
 };
 
 // --- Utils ---

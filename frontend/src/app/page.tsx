@@ -31,16 +31,17 @@ import { scrollToElement } from "@/lib/utils";
 
 export default function Home() {
   const { lang } = useLang();
-  const [systemStatus, setSystemStatus] = useState<{ isReady: boolean; isTestMode: boolean; message: string } | null>(null);
+  const [systemStatus, setSystemStatus] = useState<{ isReady: boolean; isTestMode: boolean; message: string; showResellerCta: boolean } | null>(null);
   const [promotions, setPromotions] = useState<Promotion[]>([]);
 
   // Fetch system health
   useEffect(() => {
-    apiRequest<{ isReady: boolean; isTestMode: boolean; message: string }>('/games/status')
+    apiRequest<{ isReady: boolean; isTestMode: boolean; message: string; showResellerCta: boolean }>('/games/status')
       .then(data => setSystemStatus(data))
       .catch(() => setSystemStatus({
         isReady: false,
         isTestMode: false,
+        showResellerCta: true,
         message: "Connection issues detected. Some services might be limited."
       }));
 
@@ -299,39 +300,41 @@ export default function Home() {
         </section>
 
         {/* ===== RESELLER CTA ===== */}
-        <section className="w-full py-12 px-6 lg:px-16 relative">
-          <div className="mx-auto max-w-7xl animate-in fade-in zoom-in-95 duration-1000">
-            <div className="relative p-12 rounded-[3rem] bg-gradient-to-br from-indigo-900/40 via-slate-950 to-rose-950/20 border border-white/5 overflow-hidden group">
-              {/* Decorative glass orbs */}
-              <div className="absolute -top-24 -right-24 w-64 h-64 bg-indigo-600/10 rounded-full blur-[80px] group-hover:bg-indigo-600/20 transition-all duration-1000" />
-              <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-rose-600/10 rounded-full blur-[80px]" />
-              
-              <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-12 text-center lg:text-left">
-                <div className="space-y-6 max-w-2xl">
-                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-500/10 border border-indigo-500/20 rounded-full">
-                    <Star className="w-4 h-4 text-indigo-400 fill-indigo-400" />
-                    <span className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em] italic">Partnership Opportunity</span>
-                  </div>
-                  <h3 className="text-4xl md:text-5xl font-black text-white italic tracking-tighter uppercase leading-none">
-                    Become a <span className="gradient-text">Partner</span>
-                  </h3>
-                  <p className="text-slate-400 text-base font-medium leading-relaxed">
-                    Have your own website or shop? Use our Reseller API to automate your fulfillment with wholesale pricing. Connect your system to our master provider effortlessly.
-                  </p>
-                </div>
+        {systemStatus?.showResellerCta !== false && (
+          <section className="w-full py-12 px-6 lg:px-16 relative">
+            <div className="mx-auto max-w-7xl animate-in fade-in zoom-in-95 duration-1000">
+              <div className="relative p-12 rounded-[3rem] bg-gradient-to-br from-indigo-900/40 via-slate-950 to-rose-950/20 border border-white/5 overflow-hidden group">
+                {/* Decorative glass orbs */}
+                <div className="absolute -top-24 -right-24 w-64 h-64 bg-indigo-600/10 rounded-full blur-[80px] group-hover:bg-indigo-600/20 transition-all duration-1000" />
+                <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-rose-600/10 rounded-full blur-[80px]" />
                 
-                <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-                  <Link href="/docs" className="px-10 py-5 bg-white text-black text-xs font-black rounded-2xl hover:bg-slate-200 transition-all shadow-xl uppercase tracking-widest text-center">
-                    Read API Docs
-                  </Link>
-                  <a href="https://t.me/your_telegram" target="_blank" className="px-10 py-5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-black rounded-2xl transition-all shadow-xl shadow-indigo-900/20 uppercase tracking-widest text-center border border-indigo-400/20">
-                    Talk to Admin
-                  </a>
+                <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-12 text-center lg:text-left">
+                  <div className="space-y-6 max-w-2xl">
+                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-500/10 border border-indigo-500/20 rounded-full">
+                      <Star className="w-4 h-4 text-indigo-400 fill-indigo-400" />
+                      <span className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em] italic">Partnership Opportunity</span>
+                    </div>
+                    <h3 className="text-4xl md:text-5xl font-black text-white italic tracking-tighter uppercase leading-none">
+                      Become a <span className="gradient-text">Partner</span>
+                    </h3>
+                    <p className="text-slate-400 text-base font-medium leading-relaxed">
+                      Have your own website or shop? Use our Reseller API to automate your fulfillment with wholesale pricing. Connect your system to our master provider effortlessly.
+                    </p>
+                  </div>
+                  
+                  <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+                    <Link href="/docs" className="px-10 py-5 bg-white text-black text-xs font-black rounded-2xl hover:bg-slate-200 transition-all shadow-xl uppercase tracking-widest text-center">
+                      Read API Docs
+                    </Link>
+                    <a href="https://t.me/your_telegram" target="_blank" className="px-10 py-5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-black rounded-2xl transition-all shadow-xl shadow-indigo-900/20 uppercase tracking-widest text-center border border-indigo-400/20">
+                      Talk to Admin
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </section>
+          </section>
+        )}
 
         {/* ===== FOOTER ===== */}
         <footer className="w-full border-t border-[rgba(124,58,237,0.15)] bg-[#05040b] px-6 pt-20 pb-10 lg:px-16 relative overflow-hidden">

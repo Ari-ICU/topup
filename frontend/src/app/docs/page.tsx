@@ -101,16 +101,38 @@ const API_DOCS: ApiCategory[] = [
     auth: "Invitation Only: X-API-Key + X-API-Secret Required",
     endpoints: [
       {
+        method: "GET",
+        path: "/reseller/packages",
+        title: "Sync Product Catalog",
+        description: "Fetch the live list of available packages, including internal package IDs and real-time pricing.",
+        headers: {
+          "X-API-Key": "pk_live_...",
+          "X-API-Secret": "sk_live_..."
+        },
+        response: `{
+  "success": true,
+  "data": [
+    {
+      "id": "pkg_86_ml_12",
+      "name": "86 Diamonds",
+      "game": "Mobile Legends",
+      "price": 1.75,
+      "requiresZone": true
+    }
+  ]
+}`
+      },
+      {
         method: "POST",
         path: "/reseller/order",
         title: "Submit Instant Order",
-        description: "Automated fulfillment for external partners using master balance.",
+        description: "Submit a top-up request. NOTE: Real-time Player ID verification is enforced. Orders for non-existent accounts will be automatically rejected (422).",
         headers: {
           "X-API-Key": "pk_live_...",
           "X-API-Secret": "sk_live_..."
         },
         params: `{
-  "packageId": "pkg_...",
+  "packageId": "pkg_86_ml_12",
   "playerInfo": {
     "playerId": "12345678",
     "zoneId": "2001"
@@ -120,10 +142,10 @@ const API_DOCS: ApiCategory[] = [
   "success": true,
   "message": "Order fulfillment initiated",
   "data": {
-    "orderId": "tx_2026_03_10",
+    "orderId": "tx_2026_03_10_01",
     "status": "COMPLETED",
-    "reference": "TOPUP-99120-X",
-    "executedAt": "2026-03-10T10:20:00Z"
+    "reference": "TOPUP-ML-88120",
+    "playerName": "TheRatha007"
   }
 }`
       }

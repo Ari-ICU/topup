@@ -62,6 +62,11 @@ export default function AdminDashboardPage() {
         globalStockDiamonds: -1,
         recentTransactions: [] as any[],
         chartData: [] as { month: string, topup: number, card: number }[],
+        providerStatus: {
+            activeProvider: 'None',
+            isReady: true,
+            warning: null
+        } as any
     });
     const [isLoading, setIsLoading] = useState(true);
     const [showTransferModal, setShowTransferModal] = useState(false);
@@ -127,22 +132,6 @@ export default function AdminDashboardPage() {
             setIsSubmitting(false);
         }
     };
-
-    // Monthly orders mock (fallback)
-    const monthlyData = [
-        { month: 'Jan', topup: 20, card: 30 },
-        { month: 'Feb', topup: 15, card: 25 },
-        { month: 'Mar', topup: 45, card: 85 },
-        { month: 'Apr', topup: 52, card: 60 },
-        { month: 'May', topup: 48, card: 68 },
-        { month: 'Jun', topup: 45, card: 40 },
-        { month: 'Jul', topup: 55, card: 38 },
-        { month: 'Aug', topup: 50, card: 58 },
-        { month: 'Sep', topup: 22, card: 35 },
-        { month: 'Oct', topup: 42, card: 62 },
-        { month: 'Nov', topup: 40, card: 52 },
-        { month: 'Dec', topup: 55, card: 70 },
-    ];
 
     const currentMonth = new Date().toLocaleString('default', { month: 'long' });
     const currentYear = new Date().getFullYear();
@@ -367,8 +356,12 @@ export default function AdminDashboardPage() {
                             <div className="absolute inset-0 flex items-center justify-center">
                                 <span className="text-[10px] font-black text-indigo-500/50 uppercase tracking-[0.5em] animate-pulse">Syncing Data...</span>
                             </div>
-                        ) : (stats.chartData.length > 0 ? stats.chartData : monthlyData).map((d) => {
-                            const maxVal = Math.max(...(stats.chartData.length > 0 ? stats.chartData : monthlyData).map(m => Math.max(m.topup, m.card, 1)), 10);
+                        ) : stats.chartData.length === 0 ? (
+                            <div className="absolute inset-0 flex items-center justify-center">
+                                <span className="text-[10px] font-black text-slate-700 uppercase tracking-[0.4em]">Waiting for new activity...</span>
+                            </div>
+                        ) : stats.chartData.map((d: any) => {
+                            const maxVal = Math.max(...stats.chartData.map((m: any) => Math.max(m.topup, m.card, 1)), 10);
                             const topupHeight = (d.topup / maxVal) * 85;
                             const cardHeight = (d.card / maxVal) * 85;
 
@@ -430,14 +423,18 @@ export default function AdminDashboardPage() {
                     <div className="mt-auto space-y-4 pt-6 border-t border-white/5">
                         <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Operations Status</h4>
                         <div className="bg-[#0a0a14] rounded-2xl p-4 border border-white/5 flex items-center gap-4">
-                            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center">
-                                <Users className="w-5 h-5 text-emerald-400" />
+                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${stats.providerStatus.activeProvider === 'SupplyEngine' ? 'bg-emerald-500/10' : 'bg-amber-500/10'}`}>
+                                <Users className={`w-5 h-5 ${stats.providerStatus.activeProvider === 'SupplyEngine' ? 'text-emerald-400' : 'text-amber-400'}`} />
                             </div>
                             <div className="flex-1">
-                                <p className="text-[11px] font-black text-white uppercase tracking-wider">System Live</p>
-                                <p className="text-[9px] text-slate-500 font-bold uppercase">All providers active</p>
+                                <p className="text-[11px] font-black text-white uppercase tracking-wider">
+                                    {stats.providerStatus.activeProvider === 'SupplyEngine' ? 'MooGold Active' : 'Manual Mode'}
+                                </p>
+                                <p className="text-[9px] text-slate-500 font-bold uppercase">
+                                    {stats.providerStatus.warning || 'All connections operational'}
+                                </p>
                             </div>
-                            <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981] animate-pulse" />
+                            <div className={`w-2 h-2 rounded-full ${stats.providerStatus.isReady ? 'bg-emerald-500 shadow-[0_0_8px_#10b981]' : 'bg-rose-500 shadow-[0_0_8px_#f43f5e]'} animate-pulse`} />
                         </div>
                     </div>
                 </div>

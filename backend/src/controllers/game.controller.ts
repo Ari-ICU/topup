@@ -21,6 +21,7 @@ export const getSystemStatus = async (req: Request, res: Response) => {
             isReady: status.isReady,
             isTestMode: status.isTestMode,
             warning: status.warning,
+            showResellerCta: status.showResellerCta,
             message: status.isReady
                 ? "System operational"
                 : (status.isTestMode

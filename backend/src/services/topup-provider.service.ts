@@ -30,6 +30,7 @@ export interface ProviderStatus {
     isReady: boolean;
     missingFields: string[];
     warning: string | null;
+    showResellerCta: boolean;
 }
 
 export const getProviderStatus = async (): Promise<ProviderStatus> => {
@@ -47,6 +48,7 @@ export const getProviderStatus = async (): Promise<ProviderStatus> => {
             isReady: true,
             missingFields: [],
             warning: null,
+            showResellerCta: getVal("SHOW_RESELLER_CTA") !== "false", // Default to true if not set
         };
     }
 
@@ -57,6 +59,7 @@ export const getProviderStatus = async (): Promise<ProviderStatus> => {
         isReady: true,
         missingFields: [],
         warning: "ℹ️ Operating in Manual Mode (Local Wallet).",
+        showResellerCta: getVal("SHOW_RESELLER_CTA") !== "false",
     };
 };
 

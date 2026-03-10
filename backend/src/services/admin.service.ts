@@ -3,7 +3,8 @@ import {
     processTopUp,
     getActiveProviderBalance,
     getProviderWalletBalance,
-    getLocalDiamondStock
+    getLocalDiamondStock,
+    getProviderStatus
 } from "./topup-provider.service.js";
 import { deductGlobalStock } from "./transaction.service.js";
 import { invalidateGameCache } from "./game.service.js";
@@ -274,7 +275,8 @@ export const adminService = {
             activeGames: activeGamesCount,
             cardOrders: 0,
             chartData,
-            recentTransactions
+            recentTransactions,
+            providerStatus: await getProviderStatus()
         };
     },
 
