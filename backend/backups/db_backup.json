@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-03-09T08:06:09.463Z",
+  "timestamp": "2026-03-10T04:25:19.991Z",
   "games": [
     {
       "id": "cmmbnr5kc0000s88ca4tnoli1",
@@ -18,18 +18,6 @@
       "sortOrder": 0,
       "packages": [
         {
-          "id": "cmmhk8ab5000hs20i5hol7tz4",
-          "gameId": "cmmbnr5kc0000s88ca4tnoli1",
-          "name": "Mobile Legends - 4649 Diamonds + 883 Bonus",
-          "amount": 4649,
-          "price": "80.74",
-          "providerSku": "5555342",
-          "description": null,
-          "badgeText": null,
-          "isWeeklyPass": false,
-          "sortOrder": 44
-        },
-        {
           "id": "cmmhk8abo000vs20iln37614t",
           "gameId": "cmmbnr5kc0000s88ca4tnoli1",
           "name": "Mobile Legends - 10 + 1 Diamonds",
@@ -42,28 +30,28 @@
           "sortOrder": 1
         },
         {
-          "id": "cmmhk8ab8000js20iwhkylsex",
+          "id": "cmmhk8ac50019s20ibq6osf5f",
           "gameId": "cmmbnr5kc0000s88ca4tnoli1",
-          "name": "Mobile Legends - 3099 Diamonds + 589 Bonus",
-          "amount": 3099,
-          "price": "53.47",
-          "providerSku": "5555343",
+          "name": "Mobile Legends - 1007 + 156 Diamonds",
+          "amount": 156,
+          "price": "18.74",
+          "providerSku": "4700158",
           "description": null,
           "badgeText": null,
           "isWeeklyPass": false,
-          "sortOrder": 42
+          "sortOrder": 35
         },
         {
-          "id": "cmmhk8acq001rs20iq3by9dex",
+          "id": "cmmhk8ac8001bs20igf398ayf",
           "gameId": "cmmbnr5kc0000s88ca4tnoli1",
-          "name": "Mobile Legends - 429 Diamonds",
-          "amount": 429,
-          "price": "8.38",
-          "providerSku": "4690778",
+          "name": "Mobile Legends - 2015 + 383 Diamonds",
+          "amount": 383,
+          "price": "37.49",
+          "providerSku": "4700160",
           "description": null,
           "badgeText": null,
           "isWeeklyPass": false,
-          "sortOrder": 26
+          "sortOrder": 40
         },
         {
           "id": "cmmd2mitr000fp00t5wq7gews",
@@ -186,150 +174,6 @@
           "sortOrder": 46
         },
         {
-          "id": "cmmhk8aba000ls20i55fk42tn",
-          "gameId": "cmmbnr5kc0000s88ca4tnoli1",
-          "name": "Mobile Legends - 1860 Diamonds + 335 Bonus",
-          "amount": 1860,
-          "price": "32.05",
-          "providerSku": "5555344",
-          "description": null,
-          "badgeText": null,
-          "isWeeklyPass": false,
-          "sortOrder": 39
-        },
-        {
-          "id": "cmmhk8abd000ns20if07p7ehw",
-          "gameId": "cmmbnr5kc0000s88ca4tnoli1",
-          "name": "Mobile Legends - 625 Diamonds + 81 Bonus",
-          "amount": 625,
-          "price": "10.59",
-          "providerSku": "5555345",
-          "description": null,
-          "badgeText": null,
-          "isWeeklyPass": false,
-          "sortOrder": 32
-        },
-        {
-          "id": "cmmhk8abg000ps20i7jeemkig",
-          "gameId": "cmmbnr5kc0000s88ca4tnoli1",
-          "name": "Mobile Legends - 234 Diamonds + 23 Bonus",
-          "amount": 234,
-          "price": "3.92",
-          "providerSku": "5555346",
-          "description": null,
-          "badgeText": null,
-          "isWeeklyPass": false,
-          "sortOrder": 20
-        },
-        {
-          "id": "cmmhk8abw0011s20iwwdxup37",
-          "gameId": "cmmbnr5kc0000s88ca4tnoli1",
-          "name": "Mobile Legends - 102 + 10 Diamonds",
-          "amount": 10,
-          "price": "1.88",
-          "providerSku": "4700152",
-          "description": null,
-          "badgeText": null,
-          "isWeeklyPass": false,
-          "sortOrder": 12
-        },
-        {
-          "id": "cmmhk8aby0013s20is569xr4z",
-          "gameId": "cmmbnr5kc0000s88ca4tnoli1",
-          "name": "Mobile Legends - 203 + 20 Diamonds",
-          "amount": 20,
-          "price": "3.75",
-          "providerSku": "4700153",
-          "description": null,
-          "badgeText": null,
-          "isWeeklyPass": false,
-          "sortOrder": 19
-        },
-        {
-          "id": "cmmhk8ac00015s20idc7wfoku",
-          "gameId": "cmmbnr5kc0000s88ca4tnoli1",
-          "name": "Mobile Legends - 303 + 33 Diamonds",
-          "amount": 33,
-          "price": "5.62",
-          "providerSku": "4700155",
-          "description": null,
-          "badgeText": null,
-          "isWeeklyPass": false,
-          "sortOrder": 23
-        },
-        {
-          "id": "cmmhk8ac30017s20ixtsut4eg",
-          "gameId": "cmmbnr5kc0000s88ca4tnoli1",
-          "name": "Mobile Legends - 504 + 66 Diamonds",
-          "amount": 66,
-          "price": "9.37",
-          "providerSku": "4700157",
-          "description": null,
-          "badgeText": null,
-          "isWeeklyPass": false,
-          "sortOrder": 29
-        },
-        {
-          "id": "cmmhk8ac50019s20ibq6osf5f",
-          "gameId": "cmmbnr5kc0000s88ca4tnoli1",
-          "name": "Mobile Legends - 1007 + 156 Diamonds",
-          "amount": 156,
-          "price": "18.74",
-          "providerSku": "4700158",
-          "description": null,
-          "badgeText": null,
-          "isWeeklyPass": false,
-          "sortOrder": 35
-        },
-        {
-          "id": "cmmhk8ac8001bs20igf398ayf",
-          "gameId": "cmmbnr5kc0000s88ca4tnoli1",
-          "name": "Mobile Legends - 2015 + 383 Diamonds",
-          "amount": 383,
-          "price": "37.49",
-          "providerSku": "4700160",
-          "description": null,
-          "badgeText": null,
-          "isWeeklyPass": false,
-          "sortOrder": 40
-        },
-        {
-          "id": "cmmhk8aca001ds20i33u2wclf",
-          "gameId": "cmmbnr5kc0000s88ca4tnoli1",
-          "name": "Mobile Legends - 5035 + 1007 Diamonds",
-          "amount": 1007,
-          "price": "93.71",
-          "providerSku": "4700161",
-          "description": null,
-          "badgeText": null,
-          "isWeeklyPass": false,
-          "sortOrder": 45
-        },
-        {
-          "id": "cmmhk8ach001js20i34bjd9dw",
-          "gameId": "cmmbnr5kc0000s88ca4tnoli1",
-          "name": "Mobile Legends - 70 Diamonds",
-          "amount": 70,
-          "price": "1.39",
-          "providerSku": "4690774",
-          "description": null,
-          "badgeText": null,
-          "isWeeklyPass": false,
-          "sortOrder": 10
-        },
-        {
-          "id": "cmmhk8acj001ls20im05y74xj",
-          "gameId": "cmmbnr5kc0000s88ca4tnoli1",
-          "name": "Mobile Legends - 140 Diamonds",
-          "amount": 140,
-          "price": "2.78",
-          "providerSku": "4690775",
-          "description": null,
-          "badgeText": null,
-          "isWeeklyPass": false,
-          "sortOrder": 17
-        },
-        {
           "id": "cmmhk8acl001ns20innskv3fi",
           "gameId": "cmmbnr5kc0000s88ca4tnoli1",
           "name": "Mobile Legends - 284 Diamonds",
@@ -354,6 +198,18 @@
           "sortOrder": 25
         },
         {
+          "id": "cmmhk8acq001rs20iq3by9dex",
+          "gameId": "cmmbnr5kc0000s88ca4tnoli1",
+          "name": "Mobile Legends - 429 Diamonds",
+          "amount": 429,
+          "price": "8.38",
+          "providerSku": "4690778",
+          "description": null,
+          "badgeText": null,
+          "isWeeklyPass": false,
+          "sortOrder": 26
+        },
+        {
           "id": "cmmhk8act001ts20i30bxstq8",
           "gameId": "cmmbnr5kc0000s88ca4tnoli1",
           "name": "Mobile Legends - 716 Diamonds",
@@ -364,18 +220,6 @@
           "badgeText": null,
           "isWeeklyPass": false,
           "sortOrder": 33
-        },
-        {
-          "id": "cmmhk8acv001vs20i06hkzpm2",
-          "gameId": "cmmbnr5kc0000s88ca4tnoli1",
-          "name": "Mobile Legends - 1446 Diamonds",
-          "amount": 1446,
-          "price": "27.85",
-          "providerSku": "4690780",
-          "description": null,
-          "badgeText": null,
-          "isWeeklyPass": false,
-          "sortOrder": 37
         },
         {
           "id": "cmmhk8acx001xs20ibr9iuuo5",
@@ -498,6 +342,66 @@
           "sortOrder": 47
         },
         {
+          "id": "cmmhk8ab5000hs20i5hol7tz4",
+          "gameId": "cmmbnr5kc0000s88ca4tnoli1",
+          "name": "Mobile Legends - 4649 Diamonds + 883 Bonus",
+          "amount": 4649,
+          "price": "80.74",
+          "providerSku": "5555342",
+          "description": null,
+          "badgeText": null,
+          "isWeeklyPass": false,
+          "sortOrder": 44
+        },
+        {
+          "id": "cmmhk8ab8000js20iwhkylsex",
+          "gameId": "cmmbnr5kc0000s88ca4tnoli1",
+          "name": "Mobile Legends - 3099 Diamonds + 589 Bonus",
+          "amount": 3099,
+          "price": "53.47",
+          "providerSku": "5555343",
+          "description": null,
+          "badgeText": null,
+          "isWeeklyPass": false,
+          "sortOrder": 42
+        },
+        {
+          "id": "cmmhk8aba000ls20i55fk42tn",
+          "gameId": "cmmbnr5kc0000s88ca4tnoli1",
+          "name": "Mobile Legends - 1860 Diamonds + 335 Bonus",
+          "amount": 1860,
+          "price": "32.05",
+          "providerSku": "5555344",
+          "description": null,
+          "badgeText": null,
+          "isWeeklyPass": false,
+          "sortOrder": 39
+        },
+        {
+          "id": "cmmhk8abd000ns20if07p7ehw",
+          "gameId": "cmmbnr5kc0000s88ca4tnoli1",
+          "name": "Mobile Legends - 625 Diamonds + 81 Bonus",
+          "amount": 625,
+          "price": "10.59",
+          "providerSku": "5555345",
+          "description": null,
+          "badgeText": null,
+          "isWeeklyPass": false,
+          "sortOrder": 32
+        },
+        {
+          "id": "cmmhk8abg000ps20i7jeemkig",
+          "gameId": "cmmbnr5kc0000s88ca4tnoli1",
+          "name": "Mobile Legends - 234 Diamonds + 23 Bonus",
+          "amount": 234,
+          "price": "3.92",
+          "providerSku": "5555346",
+          "description": null,
+          "badgeText": null,
+          "isWeeklyPass": false,
+          "sortOrder": 20
+        },
+        {
           "id": "cmmhk8abj000rs20i678had8x",
           "gameId": "cmmbnr5kc0000s88ca4tnoli1",
           "name": "Mobile Legends - 156 Diamonds + 16 Bonus",
@@ -508,6 +412,102 @@
           "badgeText": null,
           "isWeeklyPass": false,
           "sortOrder": 16
+        },
+        {
+          "id": "cmmhk8abw0011s20iwwdxup37",
+          "gameId": "cmmbnr5kc0000s88ca4tnoli1",
+          "name": "Mobile Legends - 102 + 10 Diamonds",
+          "amount": 10,
+          "price": "1.88",
+          "providerSku": "4700152",
+          "description": null,
+          "badgeText": null,
+          "isWeeklyPass": false,
+          "sortOrder": 12
+        },
+        {
+          "id": "cmmhk8aby0013s20is569xr4z",
+          "gameId": "cmmbnr5kc0000s88ca4tnoli1",
+          "name": "Mobile Legends - 203 + 20 Diamonds",
+          "amount": 20,
+          "price": "3.75",
+          "providerSku": "4700153",
+          "description": null,
+          "badgeText": null,
+          "isWeeklyPass": false,
+          "sortOrder": 19
+        },
+        {
+          "id": "cmmhk8ac00015s20idc7wfoku",
+          "gameId": "cmmbnr5kc0000s88ca4tnoli1",
+          "name": "Mobile Legends - 303 + 33 Diamonds",
+          "amount": 33,
+          "price": "5.62",
+          "providerSku": "4700155",
+          "description": null,
+          "badgeText": null,
+          "isWeeklyPass": false,
+          "sortOrder": 23
+        },
+        {
+          "id": "cmmhk8ac30017s20ixtsut4eg",
+          "gameId": "cmmbnr5kc0000s88ca4tnoli1",
+          "name": "Mobile Legends - 504 + 66 Diamonds",
+          "amount": 66,
+          "price": "9.37",
+          "providerSku": "4700157",
+          "description": null,
+          "badgeText": null,
+          "isWeeklyPass": false,
+          "sortOrder": 29
+        },
+        {
+          "id": "cmmhk8aca001ds20i33u2wclf",
+          "gameId": "cmmbnr5kc0000s88ca4tnoli1",
+          "name": "Mobile Legends - 5035 + 1007 Diamonds",
+          "amount": 1007,
+          "price": "93.71",
+          "providerSku": "4700161",
+          "description": null,
+          "badgeText": null,
+          "isWeeklyPass": false,
+          "sortOrder": 45
+        },
+        {
+          "id": "cmmhk8ach001js20i34bjd9dw",
+          "gameId": "cmmbnr5kc0000s88ca4tnoli1",
+          "name": "Mobile Legends - 70 Diamonds",
+          "amount": 70,
+          "price": "1.39",
+          "providerSku": "4690774",
+          "description": null,
+          "badgeText": null,
+          "isWeeklyPass": false,
+          "sortOrder": 10
+        },
+        {
+          "id": "cmmhk8acj001ls20im05y74xj",
+          "gameId": "cmmbnr5kc0000s88ca4tnoli1",
+          "name": "Mobile Legends - 140 Diamonds",
+          "amount": 140,
+          "price": "2.78",
+          "providerSku": "4690775",
+          "description": null,
+          "badgeText": null,
+          "isWeeklyPass": false,
+          "sortOrder": 17
+        },
+        {
+          "id": "cmmhk8acv001vs20i06hkzpm2",
+          "gameId": "cmmbnr5kc0000s88ca4tnoli1",
+          "name": "Mobile Legends - 1446 Diamonds",
+          "amount": 1446,
+          "price": "27.85",
+          "providerSku": "4690780",
+          "description": null,
+          "badgeText": null,
+          "isWeeklyPass": false,
+          "sortOrder": 37
         },
         {
           "id": "cmmhk8aa10001s20ipavamelg",
@@ -556,18 +556,6 @@
           "badgeText": "",
           "isWeeklyPass": false,
           "sortOrder": 9
-        },
-        {
-          "id": "cmmd2mm8l000jp00tvucapgzl",
-          "gameId": "cmmbnr5kc0000s88ca4tnoli1",
-          "name": "(Archived) (Archived) (Archived) Weekly Pass x2 (Copy) (Copy) (Copy) (Copy)",
-          "amount": 1000,
-          "price": "2957.98",
-          "providerSku": "ARCHIVED_1772963791290_ARCHIVED_1772963772653_ARCHIVED_1772963135733_MLBB_WEEKLY_PASS_x2",
-          "description": "",
-          "badgeText": null,
-          "isWeeklyPass": false,
-          "sortOrder": 9999
         },
         {
           "id": "cmmhk8aac0003s20ilw1tay8t",
@@ -628,114 +616,132 @@
           "badgeText": null,
           "isWeeklyPass": false,
           "sortOrder": 5
+        },
+        {
+          "id": "cmmd2mm8l000jp00tvucapgzl",
+          "gameId": "cmmbnr5kc0000s88ca4tnoli1",
+          "name": "(Archived) (Archived) (Archived) Weekly Pass x2 (Copy) (Copy) (Copy) (Copy)",
+          "amount": 1000,
+          "price": "2957.98",
+          "providerSku": "ARCHIVED_1772963791290_ARCHIVED_1772963772653_ARCHIVED_1772963135733_MLBB_WEEKLY_PASS_x2",
+          "description": "",
+          "badgeText": null,
+          "isWeeklyPass": false,
+          "sortOrder": 9999
         }
       ]
     }
   ],
   "settings": [
     {
-      "id": "cmmhajat7000as20ohenlo3ft",
-      "key": "BAKONG_MERCHANT_NAME",
-      "value": "Dai Game Store",
-      "updatedAt": "2026-03-09T07:36:50.038Z"
-    },
-    {
-      "id": "cmmhajat7000bs20o5cmscts5",
-      "key": "BAKONG_MERCHANT_CITY",
-      "value": "Kompong Cham",
-      "updatedAt": "2026-03-09T07:36:50.038Z"
-    },
-    {
-      "id": "cmmhe8qyh000es20ih4hwksmr",
-      "key": "MOOGOLD_MARGIN",
-      "value": "1.10",
-      "updatedAt": "2026-03-09T07:36:50.038Z"
-    },
-    {
-      "id": "cmmbp7lvv0000s8i2crd53ea3",
-      "key": "MOOGOLD_PARTNER_ID",
-      "value": "8994fa730cf75eb151e8f5a2d1ca1e0e",
-      "updatedAt": "2026-03-09T07:36:50.038Z"
-    },
-    {
-      "id": "cmmbxo5w80006s8xquso8fsbi",
-      "key": "MOOGOLD_SECRET_KEY",
-      "value": "hL2fDL0vNl",
-      "updatedAt": "2026-03-09T07:36:50.038Z"
-    },
-    {
-      "id": "cmmhl8g7p000ds20h798sucx1",
-      "key": "BAKONG_API_TOKEN",
-      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjoiN2Y2MWZhOGNmYzNkNGMwMCJ9LCJpYXQiOjE3NzI5NjQzNzIsImV4cCI6MTc4MDc0MDM3Mn0.4Vwr76wu4P08kAj9FOXWGuE-vW9Y2fR5AFf4USJcejI",
-      "updatedAt": "2026-03-09T07:36:50.038Z"
-    },
-    {
-      "id": "cmmiva8e8000emuevem7pq97i",
-      "key": "ENABLE_MOOGOLD",
-      "value": "false",
-      "updatedAt": "2026-03-09T07:36:50.038Z"
-    },
-    {
-      "id": "cmmivbce0000umuevweo1cpkx",
-      "key": "ENABLE_FRIEND_SUPPLIER",
-      "value": "true",
-      "updatedAt": "2026-03-09T07:36:50.038Z"
-    },
-    {
-      "id": "cmmbp7lvw0002s8i2avw9vbk5",
-      "key": "FRIEND_SUPPLIER_SECRET",
-      "value": "k4jsI9ueR0QtuUcrCiYHFzKUnjOKzodKPDGGvqgbUb4l0a4ZCfuslMGXz0GIFa6s",
-      "updatedAt": "2026-03-09T07:44:40.877Z"
-    },
-    {
-      "id": "cmmbsnoaj0001s8m13qz8vny8",
-      "key": "FRIEND_SUPPLIER_CALLBACK_URL",
-      "value": "http://localhost:4000/api/supplier/fulfill",
-      "updatedAt": "2026-03-09T07:44:40.877Z"
-    },
-    {
-      "id": "cmmbp7lvw0001s8i2ltaave4r",
-      "key": "MOOGOLD_API_KEY",
-      "value": "",
-      "updatedAt": "2026-03-09T07:36:50.038Z"
-    },
-    {
-      "id": "cmmbx5in20004s8v4gt02hcc0",
-      "key": "SMILE_ONE_SID",
-      "value": "12345",
-      "updatedAt": "2026-03-09T07:36:50.038Z"
-    },
-    {
-      "id": "cmmbx5in20005s8v4xllb6kr7",
-      "key": "SMILE_ONE_SECRET",
-      "value": "test-secret",
-      "updatedAt": "2026-03-09T07:36:50.038Z"
-    },
-    {
-      "id": "cmmctqyl80000s88qnvb5s62b",
+      "id": "cmmk14zk80000mubannoufl13",
       "key": "API_PUBLIC_KEY",
-      "value": "pk_40167ff9527f50ba217b57001707d376627de9a8f8710962",
-      "updatedAt": "2026-03-09T07:36:50.038Z"
+      "value": "pk_3fa4ca0908eeae4578bbdfb7600fe49c2a4c1fd5efbfc0d5",
+      "updatedAt": "2026-03-10T03:55:04.878Z"
     },
     {
-      "id": "cmmctqyl80001s88q0qor3qvf",
+      "id": "cmmk2xrqv0000mulr9b4n074t",
+      "key": "API_USER_ID",
+      "value": "987340",
+      "updatedAt": "2026-03-10T03:57:59.863Z"
+    },
+    {
+      "id": "cmmk2xrqv0001mulrfcqnwkqn",
+      "key": "API_PARTNER_ID",
+      "value": "7d968ec667cd2cf19254f42c5903b067",
+      "updatedAt": "2026-03-10T03:57:59.863Z"
+    },
+    {
+      "id": "cmmk14zk80001mubawc8awk46",
       "key": "API_SECRET_KEY",
-      "value": "sk_a2e90782c519dc41d6ef8469331ac6345eff5fd4a0f67a15798daa1bb48c688e",
-      "updatedAt": "2026-03-09T07:36:50.038Z"
+      "value": "tZvfRMJqKO",
+      "updatedAt": "2026-03-10T03:57:59.863Z"
     },
     {
       "id": "cmmhajat70009s20o2ngkncbi",
       "key": "BAKONG_ACCOUNT_ID",
       "value": "thoeurn_ratha@bkrt",
-      "updatedAt": "2026-03-09T07:36:50.038Z"
+      "updatedAt": "2026-03-10T03:02:58.555Z"
+    },
+    {
+      "id": "cmmhajat7000as20ohenlo3ft",
+      "key": "BAKONG_MERCHANT_NAME",
+      "value": "Dai Game Store",
+      "updatedAt": "2026-03-10T03:02:58.555Z"
+    },
+    {
+      "id": "cmmhajat7000bs20o5cmscts5",
+      "key": "BAKONG_MERCHANT_CITY",
+      "value": "Kompong Cham",
+      "updatedAt": "2026-03-10T03:02:58.555Z"
+    },
+    {
+      "id": "cmmhe8qyh000es20ih4hwksmr",
+      "key": "MOOGOLD_MARGIN",
+      "value": "1.10",
+      "updatedAt": "2026-03-10T03:02:58.555Z"
+    },
+    {
+      "id": "cmmbp7lvv0000s8i2crd53ea3",
+      "key": "MOOGOLD_PARTNER_ID",
+      "value": "8994fa730cf75eb151e8f5a2d1ca1e0e",
+      "updatedAt": "2026-03-10T03:02:58.555Z"
+    },
+    {
+      "id": "cmmbxo5w80006s8xquso8fsbi",
+      "key": "MOOGOLD_SECRET_KEY",
+      "value": "hL2fDL0vNl",
+      "updatedAt": "2026-03-10T03:02:58.555Z"
+    },
+    {
+      "id": "cmmhl8g7p000ds20h798sucx1",
+      "key": "BAKONG_API_TOKEN",
+      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjoiN2Y2MWZhOGNmYzNkNGMwMCJ9LCJpYXQiOjE3NzI5NjQzNzIsImV4cCI6MTc4MDc0MDM3Mn0.4Vwr76wu4P08kAj9FOXWGuE-vW9Y2fR5AFf4USJcejI",
+      "updatedAt": "2026-03-10T03:02:58.555Z"
+    },
+    {
+      "id": "cmmiva8e8000emuevem7pq97i",
+      "key": "ENABLE_MOOGOLD",
+      "value": "false",
+      "updatedAt": "2026-03-10T03:02:58.555Z"
+    },
+    {
+      "id": "cmmivbce0000umuevweo1cpkx",
+      "key": "ENABLE_FRIEND_SUPPLIER",
+      "value": "true",
+      "updatedAt": "2026-03-10T03:02:58.555Z"
+    },
+    {
+      "id": "cmmbsnoaj0001s8m13qz8vny8",
+      "key": "FRIEND_SUPPLIER_CALLBACK_URL",
+      "value": "http://localhost:4000/api/supplier/fulfill",
+      "updatedAt": "2026-03-10T03:02:58.555Z"
+    },
+    {
+      "id": "cmmbp7lvw0001s8i2ltaave4r",
+      "key": "MOOGOLD_API_KEY",
+      "value": "",
+      "updatedAt": "2026-03-10T03:02:58.555Z"
+    },
+    {
+      "id": "cmmbx5in20004s8v4gt02hcc0",
+      "key": "SMILE_ONE_SID",
+      "value": "12345",
+      "updatedAt": "2026-03-10T03:02:58.555Z"
+    },
+    {
+      "id": "cmmbx5in20005s8v4xllb6kr7",
+      "key": "SMILE_ONE_SECRET",
+      "value": "test-secret",
+      "updatedAt": "2026-03-10T03:02:58.555Z"
     }
   ],
   "globalStock": {
     "id": "GLOBAL",
-    "diamonds": 3771,
-    "providerBalance": "2974.4",
-    "totalTransferredRevenue": "2974.4",
-    "updatedAt": "2026-03-09T08:06:09.454Z"
+    "diamonds": 3744,
+    "providerBalance": "3026.4",
+    "totalTransferredRevenue": "3026.4",
+    "updatedAt": "2026-03-10T04:25:19.984Z"
   },
   "users": [],
   "promotions": [],
@@ -1110,6 +1116,118 @@
       "totalAmount": "0.1",
       "createdAt": "2026-03-09T07:19:06.309Z",
       "updatedAt": "2026-03-09T08:06:09.447Z"
+    },
+    {
+      "id": "cmmk3tdkg0003mu0ttj8j2psi",
+      "userId": null,
+      "packageId": "cmmhk8ad60025s20i5jshl674",
+      "status": "COMPLETED",
+      "paymentMethod": "RESELLER_API",
+      "paymentRef": null,
+      "providerRef": "MANUAL-cmmk3tdkg0003mu0ttj8j2psi",
+      "playerInfo": {
+        "zoneId": "2001",
+        "playerId": "12345678"
+      },
+      "totalAmount": "0.1",
+      "createdAt": "2026-03-10T04:22:34.480Z",
+      "updatedAt": "2026-03-10T04:22:34.488Z"
+    },
+    {
+      "id": "cmmk3j21u0001mu1ol688spde",
+      "userId": null,
+      "packageId": "cmmhk8abo000vs20iln37614t",
+      "status": "COMPLETED",
+      "paymentMethod": "RESELLER_API",
+      "paymentRef": null,
+      "providerRef": "MANUAL-cmmk3j21u0001mu1ol688spde",
+      "playerInfo": {
+        "zoneId": "2001",
+        "playerId": "12345678"
+      },
+      "totalAmount": "0.19",
+      "createdAt": "2026-03-10T04:14:32.994Z",
+      "updatedAt": "2026-03-10T04:14:33.003Z"
+    },
+    {
+      "id": "cmmk3prj40001mu2qi0rugtc0",
+      "userId": null,
+      "packageId": "cmmhk8ad60025s20i5jshl674",
+      "status": "COMPLETED",
+      "paymentMethod": "RESELLER_API",
+      "paymentRef": null,
+      "providerRef": "MANUAL-cmmk3prj40001mu2qi0rugtc0",
+      "playerInfo": {
+        "zoneId": "12276",
+        "playerId": "822103845"
+      },
+      "totalAmount": "0.1",
+      "createdAt": "2026-03-10T04:19:45.952Z",
+      "updatedAt": "2026-03-10T04:19:45.961Z"
+    },
+    {
+      "id": "cmmk3j22u0003mu1oa50rcum6",
+      "userId": null,
+      "packageId": "cmmhk8abo000vs20iln37614t",
+      "status": "COMPLETED",
+      "paymentMethod": "RESELLER_API",
+      "paymentRef": null,
+      "providerRef": "MANUAL-cmmk3j22u0003mu1oa50rcum6",
+      "playerInfo": {
+        "zoneId": "2001",
+        "playerId": "12345678"
+      },
+      "totalAmount": "0.19",
+      "createdAt": "2026-03-10T04:14:33.031Z",
+      "updatedAt": "2026-03-10T04:14:33.034Z"
+    },
+    {
+      "id": "cmmk3qbxo0001mu0ty7s11l7w",
+      "userId": null,
+      "packageId": "cmmhk8ad60025s20i5jshl674",
+      "status": "COMPLETED",
+      "paymentMethod": "RESELLER_API",
+      "paymentRef": null,
+      "providerRef": "MANUAL-cmmk3qbxo0001mu0ty7s11l7w",
+      "playerInfo": {
+        "zoneId": "12276",
+        "playerId": "822103845"
+      },
+      "totalAmount": "0.1",
+      "createdAt": "2026-03-10T04:20:12.397Z",
+      "updatedAt": "2026-03-10T04:20:12.402Z"
+    },
+    {
+      "id": "cmmk3tqk70005mu0tdhqso4il",
+      "userId": null,
+      "packageId": "cmmhk8ad60025s20i5jshl674",
+      "status": "COMPLETED",
+      "paymentMethod": "RESELLER_API",
+      "paymentRef": null,
+      "providerRef": "MANUAL-cmmk3tqk70005mu0tdhqso4il",
+      "playerInfo": {
+        "zoneId": "2001",
+        "playerId": "12345678"
+      },
+      "totalAmount": "0.1",
+      "createdAt": "2026-03-10T04:22:51.319Z",
+      "updatedAt": "2026-03-10T04:22:51.329Z"
+    },
+    {
+      "id": "cmmk3wx9h0001mu0tsyw7v5v6",
+      "userId": null,
+      "packageId": "cmmhk8ad60025s20i5jshl674",
+      "status": "COMPLETED",
+      "paymentMethod": "RESELLER_API",
+      "paymentRef": null,
+      "providerRef": "MANUAL-cmmk3wx9h0001mu0tsyw7v5v6",
+      "playerInfo": {
+        "zoneId": "2001",
+        "playerId": "12345678"
+      },
+      "totalAmount": "0.1",
+      "createdAt": "2026-03-10T04:25:19.973Z",
+      "updatedAt": "2026-03-10T04:25:19.980Z"
     }
   ]
 }

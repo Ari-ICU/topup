@@ -582,35 +582,56 @@ export const adminService = {
     getApiKeys: async () => {
         const settings = await prisma.systemSetting.findMany({
             where: {
-                key: { in: ['API_PUBLIC_KEY', 'API_SECRET_KEY'] }
+                key: { in: ['API_USER_ID', 'API_PARTNER_ID', 'API_SECRET_KEY'] }
             }
         });
 
-        const publicKey = settings.find(s => s.key === 'API_PUBLIC_KEY')?.value || "";
+        const userId = settings.find(s => s.key === 'API_USER_ID')?.value || "000000";
+        const partnerId = settings.find(s => s.key === 'API_PARTNER_ID')?.value || "";
         const secretKey = settings.find(s => s.key === 'API_SECRET_KEY')?.value || "";
 
         // Mask internal secret key for dashboard display
-        const maskedSecret = secretKey.length > 10
-            ? `${secretKey.substring(0, 7)}${'.'.repeat(20)}${secretKey.substring(secretKey.length - 7)}`
+        const maskedSecret = secretKey.length > 4
+            ? `${secretKey.substring(0, 3)}**********`
             : secretKey;
 
         return {
-            publicKey,
+            userId,
+            publicKey: partnerId, // keeping publicKey mapping for compatibility
+            partnerId,
             secretKey: maskedSecret,
-            fullSecretKey: secretKey // Internal use if needed
+            fullSecretKey: secretKey
         };
     },
 
-    generateApiKeys: async () => {
+    generateApiKeys: async (data?: { customSecret?: string }) => {
         const { randomBytes } = await import('node:crypto');
-        const publicKey = `pk_${randomBytes(24).toString('hex')}`;
-        const secretKey = `sk_${randomBytes(32).toString('hex')}`;
+        
+        // Generate values like MooGold
+        const userId = (Math.floor(Math.random() * 900000) + 100000).toString(); // 6-digit number
+        const partnerId = randomBytes(16).toString('hex'); // 32-char hex
+        
+        let secretKey = data?.customSecret;
+
+        if (!secretKey) {
+            // Alphanumeric secret like 'hL2fDL0vNI'
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            secretKey = '';
+            for (let i = 0; i < 10; i++) {
+                secretKey += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+        }
 
         await prisma.$transaction([
             prisma.systemSetting.upsert({
-                where: { key: 'API_PUBLIC_KEY' },
-                update: { value: publicKey },
-                create: { key: 'API_PUBLIC_KEY', value: publicKey }
+                where: { key: 'API_USER_ID' },
+                update: { value: userId },
+                create: { key: 'API_USER_ID', value: userId }
+            }),
+            prisma.systemSetting.upsert({
+                where: { key: 'API_PARTNER_ID' },
+                update: { value: partnerId },
+                create: { key: 'API_PARTNER_ID', value: partnerId }
             }),
             prisma.systemSetting.upsert({
                 where: { key: 'API_SECRET_KEY' },
@@ -619,7 +640,60 @@ export const adminService = {
             })
         ]);
 
-        return { publicKey, secretKey };
+        const maskedSecret = secretKey.length > 4
+            ? `${secretKey.substring(0, 3)}**********`
+            : secretKey;
+
+        return { userId, partnerId, secretKey: maskedSecret, fullSecretKey: secretKey, publicKey: partnerId };
+    },
+
+    // --- Reseller Management ---
+    getAllResellers: async () => {
+        const resellers = await prisma.reseller.findMany({
+            orderBy: { createdAt: 'desc' }
+        });
+
+        return resellers.map(r => ({
+            ...r,
+            secretKey: `${r.secretKey.substring(0, 3)}**********`,
+            fullSecretKey: r.secretKey
+        }));
+    },
+
+    createReseller: async (data: { email: string; name?: string }) => {
+        const { randomBytes } = await import('node:crypto');
+
+        // Generate values like MooGold
+        const userId = (Math.floor(Math.random() * 900000) + 100000).toString(); // 6-digit number
+        const partnerId = randomBytes(16).toString('hex'); // 32-char hex
+
+        // Alphanumeric secret like 'hL2fDL0vNI'
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        let secretKey = '';
+        for (let i = 0; i < 10; i++) {
+            secretKey += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+
+        const reseller = await prisma.reseller.create({
+            data: {
+                email: data.email,
+                name: data.name,
+                userId,
+                partnerId,
+                secretKey,
+            }
+        });
+
+        return {
+            ...reseller,
+            fullSecretKey: secretKey
+        };
+    },
+
+    deleteReseller: async (id: string) => {
+        return prisma.reseller.delete({
+            where: { id }
+        });
     },
 
     // --- Promotions ---

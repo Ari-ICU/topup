@@ -235,3 +235,65 @@ export const getSupplyBalance = async (): Promise<number> => {
         return 0;
     }
 };
+// Verify Player Account via Master Supply
+export const verifySupplyAccount = async (data: {
+    productId: string | number;
+    playerId: string;
+    zoneId?: string;
+}): Promise<{ verified: boolean | null; playerName?: string }> => {
+    const settings = await getSystemSettings();
+    const partnerId = settings.get("MOOGOLD_PARTNER_ID");
+    const secretKey = settings.get("MOOGOLD_SECRET_KEY");
+
+    if (!partnerId || !secretKey) return { verified: null };
+
+    try {
+        const timestamp = Math.floor(Date.now() / 1000).toString();
+        const path = "product/verify_product";
+
+        const payloadObj = {
+            path,
+            product_id: data.productId.toString(),
+            "User ID": data.playerId,
+            "Zone ID": data.zoneId || "",
+            // Some products use different labels
+            "Player ID": data.playerId,
+            "Character ID": data.playerId,
+        };
+
+        const payloadStr = JSON.stringify(payloadObj);
+        const signatureString = payloadStr + timestamp + path;
+
+        const authSignature = crypto.createHmac("sha256", secretKey).update(signatureString).digest("hex");
+        const authHeader = "Basic " + Buffer.from(`${partnerId}:${secretKey}`).toString("base64");
+
+        const response = await axios.post("https://moogold.com/wp-json/v1/api/product/verify_product", payloadObj, {
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": authHeader,
+                "auth": authSignature,
+                "timestamp": timestamp,
+                "User-Agent": "MooGold-Node-Integration"
+            },
+            timeout: 10000,
+            validateStatus: () => true
+        });
+
+        if (response.status === 200) {
+            if (response.data?.status === "success") {
+                const nickname = response.data?.nickname || response.data?.username;
+                return { verified: true, playerName: nickname };
+            }
+            // Definitive failure (e.g. status: "error" with "User ID not found")
+            if (response.data?.status === "error") {
+                return { verified: false };
+            }
+        }
+
+        return { verified: null }; // Connection or other error
+    } catch (error: any) {
+        console.error("[Supply] Verification request failed:", error.message);
+        return { verified: null };
+    }
+};

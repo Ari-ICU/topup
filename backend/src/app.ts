@@ -53,6 +53,8 @@ app.use(
             "X-Audit-Key",
             "X-Requested-With",
             "Accept",
+            "X-API-Key",
+            "X-API-Secret",
         ],
         credentials: true,
         maxAge: 86400,

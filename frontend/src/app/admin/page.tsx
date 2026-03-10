@@ -252,6 +252,88 @@ export default function AdminDashboardPage() {
                 </div>
             </div>
 
+            {/* ── Recent Activity ────────────────────────────────────────────── */}
+            <div className="bg-[#12111d] rounded-[3rem] border border-white/5 p-8 relative overflow-hidden group">
+                <div className="flex items-center justify-between mb-8">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 bg-indigo-500/10 rounded-lg">
+                            <Clock className="w-5 h-5 text-indigo-400" />
+                        </div>
+                        <h3 className="text-xl font-black text-white italic uppercase tracking-tighter">Recent Activity</h3>
+                    </div>
+                </div>
+
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                        <thead>
+                            <tr className="border-b border-white/5 text-slate-500">
+                                <th className="pb-4 text-[9px] font-black uppercase tracking-widest pl-2">Game</th>
+                                <th className="pb-4 text-[9px] font-black uppercase tracking-widest">Player</th>
+                                <th className="pb-4 text-[9px] font-black uppercase tracking-widest">Amount</th>
+                                <th className="pb-4 text-[9px] font-black uppercase tracking-widest">Status</th>
+                                <th className="pb-4 text-[9px] font-black uppercase tracking-widest text-right pr-2">Date</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-white/[0.03]">
+                            {stats.recentTransactions.length === 0 ? (
+                                <tr>
+                                    <td colSpan={5} className="py-12 text-center text-slate-600 font-bold text-[10px] uppercase tracking-widest">
+                                        No recent transactions found
+                                    </td>
+                                </tr>
+                            ) : (
+                                stats.recentTransactions.map((tx: any) => (
+                                    <tr key={tx.id} className="group/row hover:bg-white/[0.02] transition-colors">
+                                        <td className="py-4 pl-2">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 rounded-xl bg-white/5 p-1 border border-white/5 overflow-hidden">
+                                                    <img 
+                                                        src={tx.package?.game?.iconUrl || '/assets/placeholder-icon.png'} 
+                                                        alt="game" 
+                                                        className="w-full h-full object-cover rounded-lg"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <p className="text-[11px] font-black text-white uppercase tracking-tighter">{tx.package?.game?.name || 'Unknown'}</p>
+                                                    <p className="text-[8px] font-bold text-slate-600 uppercase tracking-widest">{tx.package?.name || 'N/A'}</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="py-4">
+                                            <p className="text-[11px] font-mono font-bold text-slate-300">
+                                                {tx.playerInfo?.playerId || tx.playerInfo?.userId || 'GUEST'}
+                                            </p>
+                                        </td>
+                                        <td className="py-4">
+                                            <p className="text-[11px] font-black text-white italic">${Number(tx.totalAmount).toFixed(2)}</p>
+                                        </td>
+                                        <td className="py-4">
+                                            <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${
+                                                tx.status === 'COMPLETED' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
+                                                tx.status === 'PENDING' ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20' :
+                                                'bg-rose-500/10 text-rose-400 border border-rose-500/20'
+                                            }`}>
+                                                <div className={`w-1 h-1 rounded-full ${
+                                                    tx.status === 'COMPLETED' ? 'bg-emerald-400' :
+                                                    tx.status === 'PENDING' ? 'bg-amber-400' :
+                                                    'bg-rose-400'
+                                                }`} />
+                                                {tx.status}
+                                            </div>
+                                        </td>
+                                        <td className="py-4 text-right pr-2">
+                                            <p className="text-[9px] font-bold text-slate-500 uppercase">
+                                                {new Date(tx.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                            </p>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
             {/* ── Analytics Section ────────────────────────────────────────── */}
             <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 p-2">
                 {/* Advanced Chart Card */}

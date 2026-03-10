@@ -264,8 +264,38 @@ export const getApiKeys = async (req: Request, res: Response) => {
 
 export const generateApiKeys = async (req: Request, res: Response) => {
     try {
-        const data = await adminService.generateApiKeys();
+        const data = await adminService.generateApiKeys(req.body);
         res.json({ success: true, data });
+    } catch (error: any) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// Resellers
+export const getResellers = async (req: Request, res: Response) => {
+    try {
+        const data = await adminService.getAllResellers();
+        res.json({ success: true, data });
+    } catch (error: any) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+export const createReseller = async (req: Request, res: Response) => {
+    try {
+        const { email, name } = req.body;
+        if (!email) return res.status(400).json({ success: false, message: "Email is required" });
+        const data = await adminService.createReseller({ email, name });
+        res.status(201).json({ success: true, data });
+    } catch (error: any) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+export const deleteReseller = async (req: Request, res: Response) => {
+    try {
+        await adminService.deleteReseller(req.params.id);
+        res.json({ success: true, message: "Reseller removed successfully" });
     } catch (error: any) {
         res.status(500).json({ success: false, message: error.message });
     }

@@ -96,3 +96,15 @@ enum TransactionStatus {
   FAILED
   EXPIRED
 }
+
+model Reseller {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  userId    String   @unique
+  partnerId String   @unique
+  secretKey String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

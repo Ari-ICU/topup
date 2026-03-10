@@ -159,7 +159,8 @@ function formatValidate(gameSlug: string, userId: string, zoneId?: string): Veri
 export async function verifyGameAccount(
     gameSlug: string,
     userId: string,
-    zoneId?: string
+    zoneId?: string,
+    productId?: string // Optional MooGold Variation ID for more accurate verification
 ): Promise<VerifyResult> {
     // Normalize slug
     let slug = gameSlug.toLowerCase().trim().replace(/-+$/, "");
@@ -172,14 +173,42 @@ export async function verifyGameAccount(
     if (slug === "cod") slug = "call-of-duty";
     if (slug === "codm") slug = "call-of-duty";
 
-    // Priority 1: Live lookup
+    // Priority 1: Live lookup (API)
     const live = await liveVerify(slug, userId, zoneId);
     if (live !== null) return live;
 
-    // Priority 2: Provider API
+    // Priority 2: Provider API (MooGold)
+    if (productId) {
+        try {
+            const { verifySupplyAccount } = await import("./supply.service.js");
+            const moo = await verifySupplyAccount({
+                productId,
+                playerId: userId,
+                zoneId
+            });
+
+            if (moo.verified === true) {
+                return {
+                    verified: true,
+                    playerName: moo.playerName || "User Verified",
+                    formatValid: true
+                };
+            } else if (moo.verified === false) {
+                return { 
+                    verified: false, 
+                    formatValid: false, 
+                    reason: "The provider confirmed this account does not exist." 
+                };
+            }
+        } catch (err) {
+            console.warn("[verify.service] MooGold verification error:", err);
+        }
+    }
+
+    // Priority 3: Legacy Provider API
     const provider = await providerVerify(slug, userId, zoneId);
     if (provider !== null) return provider;
 
-    // Priority 3: Format validation
+    // Priority 4: Format validation (Regex)
     return formatValidate(slug, userId, zoneId);
 }

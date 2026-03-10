@@ -88,17 +88,33 @@ export const resellerAuth = async (req: Request, res: Response, next: NextFuncti
 
     try {
         const { adminService } = await import("../services/admin.service.js");
-        const keys = await adminService.getApiKeys();
+        const { prisma } = await import("../lib/prisma.js");
 
-        // Check against master keys (restored earlier)
-        if (apiKey !== keys.publicKey || apiSecret !== (keys as any).fullSecretKey) {
-            return res.status(401).json({
-                success: false,
-                message: "Authentication failed: Invalid API credentials",
-            });
+        // 1. Check against master keys (restored earlier)
+        const masterKeys = await adminService.getApiKeys();
+        if (apiKey === masterKeys.publicKey && apiSecret === (masterKeys as any).fullSecretKey) {
+            (req as any).reseller = { type: 'master', id: 'master' };
+            return next();
         }
 
-        next();
+        // 2. Check against individual resellers in database
+        const reseller = await prisma.reseller.findFirst({
+            where: {
+                partnerId: apiKey,
+                secretKey: apiSecret,
+                isActive: true
+            }
+        });
+
+        if (reseller) {
+            (req as any).reseller = { type: 'individual', id: reseller.id, email: reseller.email };
+            return next();
+        }
+
+        return res.status(401).json({
+            success: false,
+            message: "Authentication failed: Invalid API credentials",
+        });
     } catch (error) {
         console.error("[Auth] Reseller auth error:", error);
         return res.status(500).json({

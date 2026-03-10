@@ -68,9 +68,17 @@ export const getProviderWalletBalance = async (): Promise<number> => {
     const mooActive = getVal("ENABLE_MOOGOLD") === "true";
     if (mooActive && getVal("MOOGOLD_PARTNER_ID") && getVal("MOOGOLD_SECRET_KEY")) {
         try {
-            return await getSupplyBalance();
-        } catch {
-            return 0;
+            const liveBalance = await getSupplyBalance() as any;
+            if (liveBalance !== null && liveBalance !== undefined) return liveBalance;
+            
+            // If live balance is null (error), fallback to DB
+            console.warn("[ProviderService] Live balance check failed (null), falling back to cache.");
+            const stock = await prisma.globalStock.findUnique({ where: { id: "GLOBAL" } });
+            return Number(stock?.providerBalance) || 0;
+        } catch (err) {
+            console.error("[ProviderService] Live balance check threw, falling back to cache.");
+            const stock = await prisma.globalStock.findUnique({ where: { id: "GLOBAL" } });
+            return Number(stock?.providerBalance) || 0;
         }
     }
 

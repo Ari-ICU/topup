@@ -19,8 +19,13 @@ import {
     updateGlobalStock,
     syncProviderStock,
     getProviderStatusEndpoint,
+    getProviderProducts,
+    bulkSyncProviderProducts,
     getApiKeys,
     generateApiKeys,
+    getResellers,
+    createReseller,
+    deleteReseller,
     transferRevenue,
     getPromotions,
     createPromotion,
@@ -30,8 +35,6 @@ import {
     triggerBackup,
     restoreData,
     manuallyFulfillTransaction,
-    getProviderProducts,
-    bulkSyncProviderProducts,
 } from "../controllers/admin.controller.js";
 import { adminLimiter } from "../middleware/rateLimit.middleware.js";
 import { adminAuth } from "../middleware/auth.middleware.js";
@@ -96,5 +99,10 @@ router.post("/maintenance/restore", restoreData);
 // Reseller API Management
 router.get("/api-keys", getApiKeys);
 router.post("/api-keys/generate", generateApiKeys);
+
+// Multi-Reseller Management
+router.get("/resellers", getResellers);
+router.post("/resellers", createReseller);
+router.delete("/resellers/:id", deleteReseller);
 
 export default router;

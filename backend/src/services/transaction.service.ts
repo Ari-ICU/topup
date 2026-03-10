@@ -33,6 +33,7 @@ export const createNewTransaction = async (data: {
     packageId: string;
     playerInfo: any;
     paymentMethod: string;
+    userId?: string | null;
 }) => {
     // 🛡️ Fail early if packageId is missing or wrong type
     if (!data.packageId || typeof data.packageId !== 'string') {
@@ -57,6 +58,7 @@ export const createNewTransaction = async (data: {
             packageId: data.packageId,
             playerInfo: data.playerInfo,
             paymentMethod: data.paymentMethod,
+            userId: data.userId || null,
             totalAmount: pkg.price,
             status: TransactionStatus.PENDING,
         },
