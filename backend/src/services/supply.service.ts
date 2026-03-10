@@ -1,99 +1,90 @@
 import crypto from "crypto";
-import axios from "axios";
+import axios, { AxiosRequestConfig } from "axios";
 import { getSystemSettings } from "../lib/settings.js";
 
-// Fetch Master Supply Product Catalog
-export const getProviderProductList = async (): Promise<any[]> => {
+const MOOGOLD_API_BASE = "https://moogold.com/wp-json/v1/api";
+
+/**
+ * MooGold API Helper: Generates authentication headers and signature.
+ */
+const getMooGoldAuth = async (path: string, payload: any) => {
     const settings = await getSystemSettings();
     const partnerId = settings.get("MOOGOLD_PARTNER_ID");
     const secretKey = settings.get("MOOGOLD_SECRET_KEY");
 
     if (!partnerId || !secretKey) {
-        throw new Error("Supply credentials not found.");
+        throw new Error("MooGold credentials not found in system settings.");
     }
 
+    const timestamp = Math.floor(Date.now() / 1000).toString();
+    const payloadStr = JSON.stringify(payload);
+    const signatureString = payloadStr + timestamp + path;
+
+    const authSignature = crypto.createHmac("sha256", secretKey).update(signatureString).digest("hex");
+    const authHeader = "Basic " + Buffer.from(`${partnerId}:${secretKey}`).toString("base64");
+
+    return {
+        headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "Authorization": authHeader,
+            "auth": authSignature,
+            "timestamp": timestamp,
+            "User-Agent": "MooGold-Node-Integration"
+        }
+    };
+};
+
+/**
+ * Executes a POST request to MooGold API with automatic signing.
+ */
+const mooGoldPost = async (path: string, payload: any, timeout = 10000) => {
+    const auth = await getMooGoldAuth(path, payload);
+    
+    return axios.post(`${MOOGOLD_API_BASE}/${path}`, payload, {
+        headers: auth.headers,
+        timeout,
+        validateStatus: () => true
+    });
+};
+
+/**
+ * Fetch Master Supply Product Catalog
+ */
+export const getProviderProductList = async (categoryId = 50): Promise<any[]> => {
     try {
-        const timestamp = Math.floor(Date.now() / 1000).toString();
-        const payloadObj = {
-            path: "product/list_product",
-            category_id: 50
-        };
-        const payloadStr = JSON.stringify(payloadObj);
-        const signatureString = payloadStr + timestamp + "product/list_product";
-
-        const authSignature = crypto.createHmac("sha256", secretKey).update(signatureString).digest("hex");
-        const authHeader = "Basic " + Buffer.from(`${partnerId}:${secretKey}`).toString("base64");
-
-        const response = await axios.post("https://moogold.com/wp-json/v1/api/product/list_product", payloadObj, {
-            headers: {
-                "Accept": "application/json",
-                "Content-Type": "application/json",
-                "Authorization": authHeader,
-                "auth": authSignature,
-                "timestamp": timestamp,
-                "User-Agent": "MooGold-Node-Integration"
-            },
-            timeout: 10000,
-            validateStatus: () => true
-        });
-
+        const path = "product/list_product";
+        const payload = { path, category_id: categoryId };
+        
+        const response = await mooGoldPost(path, payload);
         const data = response.data;
-        console.log("[Supply] Product list data:", JSON.stringify(data));
 
         if (response.status >= 200 && response.status < 300) {
-            if (data && (Array.isArray(data) || data.data)) {
-                return Array.isArray(data) ? data : (data.data || []);
-            }
+            return Array.isArray(data) ? data : (data.data || []);
         }
 
         if (response.status === 403 || (typeof data === 'string' && data.includes("Cloudflare"))) {
-            throw new Error("Access denied by Provider Firewall.");
+            throw new Error("Access denied by Provider Firewall (Cloudflare).");
         }
 
-        throw new Error(data?.message || `Supply provider error: ${response.status}`);
-
+        throw new Error(data?.message || `Provider error: ${response.status}`);
     } catch (error: any) {
-        console.error("[Supply] Sync failed:", error.message);
-        throw new Error(error.response?.data?.message || error.message);
+        console.error("[MooGold] Sync Product List failed:", error.message);
+        throw error;
     }
 };
 
-// Fetch packages for a specific game ID from supply
+/**
+ * Fetch packages for a specific game ID from supply
+ */
 export const getProviderGamePackages = async (supplyProductId: string | number): Promise<any> => {
-    const settings = await getSystemSettings();
-    const partnerId = settings.get("MOOGOLD_PARTNER_ID");
-    const secretKey = settings.get("MOOGOLD_SECRET_KEY");
-
-    if (!partnerId || !secretKey) {
-        throw new Error("Supply credentials not found.");
-    }
-
     try {
-        const timestamp = Math.floor(Date.now() / 1000).toString();
-        const payloadObj = {
-            path: "product/product_detail",
-            product_id: supplyProductId
-        };
-        const payloadStr = JSON.stringify(payloadObj);
-        const signatureString = payloadStr + timestamp + "product/product_detail";
-
-        const authSignature = crypto.createHmac("sha256", secretKey).update(signatureString).digest("hex");
-        const authHeader = "Basic " + Buffer.from(`${partnerId}:${secretKey}`).toString("base64");
-
-        const response = await axios.post("https://moogold.com/wp-json/v1/api/product/product_detail", payloadObj, {
-            headers: {
-                "Accept": "application/json",
-                "Content-Type": "application/json",
-                "Authorization": authHeader,
-                "auth": authSignature,
-                "timestamp": timestamp,
-                "User-Agent": "MooGold-Node-Integration"
-            },
-            timeout: 10000,
-            validateStatus: () => true
-        });
-
+        const path = "product/product_detail";
+        const payload = { path, product_id: supplyProductId };
+        
+        const response = await mooGoldPost(path, payload);
         const data = response.data;
+
         if (response.status >= 200 && response.status < 300) {
             return data;
         }
@@ -102,14 +93,16 @@ export const getProviderGamePackages = async (supplyProductId: string | number):
             throw new Error("Access denied by Provider Firewall.");
         }
 
-        throw new Error(data?.message || `Supply provider error: ${response.status}`);
+        throw new Error(data?.message || `Provider error: ${response.status}`);
     } catch (error: any) {
-        if (error.message === "Access denied by Provider Firewall.") throw error;
-        console.error(`[Supply] Fetching packages for ${supplyProductId} failed:`, error.message);
-        throw new Error(error.response?.data?.message || error.message);
+        console.error(`[MooGold] Fetching packages for ${supplyProductId} failed:`, error.message);
+        throw error;
     }
 };
 
+/**
+ * Execute a top-up order via MooGold
+ */
 export const executeSupplyOrder = async (orderData: {
     productId: string;
     categoryId: string;
@@ -117,203 +110,109 @@ export const executeSupplyOrder = async (orderData: {
     serverId?: string;
     transactionId: string;
 }): Promise<{ success: boolean; orderId: string; message: string }> => {
-    const settings = await getSystemSettings();
-    const partnerId = settings.get("MOOGOLD_PARTNER_ID");
-    const secretKey = settings.get("MOOGOLD_SECRET_KEY");
-
-    if (!partnerId || !secretKey) throw new Error("Supply credentials missing.");
-
     try {
-        const timestamp = Math.floor(Date.now() / 1000).toString();
         const path = "order/create_order";
-
-        const payloadObj = {
+        const payload = {
             path,
             data: {
                 "category": orderData.categoryId?.toString() || "50",
                 "product-id": orderData.productId?.toString(),
                 "quantity": "1",
-                // Mobile Legends
                 "User ID": orderData.playerId,
                 "Zone ID": orderData.serverId || "",
-                // Free Fire & others
                 "Player ID": orderData.playerId,
-                // PUBG & others
                 "Character ID": orderData.playerId,
-                // Server labels
                 "Server": orderData.serverId || "",
                 "Server ID": orderData.serverId || "",
             }
         };
 
-        // Format signature payload using JSON.stringify to exactly match axios serialization
-        const payloadStr = JSON.stringify(payloadObj);
-        const signatureString = payloadStr + timestamp + path;
-
-        const authSignature = crypto.createHmac("sha256", secretKey).update(signatureString).digest("hex");
-        const authHeader = "Basic " + Buffer.from(`${partnerId}:${secretKey}`).toString("base64");
-
-        const response = await axios.post("https://moogold.com/wp-json/v1/api/order/create_order", payloadObj, {
-            headers: {
-                "Accept": "application/json",
-                "Content-Type": "application/json",
-                "Authorization": authHeader,
-                "auth": authSignature,
-                "timestamp": timestamp,
-                "User-Agent": "MooGold-Node-Integration"
-            },
-            timeout: 15000,
-            validateStatus: () => true
-        });
-
+        const response = await mooGoldPost(path, payload, 15000);
         const data = response.data;
 
         if (response.status === 200 && data.status === "success") {
             return {
                 success: true,
                 orderId: data.order_id?.toString() || orderData.transactionId,
-                message: data.message || "Order placed"
+                message: data.message || "Order placed successfully"
             };
         }
 
-        console.error(`[Supply] ❌ Order failed with status ${response.status}:`, JSON.stringify(data));
+        console.error(`[MooGold] ❌ Order failed (${response.status}):`, JSON.stringify(data));
 
         return {
             success: false,
             orderId: data.order_id?.toString() || "",
-            message: data.message || data.err_message || data.err_msg || `Supply Error ${data.err_code || response.status}: Please check your balance or SKU settings.`
+            message: data.message || data.err_message || `Supply Error ${data.err_code || response.status}`
         };
 
     } catch (error: any) {
-        console.error("[Supply] Order failed:", error.message);
+        console.error("[MooGold] Order execution failed:", error.message);
         return {
             success: false,
             orderId: "",
-            message: error.message || "Connection failed"
+            message: error.message || "Connection to provider failed"
         };
     }
 };
 
-// Fetch Master Supply Balance
-export const getSupplyBalance = async (): Promise<number> => {
-    const settings = await getSystemSettings();
-    const partnerId = settings.get("MOOGOLD_PARTNER_ID");
-    const secretKey = settings.get("MOOGOLD_SECRET_KEY");
-
-    if (!partnerId || !secretKey) return 0;
-
+/**
+ * Fetch Master Supply Balance
+ */
+export const getSupplyBalance = async (): Promise<number | null> => {
     try {
-        const timestamp = Math.floor(Date.now() / 1000).toString();
         const path = "user/balance";
-        const payloadObj = { path };
-
-        // Match MooGold format exactly:
-        const payloadStr = JSON.stringify(payloadObj);
-        const signatureString = payloadStr + timestamp + path;
-
-        const authSignature = crypto.createHmac("sha256", secretKey).update(signatureString).digest("hex");
-        const authHeader = "Basic " + Buffer.from(`${partnerId}:${secretKey}`).toString("base64");
-
-        const response = await axios.post("https://moogold.com/wp-json/v1/api/user/balance", payloadObj, {
-            headers: {
-                "Accept": "application/json",
-                "Content-Type": "application/json",
-                "Authorization": authHeader,
-                "auth": authSignature,
-                "timestamp": timestamp,
-                "User-Agent": "MooGold-Node-Integration"
-            },
-            timeout: 10000,
-            validateStatus: () => true
-        });
+        const payload = { path };
+        
+        const response = await mooGoldPost(path, payload);
+        const data = response.data;
 
         if (response.status === 200) {
-            if (response.data?.balance !== undefined) {
-                return parseFloat(response.data.balance);
-            }
-            if (response.data?.err_code === "403") {
-                console.warn("[Supply] Balance 403: Account not authorized for API yet.");
-                return null as any;
-            }
+            if (data?.balance !== undefined) return parseFloat(data.balance);
+            if (data?.err_code === "403") return null;
         }
 
-        const responseData = response.data;
-        if (response.status === 403 || (typeof responseData === 'string' && responseData.includes("Cloudflare"))) {
-            console.error("[Supply] Live balance check failed: Access denied by Provider Firewall.");
-            return null as any;
-        }
-
-        return null as any;
+        return null;
     } catch (error: any) {
-        console.error("[Supply] Balance request failed:", error.message);
-        return null as any;
+        console.error("[MooGold] Balance check failed:", error.message);
+        return null;
     }
 };
-// Verify Player Account via Master Supply
+
+/**
+ * Verify Player Account via Master Supply
+ */
 export const verifySupplyAccount = async (data: {
     productId: string | number;
     playerId: string;
     zoneId?: string;
 }): Promise<{ verified: boolean | null; playerName?: string }> => {
-    const settings = await getSystemSettings();
-    const partnerId = settings.get("MOOGOLD_PARTNER_ID");
-    const secretKey = settings.get("MOOGOLD_SECRET_KEY");
-
-    if (!partnerId || !secretKey) return { verified: null };
-
     try {
-        const timestamp = Math.floor(Date.now() / 1000).toString();
         const path = "product/verify_product";
-
-        const payloadObj = {
+        const payload = {
             path,
             product_id: data.productId.toString(),
             "User ID": data.playerId,
             "Zone ID": data.zoneId || "",
-            // Some products use different labels
             "Player ID": data.playerId,
             "Character ID": data.playerId,
         };
 
-        const payloadStr = JSON.stringify(payloadObj);
-        const signatureString = payloadStr + timestamp + path;
-
-        const authSignature = crypto.createHmac("sha256", secretKey).update(signatureString).digest("hex");
-        const authHeader = "Basic " + Buffer.from(`${partnerId}:${secretKey}`).toString("base64");
-
-        const response = await axios.post("https://moogold.com/wp-json/v1/api/product/verify_product", payloadObj, {
-            headers: {
-                "Accept": "application/json",
-                "Content-Type": "application/json",
-                "Authorization": authHeader,
-                "auth": authSignature,
-                "timestamp": timestamp,
-                "User-Agent": "MooGold-Node-Integration"
-            },
-            timeout: 10000,
-            validateStatus: () => true
-        });
+        const response = await mooGoldPost(path, payload);
+        const resData = response.data;
 
         if (response.status === 200) {
-            if (response.data?.status === "success") {
-                const nickname = response.data?.nickname || response.data?.username;
-                return { verified: true, playerName: nickname };
+            if (resData?.status === "success") {
+                return { verified: true, playerName: resData?.nickname || resData?.username };
             }
-            // Definitive failure (e.g. status: "error" with "User ID not found")
-            if (response.data?.status === "error") {
+            if (resData?.status === "error") {
                 return { verified: false };
             }
         }
 
-        const responseData = response.data;
-        if (response.status === 403 || (typeof responseData === 'string' && responseData.includes("Cloudflare"))) {
-            console.error("[Supply] Verification failed: Access denied by Provider Firewall.");
-            return { verified: null };
-        }
-
-        return { verified: null }; // Connection or other error
+        return { verified: null };
     } catch (error: any) {
-        console.error("[Supply] Verification request failed:", error.message);
+        console.error("[MooGold] Verification failed:", error.message);
         return { verified: null };
     }
 };
