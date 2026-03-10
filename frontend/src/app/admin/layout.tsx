@@ -68,7 +68,7 @@ function AdminSearchBar() {
     );
 }
 
-export default function AdminLayout({
+function AdminLayoutContent({
     children,
 }: {
     children: React.ReactNode;
@@ -224,3 +224,20 @@ export default function AdminLayout({
         </div>
     );
 }
+
+export default function AdminLayout({
+    children,
+}: {
+    children: React.ReactNode;
+}) {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-[#0a0910] flex items-center justify-center">
+                <div className="w-12 h-12 border-4 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin"></div>
+            </div>
+        }>
+            <AdminLayoutContent>{children}</AdminLayoutContent>
+        </Suspense>
+    );
+}
+
