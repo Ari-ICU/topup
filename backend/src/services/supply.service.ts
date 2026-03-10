@@ -93,12 +93,18 @@ export const getProviderGamePackages = async (supplyProductId: string | number):
             validateStatus: () => true
         });
 
+        const data = response.data;
         if (response.status >= 200 && response.status < 300) {
-            return response.data;
+            return data;
         }
 
-        throw new Error(response.data?.message || `Supply provider error: ${response.status}`);
+        if (response.status === 403 || (typeof data === 'string' && data.includes("Cloudflare"))) {
+            throw new Error("Access denied by Provider Firewall.");
+        }
+
+        throw new Error(data?.message || `Supply provider error: ${response.status}`);
     } catch (error: any) {
+        if (error.message === "Access denied by Provider Firewall.") throw error;
         console.error(`[Supply] Fetching packages for ${supplyProductId} failed:`, error.message);
         throw new Error(error.response?.data?.message || error.message);
     }
@@ -230,6 +236,13 @@ export const getSupplyBalance = async (): Promise<number> => {
                 return null as any;
             }
         }
+
+        const responseData = response.data;
+        if (response.status === 403 || (typeof responseData === 'string' && responseData.includes("Cloudflare"))) {
+            console.error("[Supply] Live balance check failed: Access denied by Provider Firewall.");
+            return null as any;
+        }
+
         return null as any;
     } catch (error: any) {
         console.error("[Supply] Balance request failed:", error.message);
@@ -290,6 +303,12 @@ export const verifySupplyAccount = async (data: {
             if (response.data?.status === "error") {
                 return { verified: false };
             }
+        }
+
+        const responseData = response.data;
+        if (response.status === 403 || (typeof responseData === 'string' && responseData.includes("Cloudflare"))) {
+            console.error("[Supply] Verification failed: Access denied by Provider Firewall.");
+            return { verified: null };
         }
 
         return { verified: null }; // Connection or other error
