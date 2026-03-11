@@ -593,7 +593,9 @@ export default function TopupPage() {
                                                     ? "border-white/5 bg-[#0d0b1d]/60 opacity-60 cursor-not-allowed"
                                                     : selectedPackage === pkg.id
                                                         ? "border-purple-500 bg-purple-500/15 shadow-[0_20px_40px_rgba(168,85,247,0.25)] scale-[1.02]"
-                                                        : "border-white/10 bg-[#0d0b1d] hover:border-white/20 hover:bg-[#15122b] md:hover:-translate-y-2"
+                                                        : (formattedPkgName.toLowerCase().includes('bonus') || formattedPkgName.toLowerCase().includes('first top-up'))
+                                                            ? "border-amber-500/30 bg-[#120e17] hover:border-amber-500/60 shadow-[0_10px_30px_rgba(245,158,11,0.05)] md:hover:-translate-y-2"
+                                                            : "border-white/10 bg-[#0d0b1d] hover:border-white/20 hover:bg-[#15122b] md:hover:-translate-y-2"
                                                 }`}
                                         >
                                             {/* Dynamic Badge */}
@@ -605,6 +607,17 @@ export default function TopupPage() {
                                                         </div>
                                                         {/* Speech Bubble Tail */}
                                                         <div className="absolute -bottom-1 left-4 w-2 h-2 bg-[#eb1c24] rotate-45 -z-10" />
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* Bonus Highlights */}
+                                            {!pkg.isWeeklyPass && !soldOut && (formattedPkgName.toLowerCase().includes('bonus') || formattedPkgName.toLowerCase().includes('first top-up')) && (
+                                                <div className="absolute -top-3 -left-1 z-30">
+                                                    <div className="bg-gradient-to-r from-amber-500 to-orange-600 text-white text-[7px] md:text-[8px] font-black px-2 py-0.5 rounded-md shadow-lg border border-white/20 skew-x-[-12deg] tracking-tighter uppercase whitespace-nowrap">
+                                                        {formattedPkgName.toLowerCase().includes('first top-up') 
+                                                            ? (lang === 'km' ? 'ប្រូម៉ូសិនដំបូង' : 'FIRST TOP-UP') 
+                                                            : (lang === 'km' ? 'បន្ថែមពិសេស' : 'BONUS')}
                                                     </div>
                                                 </div>
                                             )}
@@ -640,7 +653,10 @@ export default function TopupPage() {
                                                         </div>
                                                     </div>
                                                 ) : (
-                                                    <div className=" font-black text-white italic tracking-tighter leading-none mb-0.5">
+                                                    <div className={`font-black italic tracking-tighter leading-none mb-0.5 transition-all
+                                                        ${(formattedPkgName.toLowerCase().includes('bonus') || formattedPkgName.toLowerCase().includes('first top-up')) 
+                                                            ? 'text-amber-400 drop-shadow-[0_0_10px_rgba(251,191,36,0.5)]' 
+                                                            : 'text-white'}`}>
                                                         <span className="text-[10px] md:text-xs mr-0.5 font-sans opacity-60">$</span>
                                                         <span className="text-[14px] md:text-xl">{Number(pkg.price).toFixed(2)}</span>
                                                     </div>
