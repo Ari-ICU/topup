@@ -25,8 +25,8 @@ export const t = {
         line2: { en: "GAME CREDITS", km: "ហ្គេម" },
         line3: { en: "IN SECONDS", km: "ភ្លាមៗ" },
         desc: {
-            en: "Elevate your gaming experience instantly. Trusted by 500K+ gamers for fast, secure top-ups with 100+ payment methods and zero hidden fees.",
-            km: "បង្កើនបទពិសោធន៍ហ្គេមរបស់អ្នកភ្លាមៗ។ ទទួលបានការជឿទុកចិត្តពីអ្នកលេងជាង ៥០០,០០០ នាក់ សម្រាប់ការបញ្ចូលទឹកប្រាក់រហ័ស សុវត្ថិភាព ជាមួយជម្រើសបង់ប្រាក់ជាង ១០០ មុខ និងគ្មានថ្លៃសេវាលាក់កំបាំង។"
+            en: "Empowering your gaming journey with lightning-fast credits. Trusted by 500K+ gamers for secure, instant top-ups with no hidden fees and 24/7 reliability.",
+            km: "ផ្តល់ថាមពលដល់ការលេងហ្គេមរបស់អ្នកភ្លាមៗ។ ទទួលបានការជឿទុកចិត្តពីអ្នកលេងជាង ៥០០,០០០ នាក់ សម្រាប់ការបញ្ចូលទឹកប្រាក់រហ័ស សុវត្ថិភាពខ្ពស់ និងគ្មានថ្លៃសេវាលាក់កំបាំង។"
         },
         browseGames: { en: "Browse Games", km: "ស្វែងរកហ្គេម" },
         howItWorks: { en: "How It Works", km: "របៀបប្រើ" },
@@ -44,8 +44,8 @@ export const t = {
         title1: { en: "PICK YOUR", km: "ជ្រើសរើស" },
         title2: { en: "GAME", km: "ហ្គេមអ្នក" },
         desc: {
-            en: "Explore over 50 popular games and get instant credits with transparent pricing and guaranteed delivery.",
-            km: "ស្វែងរកហ្គេមល្បីៗជាង ៥០ ប្រភេទ និងទទួលបានក្រេឌីតភ្លាមៗ ជាមួយតម្លៃច្បាស់លាស់ និងការផ្ញើជូនដែលជឿទុកចិត្តបាន។"
+            en: "Direct access to over 50+ official game credits with transparent pricing and guaranteed automated delivery.",
+            km: "ស្វែងរកហ្គេមល្បីៗជាង ៥០ ប្រភេទ និងទទួលបានពេជ្រភ្លាមៗ ជាមួយតម្លៃច្បាស់លាស់ និងការផ្ញើជូនដោយស្វ័យប្រវត្តិ ២៤/៧។"
         },
         startingFrom: { en: "Starting From", km: "ចាប់ផ្ដើមពី" },
         comingSoon: { en: "Coming Soon", km: "ឆាប់ៗនេះ" },
@@ -81,10 +81,10 @@ export const t = {
 
     // ── Top-up Page ──────────────────────────────────────────────────────────
     topup: {
-        liveLabel: { en: "Live", km: "បើក" },
-        instantLabel: { en: "Instant Delivery", km: "ដឹកភ្លាមៗ" },
-        instantEnabled: { en: "Instant Delivery Enabled", km: "ដឹកជញ្ជូនភ្លាមៗ កំពុងបើក" },
-        deliverySub: { en: "⚡ Credits delivered within 5 seconds • 100% Secure", km: "⚡ ទទួលបានក្រេឌីតក្នុងរយៈពេលក្រោម ៥ វិនាទី • ១០០% សុវត្ថិភាព" },
+        liveLabel: { en: "Service Active", km: "សេវាកម្មបើក" },
+        instantLabel: { en: "Instant Delivery", km: "ផ្ញើជូនភ្លាមៗ" },
+        instantEnabled: { en: "⚡ Instant Delivery Active 24/7", km: "⚡ បើកដំណើរការផ្ញើជូនភ្លាមៗ ២៤/៧" },
+        deliverySub: { en: "⚡ Credits delivered instantly • 100% Verified & Secure", km: "⚡ ទទួលបានក្រេឌីតភ្លាមៗ • ១០០% សុវត្ថិភាព និងផ្លូវការ" },
         startingFrom: { en: "Starting From", km: "ចាប់ពី" },
         step1title: { en: "ENTER PLAYER DETAILS", km: "បញ្ចូលព័ត៌មានអ្នកលេង" },
         step1sub: { en: "Your game account information", km: "ព័ត៌មានគណនីហ្គេមរបស់អ្នក" },
@@ -92,8 +92,8 @@ export const t = {
         zoneIdLabel: { en: "Zone ID", km: "Zone ID" },
         optional: { en: "(optional)", km: "(ស្រេចចិត្ត)" },
         verifyBtn: { en: "Verify Account", km: "ផ្ទៀងផ្ទាត់គណនី" },
-        verifyingBtn: { en: "Checking...", km: "កំពុងពិនិត្យ..." },
-        verifyHint: { en: "Validate your Player ID before purchasing", km: "ផ្ទៀងផ្ទាត់ Player ID មុនទិញ" },
+        verifyingBtn: { en: "Securing Connection...", km: "កំពុងត្រួតពិនិត្យ..." },
+        verifyHint: { en: "Please verify your ID to ensure 100% accuracy", km: "សូមផ្ទៀងផ្ទាត់ ID ដើម្បីធានាភាពត្រឹមត្រូវ ១០០%" },
         step2title: { en: "SELECT PACKAGE", km: "ជ្រើសកញ្ចប់" },
         step2sub: { en: "Choose the credits amount you need", km: "ជ្រើសចំនួនក្រេឌីតដែលអ្នកត្រូវការ" },
         step3title: { en: "PAYMENT METHOD", km: "វិធីទូទាត់" },
@@ -125,9 +125,9 @@ export const t = {
         verifyInvalid: { en: "Invalid ID", km: "ID មិនត្រឹមត្រូវ" },
         language: { en: "Language", km: "ភាសា" },
         viewSummary: { en: "View Summary ↓", km: "មើលការសង្ខេប ↓" },
-        termsTitle: { en: "TERMS & CONDITION", km: "លក្ខខណ្ឌ" },
-        agreeToTerms: { en: "I agree to the terms", km: "ខ្ញុំយល់ព្រមតាម លក្ខខណ្ឌ" },
-        buyNow: { en: "BUY NOW", km: "ទិញឥឡូវ" },
+        termsTitle: { en: "SECURITY & TERMS", km: "សុវត្ថិភាព និងលក្ខខណ្ឌ" },
+        agreeToTerms: { en: "I agree to the terms and privacy policy", km: "ខ្ញុំយល់ព្រមតាម លក្ខខណ្ឌ និងគោលការណ៍" },
+        buyNow: { en: "PURCHASE NOW", km: "បង់ប្រាក់ឥឡូវ" },
         insufficientStock: {
             en: "SORRY, THIS PACKAGE EXCEEDS OUR CURRENT DIAMOND STOCK AVAILABILITY",
             km: "សូមអភ័យទោស កញ្ចប់នេះលើសពីចំនួនពេជ្រដែលមានក្នុងស្តុកនាពេលបច្ចុប្បន្នរបស់យើង"

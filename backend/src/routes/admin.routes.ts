@@ -35,6 +35,7 @@ import {
     triggerBackup,
     restoreData,
     manuallyFulfillTransaction,
+    syncMooGoldPackagesController,
 } from "../controllers/admin.controller.js";
 import { adminLimiter } from "../middleware/rateLimit.middleware.js";
 import { adminAuth } from "../middleware/auth.middleware.js";
@@ -89,6 +90,7 @@ router.post("/global-stock/sync", syncProviderStock);
 router.get("/provider-status", getProviderStatusEndpoint);
 router.get("/supply/products", getProviderProducts);
 router.post("/supply/products/sync", bulkSyncProviderProducts);
+router.post("/supply/sync-mlbb", syncMooGoldPackagesController);
 router.post("/wallet/transfer", transferRevenue);
 
 // Maintenance / Data Safety

@@ -34,7 +34,8 @@ model Package {
   name         String
   amount       Int
   price        Decimal       @db.Decimal(10, 2)
-  providerSku  String
+  originalPrice Decimal?      @db.Decimal(10, 2)
+  providerSku  String        @unique
   description  String?
   isWeeklyPass Boolean       @default(false)
   sortOrder    Int           @default(0)

@@ -4,6 +4,7 @@ import { adminService } from "../services/admin.service.js";
 import { getProviderStatus } from "../services/topup-provider.service.js";
 import { fulfillTransaction } from "../services/transaction.service.js";
 import { getProviderProductList } from "../services/supply.service.js";
+import { syncMooGoldPackages } from "../services/moogold-sync.service.js";
 import { sendSuccess, sendError } from "../utils/apiResponse.js";
 
 const JWT_SECRET = process.env.JWT_SECRET || "fallback-secret-for-dev-only-123";
@@ -416,6 +417,18 @@ export const bulkSyncProviderProducts = async (req: Request, res: Response) => {
         });
     } catch (error: any) {
         console.error(`[bulkSyncProviderProducts] Error:`, error.message);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+export const syncMooGoldPackagesController = async (_req: Request, res: Response) => {
+    try {
+        await syncMooGoldPackages();
+        res.json({
+            success: true,
+            message: "Mobile Legends packages synced successfully with MooGold."
+        });
+    } catch (error: any) {
+        console.error(`[syncMooGoldPackages] Error:`, error.message);
         res.status(500).json({ success: false, message: error.message });
     }
 };

@@ -109,34 +109,34 @@ function HowToUseSection({ lang }: { lang: Lang }) {
         {
             icon: Gamepad2,
             step: "01",
-            title: lang === 'km' ? 'ជ្រើសហ្គេម' : 'Choose Game',
+            title: lang === 'km' ? 'ជ្រើសរើសហ្គេម' : 'Select Game',
             desc: lang === 'km'
-                ? 'ស្វែងរកហ្គេមដែលមានក្នុងបញ្ជីជាង ៥០ ប្រភេទ និងជ្រើសរើសហ្គេមដែលអ្នកចង់បាន។'
-                : 'Browse our list of over 50 games and select your desired game.',
+                ? 'ជ្រើសរើសហ្គេមដែលអ្នកចង់បញ្ចូល ពីបញ្ជីហ្គេមល្បីៗជាច្រើនប្រភេទ។'
+                : 'Pick your favorite game from our premium collection of top titles.',
         },
         {
             icon: User,
             step: "02",
             title: lang === 'km' ? 'បញ្ចូល Player ID' : 'Enter Player ID',
             desc: lang === 'km'
-                ? 'បញ្ចូល Player ID និង Zone ID របស់អ្នកដើម្បីត្រៀមទទួលប្រាក់។'
-                : 'Enter your Player ID and Zone ID to prepare for receiving top-up.',
+                ? 'បញ្ចូល Player ID និង Zone ID របស់អ្នកឱ្យបានត្រឹមត្រូវ ដើម្បីការពារកំហុស។'
+                : 'Enter your Player ID and Zone ID securely to ensure 100% accuracy.',
         },
         {
             icon: Package,
             step: "03",
-            title: lang === 'km' ? 'ជ្រើសកញ្ចប់' : 'Choose Package',
+            title: lang === 'km' ? 'ជ្រើសរើសកញ្ចប់' : 'Choose Package',
             desc: lang === 'km'
-                ? 'ពិនិត្យមើលតម្លៃកញ្ចប់បញ្ចូលហ្គេម និងជ្រើសរើសកញ្ចប់ដែលអ្នកចង់បំពេញ។'
-                : 'Review the top-up package prices and select the one you want.',
+                ? 'ជ្រើសរើសកញ្ចប់ពេជ្រដែលអ្នកចង់បាន ក្នុងតម្លៃពិសេស និងសមរម្យបំផុត។'
+                : 'Choose the diamond package that best fits your gaming needs and budget.',
         },
         {
             icon: Zap,
             step: "04",
-            title: lang === 'km' ? 'បង់ & ទទួលភ្លាម' : 'Pay & Receive',
+            title: lang === 'km' ? 'បង់ប្រាក់ & ទទួល' : 'Pay & Enjoy',
             desc: lang === 'km'
-                ? 'ជ្រើសរើសវិធីសាស្ត្រទូទាត់ដែលអ្នកចូលចិត្តបញ្ជាក់ ហើយទទួលបានប្រាក់របស់អ្នកភ្លាមៗ។'
-                : 'Choose your preferred payment method, confirm, and receive credits instantly.',
+                ? 'បង់ប្រាក់តាមវិធីដែលងាយស្រួល និងទទួលពេជ្រចូលគណនីភ្លាមៗ ២៤/៧។'
+                : 'Complete your payment securely and watch your diamonds arrive instantly!',
         }
     ];
 
@@ -439,15 +439,15 @@ export default function TopupPage() {
                             <p className={`max-w-xl text-sm md:text-base text-slate-300 leading-relaxed font-medium ${lang === 'km' ? 'khmer-text' : ''}`}>
                                 {lang === 'km' ? (
                                     <>
-                                        វិញ្ញាបនប័ត្រ <strong className="text-white font-black">{game.name}</strong> ត្រូវតែទទួលបានភ្លាមៗ!
-                                        {' '}គ្រាន់តែបញ្ចូល <strong className="text-[#22c55e]">ID</strong> របស់អ្នក, ជ្រើសរើសកញ្ចប់ ហើយបង់ — ចែកទៅប្រាក់ភ្លាមៗ ដោយបម្រើតាមរបៀបដោយផ្ទាល់។
-                                        {' '}ព្រែននឹងបញ្ជូនទៅកាន់គណនានៃហ្គេម <strong className="text-white">{game.name}</strong> របស់អ្នករយៈពេល <strong className="text-[#22c55e]">10</strong>នាទី ដល់ <strong className="text-[#22c55e]">3</strong>ម៉ោង។
+                                        រីករាយជាមួយសេវាកម្មបញ្ចូលទឹកប្រាក់ <strong className="text-white font-black">{game.name}</strong> ដែលមានល្បឿនលឿន សុវត្ថិភាព និងងាយស្រួលបំផុត!
+                                        {' '}គ្រាន់តែបញ្ចូល <strong className="text-[#22c55e]">ID</strong>, ជ្រើសរើសកញ្ចប់ និងបង់ប្រាក់ — ពេជ្រនឹងចូលក្នុងគណនីរបស់អ្នក <strong className="text-[#22c55e]">ភ្លាមៗ</strong> ដោយស្វ័យប្រវត្តិ។
+                                        {' '}<strong className="text-white">DAI GAME</strong> ជាដៃគូផ្លូវការដែលអ្នកលេងហ្គេមរាប់ពាន់នាក់ជឿទុកចិត្ត!
                                     </>
                                 ) : (
                                     <>
-                                        Top up <strong className="text-white font-black">{game.name}</strong> credits instantly and securely!
-                                        {' '}Enter your <strong className="text-[#22c55e]">Player ID</strong>, pick a package, and pay — credits land in your account in under <strong className="text-[#22c55e]">5 seconds</strong>.
-                                        {' '}We are an <strong className="text-white">official distributor</strong>, so every top-up is guaranteed.
+                                        Experience the fastest and most secure way to top up <strong className="text-white font-black">{game.name}</strong>.
+                                        {' '}Simply enter your <strong className="text-[#22c55e]">Player ID</strong>, choose your package, and pay — diamonds are credited to your account <strong className="text-[#22c55e]">instantly</strong>.
+                                        {' '}Join thousands of gamers who trust <strong className="text-white">DAI GAME</strong> for their daily top-ups!
                                     </>
                                 )}
                             </p>
