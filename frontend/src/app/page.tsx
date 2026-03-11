@@ -82,23 +82,28 @@ export default function Home() {
             {/* Left: Text content */}
             <div className="z-10 flex flex-col items-center text-center lg:w-1/2 lg:items-start lg:text-left animate-fade-in-up">
               <div className={`section-label mb-6 ${lang === 'km' ? 'khmer-text' : ''}`}>
-                {/* <Zap className="w-3.5 h-3.5" /> */}
-                {tr(t.hero.badge, lang)}
+                <div className="flex items-center gap-2">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                  </span>
+                  {tr(t.hero.badge, lang)}
+                </div>
               </div>
 
-              <h1 className="mb-6 font-display text-6xl font-bold tracking-tight lg:text-7xl xl:text-8xl leading-none text-white">
+              <h1 className="mb-6 font-display text-4xl font-black tracking-tight sm:text-6xl lg:text-7xl xl:text-8xl leading-[0.9] text-white italic uppercase transform -skew-x-6">
                 {tr(t.hero.line1, lang)}
                 <br />
-                <span className="gradient-text text-glow-purple">{tr(t.hero.line2, lang)}</span>
+                <span className="gradient-text drop-shadow-[0_0_15px_rgba(168,85,247,0.5)]">{tr(t.hero.line2, lang)}</span>
                 <br />
-                <span className="text-4xl lg:text-5xl font-semibold text-slate-300">{tr(t.hero.line3, lang)}</span>
+                <span className="text-3xl lg:text-5xl font-bold not-italic text-slate-400 normal-case tracking-normal skew-x-6 inline-block mt-2">{tr(t.hero.line3, lang)}</span>
               </h1>
 
-              <p className={`mb-10 max-w-lg text-base text-slate-400 leading-relaxed ${lang === 'km' ? 'khmer-text' : ''}`}>
+              <p className={`mb-10 max-w-lg text-base md:text-lg text-slate-400 leading-relaxed font-medium md:leading-snug ${lang === 'km' ? 'khmer-text text-lg' : ''}`}>
                 {lang === 'km' ? (
-                  <>បង្កើនសមត្ថភាពហ្គេមភ្លាមៗ។ អ្នកលេង <strong className="text-purple-300">500K+</strong> ទូទាំងពិភពលោកជឿទុកចិត្ត។</>
+                  <>ផ្ដល់ថាមពលដល់ការលេងហ្គេមរបស់អ្នកភ្លាមៗ។ <strong className="text-purple-300">៥០០,០០០+</strong> នាក់ជឿទុកចិត្តជាផ្លូវការបស់អ្នកលេងហ្គេមនៅកម្ពុជា។</>
                 ) : (
-                  <>Power up your gameplay instantly. Trusted by <strong className="text-purple-300">500K+ gamers</strong> worldwide for fast, secure top-ups with 100+ payment methods and zero hidden fees.</>
+                  <>Power up your gameplay instantly. Trusted by <strong className="text-purple-300">500K+ gamers</strong> for secure, instant top-ups with zero hidden fees.</>
                 )}
               </p>
 
@@ -109,10 +114,10 @@ export default function Home() {
                     e.preventDefault();
                     scrollToElement("games");
                   }}
-                  className="btn-primary px-8 py-4 text-base rounded-xl text-center justify-center"
+                  className="btn-primary group px-10 py-5 text-base rounded-2xl text-center justify-center shadow-[0_20px_40px_-10px_rgba(124,58,237,0.5)]"
                 >
-                  <Gamepad2 className="w-5 h-5" />
-                  <span className={lang === 'km' ? 'khmer-text font-semibold' : ''}>{tr(t.hero.browseGames, lang)}</span>
+                  <Gamepad2 className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+                  <span className={lang === 'km' ? 'khmer-text font-black text-lg' : 'font-black uppercase tracking-widest'}>{tr(t.hero.browseGames, lang)}</span>
                 </a>
                 <a
                   href="#workflow"
@@ -120,13 +125,12 @@ export default function Home() {
                     e.preventDefault();
                     scrollToElement("workflow");
                   }}
-                  className="btn-outline px-8 py-4 text-base rounded-xl justify-center flex items-center gap-2"
+                  className="btn-outline px-10 py-5 text-base rounded-2xl justify-center flex items-center gap-3 backdrop-blur-sm bg-white/5 border-white/10 hover:bg-white/10 transition-all"
                 >
-                  <span className={lang === 'km' ? 'khmer-text font-semibold' : ''}>{tr(t.hero.howItWorks, lang)}</span>
-                  <ArrowRight className="w-4 h-4" />
+                  <span className={lang === 'km' ? 'khmer-text font-black text-lg' : 'font-black uppercase tracking-widest'}>{tr(t.hero.howItWorks, lang)}</span>
+                  <ArrowRight className="w-5 h-5" />
                 </a>
               </div>
-
             </div>
 
             {/* Right: Hero image + floating UI */}
@@ -176,6 +180,33 @@ export default function Home() {
             </div>
           </div>
         </main>
+        {/* ===== TRUST BAR ===== */}
+        <section className="w-full py-12 border-y border-white/5 bg-slate-950/20 backdrop-blur-sm relative overflow-hidden">
+          <div className="absolute inset-0 grid-lines opacity-10 pointer-events-none" />
+          <div className="relative mx-auto max-w-7xl px-6 lg:px-16 overflow-hidden">
+            <div className="flex flex-col items-center gap-8 md:flex-row md:justify-between opacity-50 hover:opacity-100 transition-opacity duration-700">
+              <span className={`text-[10px] font-black uppercase tracking-[0.4em] text-slate-500 text-center md:text-left ${lang === 'km' ? 'khmer-text' : ''}`}>
+                {lang === 'km' ? "ដៃគូទូទាត់ផ្លូវការ" : "TRUSTED PAYMENT PARTNERS"}
+              </span>
+              <div className="flex flex-wrap justify-center gap-8 md:gap-16 items-center">
+                <div className="relative h-6 w-16 grayscale hover:grayscale-0 transition-all opacity-60 hover:opacity-100">
+                  <Image src="/aba.png" alt="ABA" fill className="object-contain" />
+                </div>
+                <div className="relative h-6 w-24 grayscale hover:grayscale-0 transition-all opacity-60 hover:opacity-100 px-2">
+                  <Image src="/khqr-v2.png" alt="KHQR" fill className="object-contain" />
+                </div>
+                <div className="flex items-center gap-2 group cursor-default">
+                  <Lock className="w-4 h-4 text-emerald-500/60" />
+                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest group-hover:text-emerald-400 transition-colors">SSL SECURED</span>
+                </div>
+                <div className="hidden lg:flex items-center gap-2 group cursor-default">
+                  <Star className="w-4 h-4 text-amber-500/60 fill-amber-500/20" />
+                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest group-hover:text-amber-400 transition-colors italic">MOOGOLD AUTHORIZED</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
 
         {/* ===== PROMOTIONS SECTION ===== */}
         {promotions.length > 0 && (
@@ -247,10 +278,10 @@ export default function Home() {
           <div className="relative mx-auto max-w-7xl">
             <div className="mb-16 text-center">
               <div className={`section-label mb-4 mx-auto w-fit ${lang === 'km' ? 'khmer-text' : ''}`}>
-                <ChevronRight className="w-3.5 h-3.5" />
+                <ChevronRight className="w-4 h-4" />
                 {tr(t.howItWorks.badge, lang)}
               </div>
-              <h2 className="font-display text-4xl lg:text-5xl font-bold text-white mb-4 tracking-wide">
+              <h2 className="font-display text-4xl lg:text-7xl font-black text-white mb-6 tracking-tight uppercase italic transform -skew-x-6">
                 {tr(t.howItWorks.title1, lang)} <span className="gradient-text">{tr(t.howItWorks.title2, lang)}</span>
               </h2>
             </div>
@@ -279,11 +310,11 @@ export default function Home() {
                         STEP 0{idx + 1}
                       </div>
 
-                      <h3 className={`font-display text-xl md:text-2xl font-black text-white mb-4 tracking-tight leading-none ${lang === 'km' ? 'khmer-text' : ''}`}>
+                      <h3 className={`font-display text-xl md:text-2xl font-black text-white mb-4 tracking-tight leading-none group-hover:text-purple-300 transition-colors ${lang === 'km' ? 'khmer-text text-2xl' : ''}`}>
                         {tr(stepData.title, lang)}
                       </h3>
 
-                      <p className={`text-slate-400 text-sm leading-relaxed ${lang === 'km' ? 'khmer-text' : ''}`}>
+                      <p className={`text-slate-400 text-sm leading-relaxed font-medium md:px-4 ${lang === 'km' ? 'khmer-text text-base leading-relaxed' : ''}`}>
                         {tr(stepData.desc, lang)}
                       </p>
                     </div>

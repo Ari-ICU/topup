@@ -20,7 +20,7 @@ const rajdhani = Rajdhani({
 const notoSansKhmer = Noto_Sans_Khmer({
   weight: ["400", "500", "600", "700", "800", "900"],
   subsets: ["khmer"],
-  variable: "--font-khmer",
+  variable: "--font-khmer-var",
   display: "swap",
 });
 
