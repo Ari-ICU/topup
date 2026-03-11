@@ -411,15 +411,15 @@ export default function Home() {
 
             <div className="flex flex-col items-center justify-between gap-8 md:flex-row pb-12">
               <div className="flex items-center gap-4">
-                <a href="https://www.facebook.com/profile.php?id=61581321795413" className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-500 hover:text-white hover:bg-blue-600/20 hover:border-blue-600/40 transition-all group" title="Facebook">
+                <a href="https://www.facebook.com/profile.php?id=61581321795413" target="_blank" className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-500 hover:text-white hover:bg-blue-600/20 hover:border-blue-600/40 transition-all group" title="Facebook">
                   <Facebook className="w-5 h-5 transition-transform group-hover:scale-110" />
                 </a>
-                <a href="#" className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-500 hover:text-white hover:bg-white/10 hover:border-white/20 transition-all group" title="TikTok">
+                <a href="#" target="_blank" className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-500 hover:text-white hover:bg-white/10 hover:border-white/20 transition-all group" title="TikTok">
                   <svg className="w-5 h-5 transition-transform group-hover:scale-110" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M19.589 6.686a4.793 4.793 0 0 1-3.77-4.245V2h-3.445v13.672a2.896 2.896 0 0 1-5.201 1.743l-.002-.001.002.001a2.895 2.895 0 0 1 3.183-4.51v-3.5a6.329 6.329 0 0 0-5.394 10.692 6.33 6.33 0 0 0 10.857-4.424V8.617a8.171 8.171 0 0 0 4.773 1.574V6.686z" />
                   </svg>
                 </a>
-                <a href="#" className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-500 hover:text-white hover:bg-sky-500/20 hover:border-sky-500/40 transition-all group" title="Telegram">
+                <a href="#" target="_blank" className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-500 hover:text-white hover:bg-sky-500/20 hover:border-sky-500/40 transition-all group" title="Telegram">
                   <Send className="w-5 h-5 transition-transform group-hover:scale-110" />
                 </a>
               </div>
