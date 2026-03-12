@@ -145,11 +145,11 @@ app.use((_req, res) => {
 
 // Global Error Handler
 app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
-    // Specifically handle CORS errors with 403
+    // Specifically handle CORS errors with 403 Forbidden
     if (err.message?.includes("CORS: origin") && err.message?.includes("not allowed")) {
-        return res.status(404).json({
+        return res.status(403).json({
             success: false,
-            message: "Route not found",
+            message: "Access Forbidden: Origin not allowed",
         });
     }
 
