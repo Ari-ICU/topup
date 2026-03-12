@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+      - name: backend
+        image: your-registry/topup-backend:latest # Replace with your image
+        ports:
+        - containerPort: 4000
+        env:
+        # These are explicitly defined to construct DATABASE_URL
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: topup-secrets
+              key: DB_USER
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: topup-secrets
+              key: DB_PASSWORD
+        - name: DB_NAME
+          valueFrom:
+            secretKeyRef:
+              name: topup-secrets
+              key: DB_NAME
+        - name: DATABASE_URL
+          value: "postgresql://$(DB_USER):$(DB_PASSWORD)@db:5432/$(DB_NAME)?schema=public"
+        - name: REDIS_URL
+          value: "redis://redis:6379"
+        envFrom:
+        - configMapRef:
+            name: topup-config
+        - secretRef:
+            name: topup-secrets
+        volumeMounts:
+        - name: uploads-data
+          mountPath: /app/public/uploads
+      volumes:
+      - name: uploads-data
+        persistentVolumeClaim:
+          claimName: uploads-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+spec:
+  ports:
+  - port: 4000
+  selector:
+    app: backend

@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: topup-config
+data:
+  NODE_ENV: "production"
+  PORT: "4000"
+  ALLOWED_ORIGINS: "https://yourdomain.com,https://www.yourdomain.com"
+  NEXT_PUBLIC_API_URL: "https://yourdomain.com/api"
+  BAKONG_MERCHANT_NAME: "TopUpPay Co., Ltd."
+  BAKONG_MERCHANT_CITY: "Phnom Penh"
+  BAKONG_ACQUIRING_BANK: "ABA Bank"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: topup-secrets
+type: Opaque
+stringData:
+  # Database
+  DB_USER: "topuppay"
+  DB_PASSWORD: "CHANGE_THIS_STRONG_PASSWORD"
+  DB_NAME: "topuppay_prod"
+  
+  # Backend Secrets
+  JWT_SECRET: "CHANGE_THIS_TO_A_VERY_LONG_RANDOM_STRING"
+  ADMIN_PASSWORD: "CHANGE_THIS_STRONG_PASSWORD"
+  AUDIT_KEY: ""
+  
+  # Bakong
+  BAKONG_ACCOUNT_ID: "yourname@yourbank"
+  
+  # Top-up Providers
+  DIGIFLAZZ_USERNAME: "your_username"
+  DIGIFLAZZ_API_KEY: "your_api_key"
+  UNIPIN_PARTNER_ID: "your_partner_id"
+  UNIPIN_SECRET_KEY: "your_secret_key"
+  
+  # Notifications
+  TELEGRAM_BOT_TOKEN: "your_bot_token"
+  TELEGRAM_CHAT_ID: "your_chat_id"
+  
+  # Infrastructure
+  CLOUDFLARE_TUNNEL_TOKEN: "your_tunnel_token"
