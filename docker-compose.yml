@@ -3,9 +3,9 @@ services:
     image: postgres:17-alpine
     restart: always
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: topup_db
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
     ports:
       - "5050:5432"
     volumes:
@@ -28,13 +28,13 @@ services:
       - "4000:4000"
     command: npm run dev
     environment:
-      - DATABASE_URL=postgresql://postgres:password@db:5432/topup_db?schema=public
+      - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}?schema=public
       - PORT=4000
       - NODE_ENV=development
-      - BAKONG_ACCOUNT_ID=thoeurnratha@aba
-      - BAKONG_MERCHANT_NAME=TopUpPay
-      - BAKONG_MERCHANT_CITY=Phnom Penh
-      - BAKONG_ACQUIRING_BANK=ABA Bank
+      - BAKONG_ACCOUNT_ID=${BAKONG_ACCOUNT_ID}
+      - BAKONG_MERCHANT_NAME=${BAKONG_MERCHANT_NAME}
+      - BAKONG_MERCHANT_CITY=${BAKONG_MERCHANT_CITY}
+      - BAKONG_ACQUIRING_BANK=${BAKONG_ACQUIRING_BANK}
       - REDIS_URL=redis://redis:6379
     depends_on:
       - db
@@ -52,10 +52,10 @@ services:
     ports:
       - "3000:3000"
     environment:
-      # Browser-side (user's machine → host:4000)
-      - NEXT_PUBLIC_API_URL=http://localhost:4000/api
-      # Server-side (Next.js container → backend container via Docker network)
-      - BACKEND_API_URL=http://backend:4000/api
+      # Browser-side
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+      # Server-side
+      - BACKEND_API_URL=${BACKEND_API_URL}
     depends_on:
       - backend
     volumes:

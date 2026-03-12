@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import { getRealIp } from "../utils/ip.util.js";
 
 // ============================================================================
 //  Security Middleware
@@ -46,7 +47,8 @@ export const blockSuspiciousAgents = (req: Request, res: Response, next: NextFun
     const isSuspicious = BLOCKED_UA_PATTERNS.some((pattern) => pattern.test(ua));
 
     if (isSuspicious) {
-        console.warn(`[Security] 🤖 Suspicious User-Agent blocked: "${ua}" from ${req.ip}`);
+        const clientIp = getRealIp(req);
+        console.warn(`[Security] 🤖 Suspicious User-Agent blocked: "${ua}" from ${clientIp}`);
         return res.status(404).json({ success: false, message: "Route not found" });
     }
 
@@ -128,7 +130,8 @@ export const largePayloadGuard = (req: Request, res: Response, next: NextFunctio
     const MAX_BYTES = isUpload ? 5 * 1024 * 1024 : 50 * 1024;
 
     if (contentLength > MAX_BYTES) {
-        console.warn(`[Security] 🛑 Oversized payload rejected: ${contentLength} bytes from ${req.ip} (Path: ${req.path})`);
+        const clientIp = getRealIp(req);
+        console.warn(`[Security] 🛑 Oversized payload rejected: ${contentLength} bytes from ${clientIp} (Path: ${req.path})`);
         return res.status(413).json({
             success: false,
             message: isUpload ? "Image too large (max 5MB)" : "Request payload too large.",
@@ -143,9 +146,7 @@ export const largePayloadGuard = (req: Request, res: Response, next: NextFunctio
 //   In production, pipe this to a log aggregator (e.g., Logtail, Datadog).
 
 export const securityLogger = (req: Request, _res: Response, next: NextFunction) => {
-    const ip = (req.headers["x-forwarded-for"] as string)?.split(",")[0]?.trim()
-        ?? req.socket.remoteAddress
-        ?? "unknown";
+    const ip = getRealIp(req);
 
     const requestIdHeader = req.headers["x-request-id"] ?? "no-id";
 

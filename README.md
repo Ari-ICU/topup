@@ -19,7 +19,8 @@
 11. [Admin Panel Guide](#-admin-panel-guide)
 12. [Payment Integration](#-payment-integration-bakong-khqr)
 13. [Top-Up Provider Integration](#-top-up-provider-integration)
-14. [Troubleshooting](#-troubleshooting)
+14. [Testing](#-testing)
+15. [Troubleshooting](#-troubleshooting)
 
 ---
 
@@ -480,6 +481,16 @@ docker compose down -v   # removes postgres_data volume
 
 ## 🏭 Production Deployment
 
+We recommend using **Cloudflare Tunnel** for production deployments. It is more secure than traditional port forwarding because it doesn't require opening any firewall ports (80/443) on your server.
+
+### 💎 Recommended: Cloudflare Tunnel
+For a step-by-step guide on setting up a secure, "invisible" production server with Cloudflare, see:
+👉 **[Cloudflare Tunnel Deployment Guide](docs/DOCKER_CLOUDFLARE_TUNNEL.md)**
+
+---
+
+### Alternative: Standard Docker Deployment (Nginx + SSL)
+
 ### Step 1 — Prepare Environment File
 
 ```bash
@@ -648,6 +659,36 @@ For reliable payment status polling in production:
 ---
 
 ### 1. MooGold (Primary Provider)
+
+---
+
+## 🛡️ Maintenance Mode
+
+You can temporarily disable the storefront for maintenance (while keeping the admin panel active) using an environment variable.
+
+1.  Open `.env` (development) or `.env.production` (production).
+2.  Set `MAINTENANCE_MODE=true`.
+3.  Restart your containers.
+
+**What happens?**
+- Customers see a "Scheduled Maintenance" message.
+- `/health` and `/api/admin/*` remain fully operational for you.
+
+---
+
+## 🧪 Testing
+
+We use **Vitest** for unit and integration testing.
+
+### Running Tests
+```bash
+cd backend
+npm test
+```
+
+### Test Coverage
+- **Unit Tests**: `tests/unit/` (IP utilities, Maintenance logic)
+- **Integration Tests**: `tests/integration/` (API status, Health checks, Cloudflare detection)
 
 ---
 

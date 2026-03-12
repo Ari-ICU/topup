@@ -14,6 +14,7 @@ import {
     largePayloadGuard,
     securityLogger,
 } from "./middleware/security.middleware.js";
+import { maintenanceGuard } from "./middleware/maintenance.middleware.js";
 console.log("[App] 🚀 Initializing application...");
 
 // App configuration
@@ -21,8 +22,9 @@ const app = express();
 console.log("[App] ✅ Express instance created.");
 const isProd = process.env.NODE_ENV === "production";
 
-// Trust Proxy for Nginx/Cloudflare
-app.set("trust proxy", 1);
+// Trust Proxy for Nginx/Cloudflare/Tunnel
+// 172.16.0.0/12 = Docker internal network
+app.set("trust proxy", ["loopback", "linklocal", "uniquelocal", "172.16.0.0/12"]);
 
 // ─── 1. CORS MUST be first to ensure headers are present even on errors ─────
 const allowedOrigins = (process.env.ALLOWED_ORIGINS ?? "http://localhost:3000,https://topup-sable.vercel.app")
@@ -100,7 +102,8 @@ app.use(blockSuspiciousAgents);
 // Rate Limiting, Logging, and Routes
 app.use(globalLimiter);
 app.use(speedLimiter);
-app.use(express.json({ limit: "10kb" }));
+app.use(maintenanceGuard); // 🛠️ Maintenance Check before heavy logic
+app.use(express.json({ limit: "15kb" })); // Slightly increased for complex game inputs
 app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 app.use(largePayloadGuard);
 app.use(sanitizeInput);
@@ -124,13 +127,15 @@ app.use("/api", router);
 console.log("[App] ✅ API routes configured.");
 
 // Health Check
-app.get("/health", (_req, res) => {
+app.get("/health", (req, res) => {
     res.status(200).json({
         status: "ok",
         env: process.env.NODE_ENV,
         timestamp: new Date().toISOString(),
-        uptime: Math.floor(process.uptime()),
+        uptime: `${Math.floor(process.uptime() / 3600)}h ${Math.floor((process.uptime() % 3600) / 60)}m`,
         redis: isRedisAvailable() ? "connected" : "unavailable",
+        cloudflare: req.headers["cf-ray"] ? "active" : "disabled",
+        visitor_country: req.headers["cf-ipcountry"] || "unknown",
     });
 });
 

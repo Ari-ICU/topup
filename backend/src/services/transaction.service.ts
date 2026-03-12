@@ -4,28 +4,30 @@ import { getActiveProviderBalance, processTopUp } from "./topup-provider.service
 
 // Stock deduction helper
 export const deductGlobalStock = async (diamondAmount: number): Promise<void> => {
-    const stock = await prisma.globalStock.upsert({
-        where: { id: "GLOBAL" },
-        update: {},
-        create: { id: "GLOBAL", diamonds: -1 }
+    await prisma.$transaction(async (tx) => {
+        const stock = await tx.globalStock.upsert({
+            where: { id: "GLOBAL" },
+            update: {},
+            create: { id: "GLOBAL", diamonds: -1 }
+        });
+
+        // skip if in unlimited mode (-1)
+        if (stock.diamonds === -1) {
+            console.log(`[Stock] Unlimited mode, skipping deduction for ${diamondAmount} diamonds.`);
+            return;
+        }
+
+        if (stock.diamonds < diamondAmount) {
+            throw new Error(`Global Stock Insufficient: have ${stock.diamonds}, need ${diamondAmount}`);
+        }
+
+        const updated = await tx.globalStock.update({
+            where: { id: "GLOBAL" },
+            data: { diamonds: stock.diamonds - diamondAmount }
+        });
+
+        console.log(`[Stock] Deducted ${diamondAmount} diamonds, remaining ${updated.diamonds}`);
     });
-
-    // skip if in unlimited mode (-1)
-    if (stock.diamonds === -1) {
-        console.log(`[Stock] Unlimited mode, skipping deduction for ${diamondAmount} diamonds.`);
-        return;
-    }
-
-    if (stock.diamonds < diamondAmount) {
-        throw new Error(`Global Stock Insufficient: have ${stock.diamonds}, need ${diamondAmount}`);
-    }
-
-    const updated = await prisma.globalStock.update({
-        where: { id: "GLOBAL" },
-        data: { diamonds: stock.diamonds - diamondAmount }
-    });
-
-    console.log(`[Stock] Deducted ${diamondAmount} diamonds, remaining ${updated.diamonds}`);
 };
 
 // Create a new transaction

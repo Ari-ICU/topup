@@ -2,15 +2,13 @@ import rateLimit from "express-rate-limit";
 import slowDown from "express-slow-down";
 import { RedisStore } from "rate-limit-redis";
 import { redis, isRedisAvailable } from "../lib/redis.js";
+import { getRealIp } from "../utils/ip.util.js";
 
 const isProd = process.env.NODE_ENV === "production";
 
 // ─── Rate Limit Handler — Automatically bans the IP ───────────────────────────
 const rateLimitHandler = (message: string) => (req: any, res: any) => {
-    const clientIp = (req.headers["x-forwarded-for"] as string)?.split(",")[0]?.trim()
-        ?? req.socket.remoteAddress
-        ?? "unknown";
-
+    const clientIp = getRealIp(req);
     console.warn(`[Security] 🛡️ Rate limit triggered: ${clientIp}.`);
 
     res.status(404).json({
