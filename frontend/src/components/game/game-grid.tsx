@@ -99,9 +99,18 @@ export function GameGrid() {
                             </div>
 
                             {/* Floating Badges */}
+                            <div className="absolute top-4 right-4 flex flex-col gap-2">
+                                {hasPackages && (
+                                    <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 backdrop-blur-md shadow-lg">
+                                        <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                        <span className="text-[7px] md:text-[9px] font-black text-emerald-500 uppercase tracking-widest leading-none">LIVE</span>
+                                    </div>
+                                )}
+                            </div>
+
                             <div className="absolute top-4 left-4 flex flex-col gap-2">
                                 {hasPackages && (
-                                    <div className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)] animate-pulse-slow">
+                                    <div className="flex h-5 w-5 items-center justify-center rounded-full bg-purple-500 shadow-[0_0_10px_rgba(168,85,247,0.5)]">
                                         <Zap className="w-3 h-3 text-white fill-current" />
                                     </div>
                                 )}

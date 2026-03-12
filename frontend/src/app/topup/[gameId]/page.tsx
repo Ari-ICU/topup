@@ -608,7 +608,20 @@ export default function TopupPage() {
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+                            {game.packages.length === 0 ? (
+                                <div className="flex flex-col items-center justify-center py-12 px-6 rounded-3xl bg-slate-900/40 border border-white/5 text-center animate-fade-in">
+                                    <div className="h-20 w-20 rounded-full bg-purple-500/10 flex items-center justify-center mb-6 border border-purple-500/20">
+                                        <Package className="w-10 h-10 text-purple-400 opacity-20" />
+                                    </div>
+                                    <h3 className={`text-xl font-bold text-white mb-2 ${lang === 'km' ? 'khmer-text' : ''}`}>
+                                        {tr(t.topup.noPackagesTitle, lang)}
+                                    </h3>
+                                    <p className={`text-sm text-slate-400 max-w-sm leading-relaxed ${lang === 'km' ? 'khmer-text' : ''}`}>
+                                        {tr(t.topup.noPackagesDesc, lang)}
+                                    </p>
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
                                 {game.packages.map((pkg) => {
                                     const soldOut = isPackageSoldOut(pkg.amount);
                                     const formattedPkgName = formatPackageName(pkg.name);
@@ -703,6 +716,7 @@ export default function TopupPage() {
                                     );
                                 })}
                             </div>
+                            )}
                         </div>
 
                         {/* Step 3: Payment Method */}

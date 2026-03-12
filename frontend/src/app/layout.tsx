@@ -4,6 +4,7 @@ import "./globals.css";
 import { LangProvider } from "@/context/lang-context";
 import { AuthProvider } from "@/context/auth-context";
 import { TabPolish } from "@/components/ui/tab-polish";
+import { SupportHub } from "@/components/ui/support-hub";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -87,6 +88,7 @@ export default function RootLayout({
         <AuthProvider>
           <LangProvider>
             <TabPolish />
+            <SupportHub />
             {children}
           </LangProvider>
         </AuthProvider>
