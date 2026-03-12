@@ -37,10 +37,15 @@ spec:
         volumeMounts:
         - name: postgres-data
           mountPath: /var/lib/postgresql/data
-        healthCheck:
+        livenessProbe:
           exec:
             command: ["pg_isready", "-U", "daigamestopup"]
           initialDelaySeconds: 10
+          periodSeconds: 10
+        readinessProbe:
+          exec:
+            command: ["pg_isready", "-U", "daigamestopup"]
+          initialDelaySeconds: 5
           periodSeconds: 10
   volumeClaimTemplates:
   - metadata:

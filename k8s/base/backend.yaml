@@ -15,6 +15,7 @@ spec:
       containers:
       - name: backend
         image: topup-backend:latest # Local/Private image name
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 4000
         env:

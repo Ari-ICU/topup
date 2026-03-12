@@ -1,8 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // NOTE: 'output: standalone' is removed — it breaks Vercel deploys.
-  // It is only needed for self-hosted Docker deployments.
+  output: 'standalone', // Required for Docker deployment
 
   // Security headers
   async headers() {
