@@ -74,6 +74,16 @@ export const adminLimiter = rateLimit({
     skip: skipAudit,
     handler: rateLimitHandler("Too many admin attempts. IP temporarily restricted."),
 });
+// ─── 4. Verification limiter (account check) ──────────────────────────────────
+export const verifyLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: isProd ? 15 : 100, // Strict: 15 checks per 15 minutes is plenty for human users
+    standardHeaders: "draft-7",
+    legacyHeaders: false,
+    store: store("verify"),
+    skip: skipAudit,
+    handler: rateLimitHandler("Too many account checks. Please wait 15 minutes."),
+});
 
 
 // ─── 5. Heavy action limiter (confirm/fulfill) ───────────────────────────────

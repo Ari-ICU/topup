@@ -18,6 +18,8 @@ import { KhqrModal } from "@/components/topup/khqr-modal";
 import { useLang } from "@/context/lang-context";
 import { t, tr, Lang } from "@/lib/i18n";
 import { LangSwitcher } from "@/components/ui/lang-switcher";
+import { TransactionHistory } from "@/components/topup/transaction-history";
+import confetti from "canvas-confetti";
 
 // ─── Step Header ─────────────────────────────────────────────────────────────
 function StepHeader({ step, title, subtitle, lang }: { step: number; title: string; subtitle: string; lang: Lang }) {
@@ -297,6 +299,33 @@ export default function TopupPage() {
         resetVerify();
         setAgreedToTerms(false);
     };
+
+    // 🎊 Success Celebration (Confetti)
+    useEffect(() => {
+        if (status === "COMPLETED") {
+            const duration = 3 * 1000;
+            const animationEnd = Date.now() + duration;
+            const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 100 };
+
+            const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
+
+            const interval: any = setInterval(function() {
+                const timeLeft = animationEnd - Date.now();
+
+                if (timeLeft <= 0) {
+                    return clearInterval(interval);
+                }
+
+                const particleCount = 50 * (timeLeft / duration);
+                
+                // since particles fall down, start a bit higher than random
+                confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } });
+                confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } });
+            }, 250);
+
+            return () => clearInterval(interval);
+        }
+    }, [status]);
 
     // Auto-clear form on successful completion
     useEffect(() => {
@@ -958,7 +987,10 @@ export default function TopupPage() {
 
             <HowToUseSection lang={lang} />
 
-            {/* Global Modals */}
+            {/* History Floating UI */}
+            <TransactionHistory />
+
+            {/* Modals & Overlays */}
             {paymentData && status === "PROCESSING" && (
                 <KhqrModal
                     qrCode={paymentData.qrCode}

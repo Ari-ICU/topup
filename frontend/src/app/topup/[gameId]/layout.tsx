@@ -61,30 +61,34 @@ export default async function GameLayout({
         const game = await apiRequest<Game>(`/games/${gameId}`);
 
         // Construct JSON-LD
-        const prices = game.packages.map(p => Number(p.price));
-        const minPrice = Math.min(...prices);
-        const maxPrice = Math.max(...prices);
+        const packages = game.packages || [];
+        const prices = packages.map(p => Number(p.price)).filter(p => !isNaN(p));
+        
+        if (packages.length > 0 && prices.length > 0) {
+            const minPrice = Math.min(...prices);
+            const maxPrice = Math.max(...prices);
 
-        jsonLd = {
-            "@context": "https://schema.org",
-            "@type": "Product",
-            "name": `Top up ${game.name} Diamonds`,
-            "description": `Fast and secure ${game.name} top-up. Instant delivery with KHQR support.`,
-            "image": game.iconUrl,
-            "brand": {
-                "@type": "Brand",
-                "name": game.name
-            },
-            "offers": {
-                "@type": "AggregateOffer",
-                "lowPrice": minPrice.toFixed(2),
-                "highPrice": maxPrice.toFixed(2),
-                "priceCurrency": "USD",
-                "offerCount": game.packages.length,
-                "availability": "https://schema.org/InStock",
-                "url": `https://topup-sable.vercel.app/topup/${gameId}`
-            }
-        };
+            jsonLd = {
+                "@context": "https://schema.org",
+                "@type": "Product",
+                "name": `Top up ${game.name} Diamonds`,
+                "description": `Fast and secure ${game.name} top-up. Instant delivery with KHQR support.`,
+                "image": game.iconUrl,
+                "brand": {
+                    "@type": "Brand",
+                    "name": game.name
+                },
+                "offers": {
+                    "@type": "AggregateOffer",
+                    "lowPrice": minPrice.toFixed(2),
+                    "highPrice": maxPrice.toFixed(2),
+                    "priceCurrency": "USD",
+                    "offerCount": packages.length,
+                    "availability": "https://schema.org/InStock",
+                    "url": `https://topup-sable.vercel.app/topup/${gameId}`
+                }
+            };
+        }
     } catch (e) {
         console.warn("[JSON-LD] Failed to generate for game:", gameId);
     }

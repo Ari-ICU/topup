@@ -3,6 +3,7 @@ import { Inter, Rajdhani, Noto_Sans_Khmer } from "next/font/google";
 import "./globals.css";
 import { LangProvider } from "@/context/lang-context";
 import { AuthProvider } from "@/context/auth-context";
+import { TabPolish } from "@/components/ui/tab-polish";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -85,6 +86,7 @@ export default function RootLayout({
       <body className={`${inter.variable} ${rajdhani.variable} ${notoSansKhmer.variable} antialiased`} suppressHydrationWarning>
         <AuthProvider>
           <LangProvider>
+            <TabPolish />
             {children}
           </LangProvider>
         </AuthProvider>

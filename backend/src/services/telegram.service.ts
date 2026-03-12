@@ -53,7 +53,7 @@ export const telegramService = {
             <b>Player Info:</b> <code>${JSON.stringify(order.playerInfo)}</code>
             <b>Status:</b> ${order.status}
             ━━━━━━━━━━━━━━━━━━
-            <i>TopUpPay System</i>
+            <i>DAI-GAME System</i>
         `.trim();
 
         await telegramService.sendMessage(text);

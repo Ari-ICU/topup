@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { apiRequest } from "@/lib/api";
 import { Game, GamePackage, TransactionStatus, VerifyStatus } from "@/types";
+import { historyService } from "@/lib/history";
 
 
 // ─── useGameData ─────────────────────────────────────────────────────────────
@@ -123,12 +124,14 @@ export function useTransaction() {
                     console.log(`[useTransaction] ✅ Payment confirmed for ${transactionId}`);
                     setPaymentData(null);
                     setStatus("COMPLETED");
+                    historyService.updateStatus(transactionId, "COMPLETED");
                     clearInterval(pollInterval);
                 } else if (res.status === "PROCESSING") {
                     // Payment verified, but delivery is still in progress
                     console.log(`[useTransaction] 💰 Payment verified, delivering... ${transactionId}`);
                     setPaymentData(null); // Hide QR modal now that user has paid
                     setStatus("PROCESSING");
+                    historyService.updateStatus(transactionId, "PROCESSING");
                 }
             } catch (err) {
                 console.warn("[useTransaction] Polling check failed (will retry):", err);
@@ -165,6 +168,15 @@ export function useTransaction() {
             });
 
             setTransactionId(data.id);
+
+            // Record in local history
+            historyService.add({
+                id: data.id,
+                gameName: params.playerName || "Gaming Platform",
+                packageName: "Top-up Order",
+                amount: data.totalAmount || 0,
+                status: data.paymentData ? "PENDING" : "COMPLETED"
+            });
 
             if (data.paymentData) {
                 setPaymentData(data.paymentData);
