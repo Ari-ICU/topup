@@ -48,5 +48,10 @@ data:
                 expires 365d;
                 add_header Cache-Control "public, immutable";
             }
+            # Health check for Kubernetes
+            location /healthz {
+                access_log off;
+                return 200 "healthy\n";
+            }
         }
     }

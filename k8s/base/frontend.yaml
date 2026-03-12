@@ -25,14 +25,16 @@ spec:
           httpGet:
             path: /
             port: 3000
-          initialDelaySeconds: 60
+          initialDelaySeconds: 90
           periodSeconds: 20
+          failureThreshold: 5
         readinessProbe:
           httpGet:
             path: /
             port: 3000
-          initialDelaySeconds: 30
+          initialDelaySeconds: 45
           periodSeconds: 10
+          failureThreshold: 5
         resources:
           requests:
             cpu: "100m"
