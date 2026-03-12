@@ -5,9 +5,9 @@ metadata:
 data:
   NODE_ENV: "production"
   PORT: "4000"
-  ALLOWED_ORIGINS: "https://yourdomain.com,https://www.yourdomain.com"
-  NEXT_PUBLIC_API_URL: "https://yourdomain.com/api"
-  BAKONG_MERCHANT_NAME: "TopUpPay Co., Ltd."
+  ALLOWED_ORIGINS: "https://YOUR_DOMAIN.com,https://www.YOUR_DOMAIN.com"
+  NEXT_PUBLIC_API_URL: "https://YOUR_DOMAIN.com/api"
+  BAKONG_MERCHANT_NAME: "Dai Game Store"
   BAKONG_MERCHANT_CITY: "Phnom Penh"
   BAKONG_ACQUIRING_BANK: "ABA Bank"
 ---
@@ -18,17 +18,17 @@ metadata:
 type: Opaque
 stringData:
   # Database
-  DB_USER: "topuppay"
-  DB_PASSWORD: "CHANGE_THIS_STRONG_PASSWORD"
-  DB_NAME: "topuppay_prod"
+  DB_USER: "daigamestopup"
+  DB_PASSWORD: "Jfrog123!"
+  DB_NAME: "daigametopup"
   
   # Backend Secrets
-  JWT_SECRET: "CHANGE_THIS_TO_A_VERY_LONG_RANDOM_STRING"
-  ADMIN_PASSWORD: "CHANGE_THIS_STRONG_PASSWORD"
-  AUDIT_KEY: ""
+  JWT_SECRET: "gTjaAqYa/QFfEsgrYAIZ5BC9v8fR1i8ZHfotsbjBkvQ="
+  ADMIN_PASSWORD: "Jfrog123!@"
+  AUDIT_KEY: "OPTIONAL_SECRET_FOR_BYPASSING_RATE_LIMITS"
   
   # Bakong
-  BAKONG_ACCOUNT_ID: "yourname@yourbank"
+  BAKONG_ACCOUNT_ID: "thoeurn_ratha@bkrt"
   
   # Top-up Providers
   DIGIFLAZZ_USERNAME: "your_username"
@@ -37,8 +37,8 @@ stringData:
   UNIPIN_SECRET_KEY: "your_secret_key"
   
   # Notifications
-  TELEGRAM_BOT_TOKEN: "your_bot_token"
-  TELEGRAM_CHAT_ID: "your_chat_id"
+  TELEGRAM_BOT_TOKEN: ""
+  TELEGRAM_CHAT_ID: ""
   
   # Infrastructure
-  CLOUDFLARE_TUNNEL_TOKEN: "your_tunnel_token"
+  CLOUDFLARE_TUNNEL_TOKEN: "your_tunnel_token_here"

@@ -39,7 +39,7 @@ spec:
           mountPath: /var/lib/postgresql/data
         healthCheck:
           exec:
-            command: ["pg_isready", "-U", "topuppay"]
+            command: ["pg_isready", "-U", "daigamestopup"]
           initialDelaySeconds: 10
           periodSeconds: 10
   volumeClaimTemplates:

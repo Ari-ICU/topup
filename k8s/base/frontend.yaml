@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: your-registry/topup-frontend:latest # Replace with your image
+        image: topup-frontend:latest # Local/Private image name
         ports:
         - containerPort: 3000
         envFrom:

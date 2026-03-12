@@ -12,6 +12,7 @@ resources:
   - nginx.yaml
   - tunnel.yaml
 
-# Common labels for all resources
-commonLabels:
-  project: topup-pay
+# Labels for all resources
+labels:
+  - pairs:
+      project: topup-pay

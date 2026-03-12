@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: your-registry/topup-backend:latest # Replace with your image
+        image: topup-backend:latest # Local/Private image name
         ports:
         - containerPort: 4000
         env:
