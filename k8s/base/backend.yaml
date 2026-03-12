@@ -47,6 +47,25 @@ spec:
         volumeMounts:
         - name: uploads-data
           mountPath: /app/public/uploads
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 4000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 4000
+          initialDelaySeconds: 15
+          periodSeconds: 10
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
       volumes:
       - name: uploads-data
         persistentVolumeClaim:
