@@ -13,6 +13,7 @@ spec:
       labels:
         app: db
     spec:
+      terminationGracePeriodSeconds: 60
       containers:
       - name: postgres
         image: postgres:17-alpine
@@ -47,6 +48,13 @@ spec:
             command: ["pg_isready", "-U", "daigamestopup"]
           initialDelaySeconds: 5
           periodSeconds: 10
+        resources:
+          requests:
+            cpu: "200m"
+            memory: "256Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
   volumeClaimTemplates:
   - metadata:
       name: postgres-data
