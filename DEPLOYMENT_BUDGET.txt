@@ -1,0 +1,41 @@
+💰 PROJECT DEPLOYMENT BUDGET & SPECS
+==================================================
+
+1. MONTHLY COSTS (ESTIMATE)
+--------------------------------------------------
+- Server (VPS):      $5.00 - $10.00
+- Cloudflare Tunnel: $0.00 (FREE)
+- SSL Security:      $0.00 (FREE)
+- Database:          $0.00 (Free - Inside Docker)
+- Backups:           $1.00 (Optional)
+
+MONTHLY TOTAL:      ~$6.00 to $11.00 USD
+
+
+2. YEARLY COSTS
+--------------------------------------------------
+- Domain (.com):    ~$12.00 / Year
+
+
+3. RECOMMENDED HARDWARE (FOR SMOOTH PERFORMANCE)
+--------------------------------------------------
+- RAM (Memory):      2 GB (Required for Next.js)
+- CPU:               1 vCPU (Minimum)
+- Storage (SSD):     20 GB to 40 GB
+- OS:                Ubuntu 22.04 LTS
+
+
+4. RECOMMENDED PROVIDERS
+--------------------------------------------------
+- Cheapest:          Hetzner (CX21 Plan)
+- Most Famous:       DigitalOcean (Basic Droplet)
+- Professional:      Vultr / Linode
+
+
+5. SUMMARY Checklist
+--------------------------------------------------
+[ ] Buy Domain on Cloudflare ($12)
+[ ] Rent VPS with 2GB RAM ($6/mo)
+[ ] Install Docker & Cloudflared
+[ ] Go Live!
+==================================================
