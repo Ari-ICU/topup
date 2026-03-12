@@ -387,7 +387,7 @@ export default function Home() {
                 <p className={`text-sm text-slate-400 leading-relaxed mb-6 ${lang === 'km' ? 'khmer-text' : ''}`}>
                   {tr(t.footer.desc, lang)}
                 </p>
-                <Link href="/docs" className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-white/5 border border-white/10 hover:border-indigo-500/50 hover:bg-indigo-500/10 text-xs font-black text-indigo-400 uppercase tracking-widest transition-all w-fit group">
+                <Link href="/docs" target="_blank" className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-white/5 border border-white/10 hover:border-indigo-500/50 hover:bg-indigo-500/10 text-xs font-black text-indigo-400 uppercase tracking-widest transition-all w-fit group">
                   <Terminal className="w-4 h-4 group-hover:rotate-12 transition-transform" />
                   API Documentation
                 </Link>
