@@ -40,6 +40,7 @@
 | 🛡️ Admin panel | Full management of games, packages, transactions, settings |
 | 🔑 Reseller API | Allow others to resell your services via master API keys |
 | 📊 Dashboard | Revenue stats, recent transactions, stock overview |
+| 🤖 Telegram Bot | Real-time order notifications and system alerts |
 
 ---
 

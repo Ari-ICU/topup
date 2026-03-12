@@ -1,6 +1,7 @@
 import { prisma } from "../lib/prisma.js";
 import { TransactionStatus } from "@prisma/client";
 import { getActiveProviderBalance, processTopUp } from "./topup-provider.service.js";
+import { telegramService } from "./telegram.service.js";
 
 // Stock deduction helper
 export const deductGlobalStock = async (diamondAmount: number): Promise<void> => {
@@ -165,6 +166,11 @@ export const fulfillTransaction = async (id: string): Promise<{
         await adminService.backupData();
 
         console.log(`[Fulfillment] ✅ TxID ${id} completed via ${result.provider}.`);
+
+        // 🔔 Notify via Telegram
+        telegramService.sendOrderNotification(transaction).catch(err => 
+            console.error("[Telegram] Notification failed:", err.message)
+        );
 
         return {
             success: true,
