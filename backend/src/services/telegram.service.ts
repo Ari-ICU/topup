@@ -1,24 +1,35 @@
 import axios from "axios";
-
-const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+import { getSystemSettings } from "../lib/settings.js";
 
 /**
  * Service to handle Telegram notifications
  */
 export const telegramService = {
     /**
+     * Get config from DB or Env
+     */
+    getConfig: async () => {
+        const settings = await getSystemSettings();
+        return {
+            token: settings.get("TELEGRAM_BOT_TOKEN"),
+            chatId: settings.get("TELEGRAM_CHAT_ID"),
+        };
+    },
+
+    /**
      * Send a raw text message
      */
     sendMessage: async (text: string) => {
-        if (!BOT_TOKEN || !CHAT_ID) {
+        const { token, chatId } = await telegramService.getConfig();
+
+        if (!token || !chatId) {
             console.warn("[Telegram] ⚠️ Token or Chat ID not configured. Skipping notification.");
             return;
         }
 
         try {
-            await axios.post(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-                chat_id: CHAT_ID,
+            await axios.post(`https://api.telegram.org/bot${token}/sendMessage`, {
+                chat_id: chatId,
                 text,
                 parse_mode: "HTML",
             });
@@ -53,10 +64,10 @@ export const telegramService = {
      */
     sendAlert: async (title: string, message: string) => {
         const text = `
-<b>⚠️ SYSTEM ALERT: ${title}</b>
-━━━━━━━━━━━━━━━━━━
-${message}
-━━━━━━━━━━━━━━━━━━
+            <b>⚠️ SYSTEM ALERT: ${title}</b>
+            ━━━━━━━━━━━━━━━━━━
+            ${message}
+            ━━━━━━━━━━━━━━━━━━
         `.trim();
         await telegramService.sendMessage(text);
     }

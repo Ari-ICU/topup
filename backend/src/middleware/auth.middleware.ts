@@ -40,9 +40,9 @@ export const adminAuth = async (req: Request, res: Response, next: NextFunction)
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-        return res.status(404).json({
+        return res.status(401).json({
             success: false,
-            message: "Route not found",
+            message: "Authentication failed: Missing token",
         });
     }
 
@@ -55,18 +55,18 @@ export const adminAuth = async (req: Request, res: Response, next: NextFunction)
         const jti = (decoded as any).jti || token.slice(-16);
         const blocked = await rGet(`auth:blocklist:${jti}`);
         if (blocked) {
-            return res.status(404).json({
+            return res.status(401).json({
                 success: false,
-                message: "Route not found",
+                message: "Authentication failed: Token is revoked",
             });
         }
 
         (req as any).admin = decoded;
         next();
     } catch (error) {
-        return res.status(404).json({
+        return res.status(401).json({
             success: false,
-            message: "Route not found",
+            message: "Authentication failed: Invalid or expired token",
         });
     }
 };

@@ -8,9 +8,15 @@ Follow these steps to enable real-time order notifications on your Telegram app.
 1. Search for **@BotFather** on Telegram.
 2. Send `/newbot` and follow the instructions.
 3. **Copy the HTTP API Token** (e.g., `123456789:ABCDefgh...`).
-4. Paste this into your `.env.production` as `TELEGRAM_BOT_TOKEN`.
 
-### 2. Get your Chat ID
+### 2. Configure via Admin Dashboard (Easiest)
+1. Log in to your Website Admin Panel.
+2. Go to **Settings** -> **Telegram Bot**.
+3. Paste your **Bot API Token** there.
+4. Get your **Chat ID** (see below) and paste it into the **Target Chat ID** field.
+5. Click **Commit Changes**.
+
+### 3. Get your Chat ID
 1. Search for your new bot on Telegram and click **Start**.
 2. Visit your website's webhook check at:
    `https://yourdomain.com/api/webhooks/telegram` (Note: You must be live).

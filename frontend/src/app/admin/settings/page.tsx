@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { apiRequest } from '@/lib/api';
-import { Save, CheckCircle, Settings, Users, ShieldCheck, CreditCard, Zap, Database, Download, Upload, AlertTriangle } from 'lucide-react';
+import { Save, CheckCircle, Settings, Users, ShieldCheck, CreditCard, Zap, Database, Download, Upload, AlertTriangle, Bell } from 'lucide-react';
 
 // ─── All configurable settings grouped by section ────────────────────────────
 const settingDefaults: {
@@ -95,12 +95,30 @@ const settingDefaults: {
             placeholder: '',
             hint: 'Toggle visibility of "Become a Partner" section on the landing page',
         },
+
+        // ── Telegram Notifications ───────────────────────────────────────────────
+        {
+            group: 'Telegram Bot',
+            key: 'TELEGRAM_BOT_TOKEN',
+            label: 'Bot API Token',
+            placeholder: 'e.g. 123456:ABC...',
+            type: 'password',
+            hint: 'Get this from @BotFather',
+        },
+        {
+            group: 'Telegram Bot',
+            key: 'TELEGRAM_CHAT_ID',
+            label: 'Target Chat ID',
+            placeholder: 'e.g. 123456789',
+            hint: 'Your personal ID or Group ID to receive alerts',
+        },
     ];
 
 const groupIcons: Record<string, React.ElementType> = {
     'Bakong KHQR': CreditCard,
     'Master Supply': Zap,
     'Public Interface': Users,
+    'Telegram Bot': Bell,
 };
 
 // --- Utils ---
