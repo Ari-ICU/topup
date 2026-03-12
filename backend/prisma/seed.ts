@@ -21,7 +21,36 @@ async function main() {
         await prisma.game.deleteMany({ where: { id: { in: ids } } });
     }
 
-    // 2. REFRESH PACKAGES: Delete existing packages for active games to ensure all 20+ items are added
+    // 2. REFRESH PACKAGES: Delete existing packages for active games...
+    for (const slug of activeSlugs) {
+        await prisma.game.upsert({
+            where: { slug },
+            update: {
+                name: "Mobile Legends",
+                iconUrl: "https://example.com/ml-icon.png",
+                bannerUrl: "https://example.com/ml-banner.png",
+                inputConfig: {
+                    fields: [
+                        { name: "userId", label: "User ID", type: "text", placeholder: "12345678" },
+                        { name: "zoneId", label: "Zone ID", type: "text", placeholder: "1234" }
+                    ]
+                }
+            },
+            create: {
+                slug,
+                name: "Mobile Legends",
+                iconUrl: "https://example.com/ml-icon.png",
+                bannerUrl: "https://example.com/ml-banner.png",
+                inputConfig: {
+                    fields: [
+                        { name: "userId", label: "User ID", type: "text", placeholder: "12345678" },
+                        { name: "zoneId", label: "Zone ID", type: "text", placeholder: "1234" }
+                    ]
+                }
+            }
+        });
+    }
+
     const activeGameIds = await prisma.game.findMany({
         where: { slug: { in: activeSlugs } },
         select: { id: true }
@@ -29,9 +58,22 @@ async function main() {
 
     if (activeGameIds.length > 0) {
         const ids = activeGameIds.map(g => g.id);
-        // Delete transactions related to packages of active games to avoid foreign key errors
         await prisma.transaction.deleteMany({ where: { package: { gameId: { in: ids } } } });
         await prisma.package.deleteMany({ where: { gameId: { in: ids } } });
+        
+        // Add some test packages
+        for (const gameId of ids) {
+            await prisma.package.create({
+                data: {
+                    gameId,
+                    name: "86 Diamonds",
+                    amount: 86,
+                    price: 2.00,
+                    providerSku: "ml-86",
+                    sortOrder: 1
+                }
+            });
+        }
     }
 
 
