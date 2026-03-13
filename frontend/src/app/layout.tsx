@@ -1,18 +1,18 @@
 import type { Metadata } from "next";
-import { Inter, Rajdhani } from "next/font/google";
+import { Outfit, Oxanium } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/auth-context";
 import { TabPolish } from "@/components/ui/tab-polish";
 import { SupportHub } from "@/components/ui/support-hub";
 
-const inter = Inter({
+const outfit = Outfit({
   subsets: ["latin"],
   variable: "--font-sans",
   display: "swap",
 });
 
-const rajdhani = Rajdhani({
-  weight: ["400", "500", "600", "700"],
+const oxanium = Oxanium({
+  weight: ["400", "500", "600", "700", "800"],
   subsets: ["latin"],
   variable: "--font-display",
   display: "swap",
@@ -77,7 +77,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} ${rajdhani.variable} antialiased`} suppressHydrationWarning>
+      <body className={`${outfit.variable} ${oxanium.variable} antialiased`} suppressHydrationWarning>
         <AuthProvider>
           <TabPolish />
           <SupportHub />
