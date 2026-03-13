@@ -73,10 +73,10 @@ app.use(
             ? {
                 directives: {
                     defaultSrc: ["'self'"],
-                    scriptSrc: ["'self'"],
+                    scriptSrc: ["'self'", "https://static.cloudflareinsights.com"],
                     styleSrc: ["'self'", "'unsafe-inline'"],
                     imgSrc: ["'self'", "data:", "https:"],
-                    connectSrc: ["'self'", "https://thoeurn-topup.hf.space", "https://*.vercel.app"],
+                    connectSrc: ["'self'", "https://thoeurn-topup.hf.space", "https://*.vercel.app", "https://static.cloudflareinsights.com", "https://cloudflareinsights.com", "https://*.cloudflareinsights.com"],
                     fontSrc: ["'self'", "https:", "data:"],
                     objectSrc: ["'none'"],
                     upgradeInsecureRequests: [],
