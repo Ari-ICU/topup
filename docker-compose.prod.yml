@@ -69,7 +69,7 @@ services:
     networks:
       - internal
     healthcheck:
-      test: [ "CMD", "wget", "-qO-", "http://localhost:4000/health" ]
+      test: [ "CMD", "wget", "-qO-", "http://127.0.0.1:4000/health" ]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -93,7 +93,7 @@ services:
     networks:
       - internal
     healthcheck:
-      test: [ "CMD", "wget", "-qO-", "http://localhost:3000/" ]
+      test: [ "CMD", "wget", "-qO-", "http://127.0.0.1:3000/" ]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -110,8 +110,10 @@ services:
       - ./nginx/ssl:/etc/nginx/ssl:ro
       - ./nginx/logs:/var/log/nginx
     depends_on:
-      - frontend
-      - backend
+      frontend:
+        condition: service_healthy
+      backend:
+        condition: service_healthy
     networks:
       - internal
       - external
