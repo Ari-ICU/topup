@@ -3,10 +3,8 @@
 import { useState, useEffect } from "react";
 import { History, X, Clock, CheckCircle2, AlertCircle, ExternalLink } from "lucide-react";
 import { historyService, HistoryItem } from "@/lib/history";
-import { useLang } from "@/context/lang-context";
 
 export function TransactionHistory() {
-    const { lang } = useLang();
     const [isOpen, setIsOpen] = useState(false);
     const [history, setHistory] = useState<HistoryItem[]>([]);
 

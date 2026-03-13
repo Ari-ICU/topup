@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState } from "react";
 import type { Lang } from "@/lib/i18n";
 
 interface LangContextType {
@@ -10,28 +10,22 @@ interface LangContextType {
 }
 
 const LangContext = createContext<LangContextType>({
-    lang: "km",
+    lang: "en",
     setLang: () => { },
     toggle: () => { },
 });
 
 export function LangProvider({ children }: { children: React.ReactNode }) {
-    const [lang, setLangState] = useState<Lang>("km");
+    // Force set to "en" and remove multi-language logic
+    const [lang] = useState<Lang>("en");
 
-    // Restore from localStorage on mount
-    useEffect(() => {
-        const saved = localStorage.getItem("lang") as Lang | null;
-        if (saved === "en" || saved === "km") {
-            setLangState(saved);
-        }
-    }, []);
-
-    const setLang = (l: Lang) => {
-        setLangState(l);
-        localStorage.setItem("lang", l);
+    const setLang = (_l: Lang) => {
+        // Do nothing, English only
     };
 
-    const toggle = () => setLang(lang === "en" ? "km" : "en");
+    const toggle = () => {
+        // Do nothing, English only
+    };
 
     return (
         <LangContext.Provider value={{ lang, setLang, toggle }}>

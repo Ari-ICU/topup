@@ -2,17 +2,15 @@
 
 import { MessageCircle, Send, X } from "lucide-react";
 import { useState } from "react";
-import { useLang } from "@/context/lang-context";
 
 export function SupportHub() {
-    const { lang } = useLang();
     const [isOpen, setIsOpen] = useState(false);
 
     const CONTACT_LINKS = [
         {
             name: "Telegram Support",
             handle: "@DAI_GAME_SUPPORT",
-            url: "https://t.me/thoeurnratha", // Using user's contact point or placeholder
+            url: "https://t.me/thoeurn_ratha4", // Using user's contact point or placeholder
             icon: Send,
             color: "bg-[#0088cc]",
         }
@@ -26,10 +24,10 @@ export function SupportHub() {
                     <div className="overflow-hidden rounded-[2rem] bg-[#0f0d1a] border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] backdrop-blur-xl">
                         <div className="bg-gradient-to-br from-purple-600/20 to-indigo-600/20 p-5 border-b border-white/5">
                             <h4 className="text-white font-black text-sm uppercase tracking-widest italic">
-                                {lang === 'km' ? 'មជ្ឈមណ្ឌលជំនួយ' : 'SUPPORT HUB'}
+                                SUPPORT HUB
                             </h4>
                             <p className="text-[10px] text-slate-500 font-bold uppercase mt-1">
-                                {lang === 'km' ? 'ឆ្លើយតបយ៉ាងរហ័ស ២៤/៧' : 'Instant Response 24/7'}
+                                Instant Response 24/7
                             </p>
                         </div>
                         
@@ -55,7 +53,7 @@ export function SupportHub() {
                         
                         <div className="bg-white/[0.02] p-4 text-center border-t border-white/5">
                             <p className="text-[9px] text-slate-500 font-bold uppercase tracking-widest leading-relaxed">
-                                {lang === 'km' ? 'ជួបបញ្ហាបង់ប្រាក់? ទាក់ទងយើងភ្លាម!' : 'Payment issue? Contact us now!'}
+                                Payment issue? Contact us now!
                             </p>
                         </div>
                     </div>

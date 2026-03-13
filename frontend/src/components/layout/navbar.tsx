@@ -5,13 +5,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Zap, Menu, X } from "lucide-react";
-import { useLang } from "@/context/lang-context";
-import { t, tr } from "@/lib/i18n";
-import { LangSwitcher } from "@/components/ui/lang-switcher";
+import { t } from "@/lib/i18n";
 import { scrollToElement } from "@/lib/utils";
 
 export function Navbar() {
-    const { lang } = useLang();
     const pathname = usePathname();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -49,14 +46,13 @@ export function Navbar() {
 
             <div className="flex items-center gap-3 lg:gap-4">
                 <div className="hidden sm:flex items-center gap-3 lg:gap-4">
-                    <LangSwitcher />
                     <Link
                         href="/#games"
                         onClick={handleTopUpClick}
                         className="btn-primary text-sm px-5 py-2.5 rounded-lg"
                     >
                         <Zap className="w-4 h-4" />
-                        <span className={lang === 'km' ? 'khmer-text' : ''}>{tr(t.nav.topUpNow, lang)}</span>
+                        <span>{t.nav.topUpNow}</span>
                     </Link>
                 </div>
 
@@ -77,17 +73,13 @@ export function Navbar() {
                         <div className="h-px bg-white/5" />
 
                         <div className="flex flex-col gap-5">
-                            <div className="flex items-center justify-between">
-                                <span className={`text-xs font-black text-slate-500 uppercase tracking-widest leading-none ${lang === 'km' ? 'khmer-text' : ''}`}>{tr(t.topup.language, lang)}</span>
-                                <LangSwitcher />
-                            </div>
                             <Link
                                 href="/#games"
                                 onClick={handleTopUpClick}
                                 className="w-full h-12 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white flex items-center justify-center gap-3 shadow-xl active:scale-95 transition-transform"
                             >
                                 <Zap className="w-5 h-5 fill-current" />
-                                <span className={`text-md font-black uppercase tracking-widest ${lang === 'km' ? 'khmer-text' : ''}`}>{tr(t.nav.topUpNow, lang)}</span>
+                                <span className="text-md font-black uppercase tracking-widest">{t.nav.topUpNow}</span>
                             </Link>
                         </div>
                     </div>

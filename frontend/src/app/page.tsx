@@ -21,8 +21,7 @@ import {
   Facebook,
   Send
 } from "lucide-react";
-import { useLang } from "@/context/lang-context";
-import { t, tr } from "@/lib/i18n";
+import { t } from "@/lib/i18n";
 import { Navbar } from "@/components/layout/navbar";
 import { useState, useEffect } from "react";
 import { apiRequest, getAssetUrl } from "@/lib/api";
@@ -30,7 +29,6 @@ import { Promotion } from "@/types";
 import { scrollToElement } from "@/lib/utils";
 
 export default function Home() {
-  const { lang } = useLang();
   const [systemStatus, setSystemStatus] = useState<{ isReady: boolean; isTestMode: boolean; message: string; showResellerCta: boolean } | null>(null);
   const [promotions, setPromotions] = useState<Promotion[]>([]);
 
@@ -81,30 +79,26 @@ export default function Home() {
 
             {/* Left: Text content */}
             <div className="z-10 flex flex-col items-center text-center lg:w-1/2 lg:items-start lg:text-left animate-fade-in-up">
-              <div className={`section-label mb-6 ${lang === 'km' ? 'khmer-text' : ''}`}>
+              <div className="section-label mb-6">
                 <div className="flex items-center gap-2">
                   <span className="relative flex h-2 w-2">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                   </span>
-                  {tr(t.hero.badge, lang)}
+                  {t.hero.badge}
                 </div>
               </div>
 
               <h1 className="mb-6 font-display text-4xl font-black tracking-tight sm:text-6xl lg:text-7xl xl:text-8xl leading-[0.9] text-white italic uppercase transform -skew-x-6">
-                {tr(t.hero.line1, lang)}
+                {t.hero.line1}
                 <br />
-                <span className="gradient-text drop-shadow-[0_0_15px_rgba(168,85,247,0.5)]">{tr(t.hero.line2, lang)}</span>
+                <span className="gradient-text drop-shadow-[0_0_15px_rgba(168,85,247,0.5)]">{t.hero.line2}</span>
                 <br />
-                <span className="text-3xl lg:text-5xl font-bold not-italic text-slate-400 normal-case tracking-normal skew-x-6 inline-block mt-2">{tr(t.hero.line3, lang)}</span>
+                <span className="text-3xl lg:text-5xl font-bold not-italic text-slate-400 normal-case tracking-normal skew-x-6 inline-block mt-2">{t.hero.line3}</span>
               </h1>
 
-              <p className={`mb-10 max-w-lg text-base md:text-lg text-slate-400 leading-relaxed font-medium md:leading-snug ${lang === 'km' ? 'khmer-text text-lg' : ''}`}>
-                {lang === 'km' ? (
-                  <>ផ្ដល់ថាមពលដល់ការលេងហ្គេមរបស់អ្នកភ្លាមៗ។ <strong className="text-purple-300">៥០០,០០០+</strong> នាក់ជឿទុកចិត្តជាផ្លូវការបស់អ្នកលេងហ្គេមនៅកម្ពុជា។</>
-                ) : (
-                  <>Power up your gameplay instantly. Trusted by <strong className="text-purple-300">500K+ gamers</strong> for secure, instant top-ups with zero hidden fees.</>
-                )}
+              <p className="mb-10 max-w-lg text-base md:text-lg text-slate-400 leading-relaxed font-medium md:leading-snug">
+                Power up your gameplay instantly. Trusted by <strong className="text-purple-300">500K+ gamers</strong> for secure, instant top-ups with zero hidden fees.
               </p>
 
               <div className="flex flex-col gap-4 sm:flex-row w-full sm:w-auto">
@@ -117,7 +111,7 @@ export default function Home() {
                   className="btn-primary group px-10 py-5 text-base rounded-2xl text-center justify-center shadow-[0_20px_40px_-10px_rgba(124,58,237,0.5)]"
                 >
                   <Gamepad2 className="w-5 h-5 group-hover:rotate-12 transition-transform" />
-                  <span className={lang === 'km' ? 'khmer-text font-black text-lg' : 'font-black uppercase tracking-widest'}>{tr(t.hero.browseGames, lang)}</span>
+                  <span className="font-black uppercase tracking-widest">{t.hero.browseGames}</span>
                 </a>
                 <a
                   href="#workflow"
@@ -127,7 +121,7 @@ export default function Home() {
                   }}
                   className="btn-outline px-10 py-5 text-base rounded-2xl justify-center flex items-center gap-3 backdrop-blur-sm bg-white/5 border-white/10 hover:bg-white/10 transition-all"
                 >
-                  <span className={lang === 'km' ? 'khmer-text font-black text-lg' : 'font-black uppercase tracking-widest'}>{tr(t.hero.howItWorks, lang)}</span>
+                  <span className="font-black uppercase tracking-widest">{t.hero.howItWorks}</span>
                   <ArrowRight className="w-5 h-5" />
                 </a>
               </div>
@@ -160,7 +154,7 @@ export default function Home() {
                     <Users className="w-4 h-4 text-white" />
                   </div>
                   <div>
-                    <div className={`text-xs text-slate-400 font-medium ${lang === 'km' ? 'khmer-text' : ''}`}>{tr(t.stats.activeUsers, lang)}</div>
+                    <div className="text-xs text-slate-400 font-medium">{t.stats.activeUsers}</div>
                     <div className="text-sm font-bold text-white">500K+</div>
                   </div>
                 </div>
@@ -172,8 +166,8 @@ export default function Home() {
                     <Zap className="w-4 h-4 text-white" />
                   </div>
                   <div>
-                    <div className={`text-xs text-slate-400 font-medium ${lang === 'km' ? 'khmer-text' : ''}`}>{tr(t.stats.deliveryTime, lang)}</div>
-                    <div className={`text-sm font-bold text-white ${lang === 'km' ? 'khmer-text' : ''}`}>{tr(t.stats.deliveryTimeBadge, lang)}</div>
+                    <div className="text-xs text-slate-400 font-medium">{t.stats.deliveryTime}</div>
+                    <div className="text-sm font-bold text-white">{t.stats.deliveryTimeBadge}</div>
                   </div>
                 </div>
               </div>
@@ -185,8 +179,8 @@ export default function Home() {
           <div className="absolute inset-0 grid-lines opacity-10 pointer-events-none" />
           <div className="relative mx-auto max-w-7xl px-6 lg:px-16 overflow-hidden">
             <div className="flex flex-col items-center gap-8 md:flex-row md:justify-between opacity-50 hover:opacity-100 transition-opacity duration-700">
-              <span className={`text-[10px] font-black uppercase tracking-[0.4em] text-slate-500 text-center md:text-left ${lang === 'km' ? 'khmer-text' : ''}`}>
-                {lang === 'km' ? "ដៃគូទូទាត់ផ្លូវការ" : "TRUSTED PAYMENT PARTNERS"}
+              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500 text-center md:text-left">
+                TRUSTED PAYMENT PARTNERS
               </span>
               <div className="flex flex-wrap justify-center gap-8 md:gap-16 items-center">
                 <div className="relative h-6 w-16 grayscale hover:grayscale-0 transition-all opacity-60 hover:opacity-100">
@@ -257,15 +251,15 @@ export default function Home() {
           <div className="absolute inset-0 grid-lines opacity-30 pointer-events-none" />
           <div className="relative mx-auto max-w-7xl">
             <div className="mb-12 text-center">
-              <div className={`section-label mb-4 mx-auto w-fit ${lang === 'km' ? 'khmer-text' : ''}`}>
+              <div className="section-label mb-4 mx-auto w-fit">
                 <Gamepad2 className="w-3.5 h-3.5" />
-                {tr(t.gamesSection.badge, lang)}
+                {t.gamesSection.badge}
               </div>
               <h2 className="font-display text-4xl lg:text-5xl font-bold text-white mb-4 tracking-wide">
-                {tr(t.gamesSection.title1, lang)} <span className="gradient-text">{tr(t.gamesSection.title2, lang)}</span>
+                {t.gamesSection.title1} <span className="gradient-text">{t.gamesSection.title2}</span>
               </h2>
-              <p className={`text-slate-400 max-w-xl mx-auto text-base ${lang === 'km' ? 'khmer-text' : ''}`}>
-                {tr(t.gamesSection.desc, lang)}
+              <p className="text-slate-400 max-w-xl mx-auto text-base">
+                {t.gamesSection.desc}
               </p>
             </div>
             <GameGrid />
@@ -277,12 +271,12 @@ export default function Home() {
           <div className="absolute inset-0 grid-lines opacity-30 pointer-events-none" />
           <div className="relative mx-auto max-w-7xl">
             <div className="mb-16 text-center">
-              <div className={`section-label mb-4 mx-auto w-fit ${lang === 'km' ? 'khmer-text' : ''}`}>
+              <div className="section-label mb-4 mx-auto w-fit">
                 <ChevronRight className="w-4 h-4" />
-                {tr(t.howItWorks.badge, lang)}
+                {t.howItWorks.badge}
               </div>
               <h2 className="font-display text-4xl lg:text-7xl font-black text-white mb-6 tracking-tight uppercase italic transform -skew-x-6">
-                {tr(t.howItWorks.title1, lang)} <span className="gradient-text">{tr(t.howItWorks.title2, lang)}</span>
+                {t.howItWorks.title1} <span className="gradient-text">{t.howItWorks.title2}</span>
               </h2>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-12 relative z-10">
@@ -310,12 +304,12 @@ export default function Home() {
                         STEP 0{idx + 1}
                       </div>
 
-                      <h3 className={`font-display text-xl md:text-2xl font-black text-white mb-4 tracking-tight leading-none group-hover:text-purple-300 transition-colors ${lang === 'km' ? 'khmer-text text-2xl' : ''}`}>
-                        {tr(stepData.title, lang)}
+                      <h3 className="font-display text-xl md:text-2xl font-black text-white mb-4 tracking-tight leading-none group-hover:text-purple-300 transition-colors">
+                        {stepData.title}
                       </h3>
 
-                      <p className={`text-slate-400 text-sm leading-relaxed font-medium md:px-4 ${lang === 'km' ? 'khmer-text text-base leading-relaxed' : ''}`}>
-                        {tr(stepData.desc, lang)}
+                      <p className="text-slate-400 text-sm leading-relaxed font-medium md:px-4">
+                        {stepData.desc}
                       </p>
                     </div>
                   </div>
@@ -384,8 +378,8 @@ export default function Home() {
                     </span>
                   </div>
                 </Link>
-                <p className={`text-sm text-slate-400 leading-relaxed mb-6 ${lang === 'km' ? 'khmer-text' : ''}`}>
-                  {tr(t.footer.desc, lang)}
+                <p className="text-sm text-slate-400 leading-relaxed mb-6">
+                  {t.footer.desc}
                 </p>
                 <Link href="/docs" target="_blank" className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-white/5 border border-white/10 hover:border-indigo-500/50 hover:bg-indigo-500/10 text-xs font-black text-indigo-400 uppercase tracking-widest transition-all w-fit group">
                   <Terminal className="w-4 h-4 group-hover:rotate-12 transition-transform" />
@@ -395,7 +389,7 @@ export default function Home() {
 
               {/* Payment & Trusted Col */}
               <div className="flex flex-col items-start lg:items-end">
-                <h4 className={`text-xs uppercase font-bold tracking-[0.2em] text-white/50 mb-5 ${lang === 'km' ? 'khmer-text' : ''}`}>{tr(t.footer.payments, lang)}</h4>
+                <h4 className="text-xs uppercase font-bold tracking-[0.2em] text-white/50 mb-5">{t.footer.payments}</h4>
                 <div className="flex gap-3 mb-8">
                   <div className="md:h-32 md:w-32 h-24 w-24 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center p-2 group hover:border-purple-500/30 transition-all">
                     <Image src="/khqr-v2.png" alt="KHQR" width={64} height={64} className="object-contain w-full h-full opacity-70 group-hover:opacity-100 transition-opacity" />

@@ -2,12 +2,9 @@
 
 import Link from "next/link";
 import { Gamepad2, Home, Ghost, ArrowLeft } from "lucide-react";
-import { useLang } from "@/context/lang-context";
-import { t, tr } from "@/lib/i18n";
+import { t } from "@/lib/i18n";
 
 export default function NotFound() {
-    const { lang } = useLang();
-
     return (
         <div className="relative flex min-h-screen flex-col items-center justify-center hero-bg overflow-hidden px-6">
             {/* Decorative background effects */}
@@ -32,19 +29,19 @@ export default function NotFound() {
 
                 {/* 404 Text */}
                 <div className="section-label mb-6 mx-auto w-fit">
-                    <span className="text-white font-mono tracking-widest">{tr(t.notFound.badge, lang)}</span>
+                    <span className="text-white font-mono tracking-widest">{t.notFound.badge}</span>
                 </div>
 
                 <h1 className="font-display text-7xl md:text-9xl font-black mb-4 tracking-tighter text-white">
                     <span className="gradient-text text-glow-purple italic px-4">404</span>
                 </h1>
 
-                <h2 className={`text-2xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-white to-slate-400 mb-6 ${lang === 'km' ? 'khmer-text leading-relaxed' : 'font-display italic tracking-wide'}`}>
-                    {tr(t.notFound.title, lang)}
+                <h2 className="text-2xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-white to-slate-400 mb-6 font-display italic tracking-wide">
+                    {t.notFound.title}
                 </h2>
 
-                <p className={`text-slate-400 max-w-md mx-auto mb-12 leading-relaxed text-lg ${lang === 'km' ? 'khmer-text' : ''}`}>
-                    {tr(t.notFound.desc, lang)}
+                <p className="text-slate-400 max-w-md mx-auto mb-12 leading-relaxed text-lg">
+                    {t.notFound.desc}
                 </p>
 
                 {/* Navigation Buttons */}
@@ -54,8 +51,8 @@ export default function NotFound() {
                         className="btn-primary px-8 py-4 rounded-xl flex items-center gap-2 group shadow-xl shadow-purple-900/40"
                     >
                         <Home className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                        <span className={lang === 'km' ? 'khmer-text font-bold' : 'font-bold'}>
-                            {tr(t.notFound.backHome, lang)}
+                        <span className="font-bold">
+                            {t.notFound.backHome}
                         </span>
                     </Link>
 
@@ -64,8 +61,8 @@ export default function NotFound() {
                         className="btn-outline px-8 py-4 rounded-xl flex items-center gap-2"
                     >
                         <ArrowLeft className="w-5 h-5" />
-                        <span className={lang === 'km' ? 'khmer-text font-bold' : 'font-bold'}>
-                            {lang === 'km' ? 'ត្រលប់ក្រោយ' : 'Go Back'}
+                        <span className="font-bold">
+                            Go Back
                         </span>
                     </button>
                 </div>

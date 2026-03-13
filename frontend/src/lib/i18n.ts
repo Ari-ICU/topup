@@ -1,149 +1,138 @@
 // ============================================================================
-// 🌐 i18n — English / Khmer translations for public-facing pages
+// 🌐 i18n — English translations for public-facing pages
 // ============================================================================
 
-export type Lang = "en" | "km";
+export type Lang = "en";
 
 export const t = {
     // ── Navigation ──────────────────────────────────────────────────────────
     nav: {
-        topUpNow: { en: "Top Up Now", km: "បញ្ចូលឥឡូវ" },
-        backToGames: { en: "Back to Games", km: "ត្រលប់" },
+        topUpNow: "Top Up Now",
+        backToGames: "Back to Games",
     },
 
     // ── Stats ────────────────────────────────────────────────────────────────
     stats: {
-        activeUsers: { en: "Active Users", km: "អ្នកប្រើប្រាស់សកម្ម" },
-        deliveryTime: { en: "Delivery Time", km: "រយៈពេលផ្ញើជូន" },
-        deliveryTimeBadge: { en: "< 5 Seconds", km: "< ៥ វិនាទី" },
+        activeUsers: "Active Users",
+        deliveryTime: "Delivery Time",
+        deliveryTimeBadge: "< 5 Seconds",
     },
 
     // ── Hero ─────────────────────────────────────────────────────────────────
     hero: {
-        badge: { en: "⚡ Instant Delivery • No Hidden Fees", km: "⚡ ផ្ញើជូនភ្លាមៗ • គ្មានថ្លៃសេវាលាក់កំបាំង" },
-        line1: { en: "INSTANT", km: "បញ្ចូលទឹកប្រាក់" },
-        line2: { en: "GAME CREDITS", km: "ហ្គេម" },
-        line3: { en: "IN SECONDS", km: "ភ្លាមៗ" },
-        desc: {
-            en: "Empowering your gaming journey with lightning-fast credits. Trusted by 500K+ gamers for secure, instant top-ups with no hidden fees and 24/7 reliability.",
-            km: "ផ្តល់ថាមពលដល់ការលេងហ្គេមរបស់អ្នកភ្លាមៗ។ ទទួលបានការជឿទុកចិត្តពីអ្នកលេងជាង ៥០០,០០០ នាក់ សម្រាប់ការបញ្ចូលទឹកប្រាក់រហ័ស សុវត្ថិភាពខ្ពស់ និងគ្មានថ្លៃសេវាលាក់កំបាំង។"
-        },
-        browseGames: { en: "Browse Games", km: "ស្វែងរកហ្គេម" },
-        howItWorks: { en: "How It Works", km: "របៀបប្រើ" },
-        instantDelivery: { en: "Instant Delivery", km: "ដឹកភ្លាមៗ" },
-        sslEncrypted: { en: "SSL Encrypted", km: "ការពារ SSL" },
-        support247: { en: "24/7 Support", km: "ជំនួយ ២៤/៧" },
-        official: { en: "Official", km: "ផ្លូវការ" },
-        secured: { en: "Secured", km: "សុវត្ថិភាព" },
-        instant: { en: "Instant", km: "ភ្លាមៗ" },
+        badge: "⚡ Instant Delivery • No Hidden Fees",
+        line1: "INSTANT",
+        line2: "GAME CREDITS",
+        line3: "IN SECONDS",
+        desc: "Empowering your gaming journey with lightning-fast credits. Trusted by 500K+ gamers for secure, instant top-ups with no hidden fees and 24/7 reliability.",
+        browseGames: "Browse Games",
+        howItWorks: "How It Works",
+        instantDelivery: "Instant Delivery",
+        sslEncrypted: "SSL Encrypted",
+        support247: "24/7 Support",
+        official: "Official",
+        secured: "Secured",
+        instant: "Instant",
     },
 
     // ── Games Section ────────────────────────────────────────────────────────
     gamesSection: {
-        badge: { en: "Popular Games", km: "ហ្គេមពេញនិយម" },
-        title1: { en: "PICK YOUR", km: "ជ្រើសរើស" },
-        title2: { en: "GAME", km: "ហ្គេមអ្នក" },
-        desc: {
-            en: "Direct access to over 50+ official game credits with transparent pricing and guaranteed automated delivery.",
-            km: "ស្វែងរកហ្គេមល្បីៗជាង ៥០ ប្រភេទ និងទទួលបានពេជ្រភ្លាមៗ ជាមួយតម្លៃច្បាស់លាស់ និងការផ្ញើជូនដោយស្វ័យប្រវត្តិ ២៤/៧។"
-        },
-        startingFrom: { en: "Starting From", km: "ចាប់ផ្ដើមពី" },
-        comingSoon: { en: "Coming Soon", km: "ឆាប់ៗនេះ" },
-        noGamesFound: { en: "No Games Found", km: "រកមិនឃើញហ្គេមទេ" },
-        checkBackSoon: { en: "Please check back soon. Games are being added!", km: "សូមពិនិត្យមើលឡើងវិញឆាប់ៗ។ ហ្គេមកំពុងត្រូវបានបន្ថែម!" },
+        badge: "Popular Games",
+        title1: "PICK YOUR",
+        title2: "GAME",
+        desc: "Direct access to over 50+ official game credits with transparent pricing and guaranteed automated delivery.",
+        startingFrom: "Starting From",
+        comingSoon: "Coming Soon",
+        noGamesFound: "No Games Found",
+        checkBackSoon: "Please check back soon. Games are being added!",
     },
 
     // ── How It Works ─────────────────────────────────────────────────────────
     howItWorks: {
-        badge: { en: "Simple Process", km: "ដំណើរការងាយ" },
-        title1: { en: "HOW IT", km: "របៀប" },
-        title2: { en: "WORKS", km: "ប្រើប្រាស់" },
+        badge: "Simple Process",
+        title1: "HOW IT",
+        title2: "WORKS",
         steps: [
-            { title: { en: "Choose Your Game", km: "ជ្រើសហ្គេម" }, desc: { en: "Browse our extensive library of 50+ popular games and select yours.", km: "ស្វែងរកហ្គេមដែលមានក្នុងបញ្ជីជាង ៥០ ប្រភេទ និងជ្រើសរើសហ្គេមដែលអ្នកចង់បាន។" } },
-            { title: { en: "Enter Player ID", km: "បញ្ចូល Player ID" }, desc: { en: "Input your in-game Player ID and Zone ID to receive credits.", km: "បញ្ចូល Player ID និង Zone ID របស់អ្នកដើម្បីត្រៀមទទួលក្រេឌីត។" } },
-            { title: { en: "Select Package", km: "ជ្រើសកញ្ចប់" }, desc: { en: "Review options and select the amount of game credits you wish to purchase.", km: "ពិនិត្យមើលជម្រើសរូបិយប័ណ្ណហ្គេម និងជ្រើសរើសកញ្ចប់ដែលអ្នកចង់ទិញ។" } },
-            { title: { en: "Pay & Receive Instantly", km: "បង់ & ទទួលភ្លាម" }, desc: { en: "Choose your payment method, confirm, and get credits in under 5 seconds.", km: "ជ្រើសរើសវិធីសាស្ត្រទូទាត់ដែលអ្នកចូលចិត្ត បញ្ជាក់ ហើយទទួលក្រេឌីតក្នុងរយៈពេលក្រោម ៥ វិនាទី។" } },
+            { title: "Choose Your Game", desc: "Browse our extensive library of 50+ popular games and select yours." },
+            { title: "Enter Player ID", desc: "Input your in-game Player ID and Zone ID to receive credits." },
+            { title: "Select Package", desc: "Review options and select the amount of game credits you wish to purchase." },
+            { title: "Pay & Receive Instantly", desc: "Choose your payment method, confirm, and get credits in under 5 seconds." },
         ],
     },
 
     // ── Footer ───────────────────────────────────────────────────────────────
     footer: {
-        desc: {
-            en: "Cambodia's #1 platform for instant game top-ups. Experience lightning-fast delivery and top-tier security for all your favorite mobile games.",
-            km: "វេទិកាបញ្ចូលទឹកប្រាក់ហ្គេមលេខ ១ នៅកម្ពុជា។ ជួបប្រទះការផ្ញើជូនដែលលឿនបំផុត និងមានសុវត្ថិភាពខ្ពស់បំផុត សម្រាប់ហ្គេមដែលអ្នកចូលចិត្ត។"
-        },
-        platform: { en: "Platform", km: "វេទិកា" },
-        gamesList: { en: "Games List", km: "បញ្ជីហ្គេម" },
-        howWorks: { en: "How it Works", km: "របៀបប្រើ" },
-        payments: { en: "Supported Payments", km: "ការទូទាត់" },
-        copyright: { en: "All rights reserved. Built with ⚡ for gamers.", km: "រក្សាសិទ្ធ។ បង្កើតដោយ ⚡ សម្រាប់អ្នកលេង។" },
+        desc: "Cambodia's #1 platform for instant game top-ups. Experience lightning-fast delivery and top-tier security for all your favorite mobile games.",
+        platform: "Platform",
+        gamesList: "Games List",
+        howWorks: "How it Works",
+        payments: "Supported Payments",
+        copyright: "All rights reserved. Built with ⚡ for gamers.",
     },
 
     // ── Top-up Page ──────────────────────────────────────────────────────────
     topup: {
-        liveLabel: { en: "Service Active", km: "សេវាកម្មបើក" },
-        instantLabel: { en: "Instant Delivery", km: "ផ្ញើជូនភ្លាមៗ" },
-        instantEnabled: { en: "⚡ Instant Delivery Active 24/7", km: "⚡ បើកដំណើរការផ្ញើជូនភ្លាមៗ ២៤/៧" },
-        deliverySub: { en: "⚡ Credits delivered instantly • 100% Verified & Secure", km: "⚡ ទទួលបានក្រេឌីតភ្លាមៗ • ១០០% សុវត្ថិភាព និងផ្លូវការ" },
-        startingFrom: { en: "Starting From", km: "ចាប់ពី" },
-        step1title: { en: "ENTER PLAYER DETAILS", km: "បញ្ចូលព័ត៌មានអ្នកលេង" },
-        step1sub: { en: "Your game account information", km: "ព័ត៌មានគណនីហ្គេមរបស់អ្នក" },
-        playerIdLabel: { en: "Player ID", km: "Player ID" },
-        zoneIdLabel: { en: "Zone ID", km: "Zone ID" },
-        optional: { en: "(optional)", km: "(ស្រេចចិត្ត)" },
-        verifyBtn: { en: "Verify Account", km: "ផ្ទៀងផ្ទាត់គណនី" },
-        verifyingBtn: { en: "Securing Connection...", km: "កំពុងត្រួតពិនិត្យ..." },
-        verifyHint: { en: "Please verify your ID to ensure 100% accuracy", km: "សូមផ្ទៀងផ្ទាត់ ID ដើម្បីធានាភាពត្រឹមត្រូវ ១០០%" },
-        step2title: { en: "SELECT PACKAGE", km: "ជ្រើសកញ្ចប់" },
-        step2sub: { en: "Choose the credits amount you need", km: "ជ្រើសចំនួនក្រេឌីតដែលអ្នកត្រូវការ" },
-        step3title: { en: "PAYMENT METHOD", km: "វិធីទូទាត់" },
-        step3sub: { en: "Select your preferred payment option", km: "ជ្រើសវិធីទូទាត់ដែលចូលចិត្ត" },
-        orderSummary: { en: "ORDER SUMMARY", km: "សង្ខេបការបញ្ជាទិញ" },
-        game: { en: "Game", km: "ហ្គេម" },
-        playerId: { en: "Player ID", km: "Player ID" },
-        package: { en: "Package", km: "កញ្ចប់" },
-        payment: { en: "Payment", km: "ការទូទាត់" },
-        totalAmount: { en: "Total Amount", km: "ចំនួនសរុប" },
-        credits: { en: "credits", km: "ក្រេឌីត" },
-        confirmPay: { en: "Confirm & Pay", km: "បញ្ជាក់ & បង់ប្រាក់" },
-        processing: { en: "Processing...", km: "កំពុងដំណើរការ..." },
-        completeSteps: { en: "Complete all steps above to continue", km: "បំពេញជំហានទាំងអស់ខាងលើដើម្បីបន្ត" },
-        creating: { en: "Creating Transaction...", km: "កំពុងបង្កើតប្រតិបត្តិការ..." },
-        awaiting: { en: "Awaiting Payment...", km: "រង់ចាំការទូទាត់..." },
-        success: { en: "Transaction Successful!", km: "ប្រតិបត្តិការបានជោគជ័យ!" },
-        newTx: { en: "↩ Start New Transaction", km: "↩ ចាប់ផ្តើមប្រតិបត្តិការថ្មី" },
-        sslEncrypted: { en: "SSL Encrypted", km: "ការពារ SSL" },
-        secure100: { en: "100% Secure", km: "១០០% សុវត្ថិភាព" },
-        instant: { en: "Instant", km: "ភ្លាមៗ" },
-        sec5: { en: "< 5 sec", km: "< ៥ វិនាទី" },
-        encrypted: { en: "Encrypted", km: "អ៊ីនគ្រីប" },
-        support: { en: "Support", km: "ជំនួយ" },
-        support247: { en: "24/7", km: "២៤/៧" },
-        verifySuccess: { en: "Account verified successfully ✓", km: "ផ្ទៀងផ្ទាត់គណនីបានជោគជ័យ ✓" },
-        verifyFormat: { en: "Format Valid", km: "ទម្រង់ត្រឹមត្រូវ" },
-        verifyFormatHint: { en: "Player ID format looks correct. Please confirm your ID in-game before paying.", km: "ទម្រង់ Player ID ត្រឹមត្រូវ។ សូមបញ្ជាក់ ID ក្នុងហ្គេមមុនបង់ប្រាក់។" },
-        verifyInvalid: { en: "Invalid ID", km: "ID មិនត្រឹមត្រូវ" },
-        language: { en: "Language", km: "ភាសា" },
-        viewSummary: { en: "View Summary ↓", km: "មើលការសង្ខេប ↓" },
-        termsTitle: { en: "SECURITY & TERMS", km: "សុវត្ថិភាព និងលក្ខខណ្ឌ" },
-        agreeToTerms: { en: "I agree to the terms and privacy policy", km: "ខ្ញុំយល់ព្រមតាម លក្ខខណ្ឌ និងគោលការណ៍" },
-        buyNow: { en: "PURCHASE NOW", km: "បង់ប្រាក់ឥឡូវ" },
-        insufficientStock: {
-            km: "សូមអភ័យទោស កញ្ចប់នេះលើសពីចំនួនពេជ្រដែលមានក្នុងស្តុកនាពេលបច្ចុប្បន្នរបស់យើង"
-        },
-        noPackagesTitle: { en: "Packages Unavailable", km: "មិនមានកញ្ចប់ទេ" },
-        noPackagesDesc: { en: "No top-up packages are currently available for this game. Check back soon!", km: "មិនមានកញ្ចប់បញ្ចូលទឹកប្រាក់សម្រាប់ហ្គេមនេះនៅឡើយទេ។ សូមពិនិត្យមើលឡើងវិញឆាប់ៗ!" },
+        liveLabel: "Service Active",
+        instantLabel: "Instant Delivery",
+        instantEnabled: "⚡ Instant Delivery Active 24/7",
+        deliverySub: "⚡ Credits delivered instantly • 100% Verified & Secure",
+        startingFrom: "Starting From",
+        step1title: "ENTER PLAYER DETAILS",
+        step1sub: "Your game account information",
+        playerIdLabel: "Player ID",
+        zoneIdLabel: "Zone ID",
+        optional: "(optional)",
+        verifyBtn: "Verify Account",
+        verifyingBtn: "Securing Connection...",
+        verifyHint: "Please verify your ID to ensure 100% accuracy",
+        step2title: "SELECT PACKAGE",
+        step2sub: "Choose the credits amount you need",
+        step3title: "PAYMENT METHOD",
+        step3sub: "Select your preferred payment option",
+        orderSummary: "ORDER SUMMARY",
+        game: "Game",
+        playerId: "Player ID",
+        package: "Package",
+        payment: "Payment",
+        totalAmount: "Total Amount",
+        credits: "credits",
+        confirmPay: "Confirm & Pay",
+        processing: "Processing...",
+        completeSteps: "Complete all steps above to continue",
+        creating: "Creating Transaction...",
+        awaiting: "Awaiting Payment...",
+        success: "Transaction Successful!",
+        newTx: "↩ Start New Transaction",
+        sslEncrypted: "SSL Encrypted",
+        secure100: "100% Secure",
+        instant: "Instant",
+        sec5: "< 5 sec",
+        encrypted: "Encrypted",
+        support: "Support",
+        support247: "24/7",
+        verifySuccess: "Account verified successfully ✓",
+        verifyFormat: "Format Valid",
+        verifyFormatHint: "Player ID format looks correct. Please confirm your ID in-game before paying.",
+        verifyInvalid: "Invalid ID",
+        language: "Language",
+        viewSummary: "View Summary ↓",
+        termsTitle: "SECURITY & TERMS",
+        agreeToTerms: "I agree to the terms and privacy policy",
+        buyNow: "PURCHASE NOW",
+        insufficientStock: "Sorry, this package exceeds our current diamond stock.",
+        noPackagesTitle: "Packages Unavailable",
+        noPackagesDesc: "No top-up packages are currently available for this game. Check back soon!",
     },
     // ── Not Found Page ─────────────────────────────────────────────────────────────
     notFound: {
-        badge: { en: "404 Error", km: "កំហុស 404" },
-        title: { en: "PAGE NOT FOUND", km: "រកមិនឃើញទំព័រ" },
-        desc: { en: "The level you're looking for doesn't exist or has been moved to another quest.", km: "ទំព័រដែលអ្នកកំពុងស្វែងរកមិនមាន ឬត្រូវបានផ្លាស់ប្តូរទៅកាន់ទីតាំងផ្សេង។" },
-        backHome: { en: "Back to Home", km: "ត្រលប់ទៅទំព័រដើម" },
+        badge: "404 Error",
+        title: "PAGE NOT FOUND",
+        desc: "The level you're looking for doesn't exist or has been moved to another quest.",
+        backHome: "Back to Home",
     },
 } as const;
 
-// Helper — get translated string for current language
-export function tr(key: { en: string; km: string }, lang: Lang): string {
-    return key[lang];
+// Helper — get translated string (now just returns the string directly as it's only English)
+export function tr(key: any, _lang?: string): string {
+    return typeof key === 'string' ? key : (key?.en || "");
 }

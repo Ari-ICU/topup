@@ -4,9 +4,8 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { apiRequest, getAssetUrl } from "@/lib/api";
-import { Zap, ChevronRight } from "lucide-react";
-import { useLang } from "@/context/lang-context";
-import { t, tr } from "@/lib/i18n";
+import { Zap } from "lucide-react";
+import { t } from "@/lib/i18n";
 
 interface Game {
     id: string;
@@ -20,7 +19,6 @@ interface Game {
 
 
 export function GameGrid() {
-    const { lang } = useLang();
     const [games, setGames] = useState<Game[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -65,8 +63,8 @@ export function GameGrid() {
                 <div className="h-20 w-20 rounded-2xl bg-gradient-to-br from-purple-700/30 to-indigo-700/20 border border-purple-700/30 flex items-center justify-center mb-4">
                     <Zap className="w-9 h-9 text-purple-400" />
                 </div>
-                <h3 className={`font-display text-xl font-bold text-white mb-2 ${lang === 'km' ? 'khmer-text' : ''}`}>{tr(t.gamesSection.noGamesFound, lang)}</h3>
-                <p className={`text-slate-500 text-sm ${lang === 'km' ? 'khmer-text' : ''}`}>{tr(t.gamesSection.checkBackSoon, lang)}</p>
+                <h3 className="font-display text-xl font-bold text-white mb-2">{t.gamesSection.noGamesFound}</h3>
+                <p className="text-slate-500 text-sm">{t.gamesSection.checkBackSoon}</p>
             </div>
         );
     }
@@ -75,7 +73,6 @@ export function GameGrid() {
         <div className="grid grid-cols-3 gap-3 sm:gap-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
             {games.map((game, idx) => {
                 const hasPackages = (game.packages && game.packages.length > 0) || (game._count && game._count.packages > 0);
-                const startingPrice = game.packages?.[0]?.price || 0;
 
                 const cardContent = (
                     <div className="relative group flex flex-col items-center text-center">
@@ -123,22 +120,6 @@ export function GameGrid() {
                                 ${hasPackages ? 'group-hover:text-purple-300' : 'text-slate-500'}`}>
                                 {game.name.toUpperCase()}
                             </h3>
-
-                            {/* {hasPackages ? (
-                                <div className="flex flex-col items-center">
-                                    <span className={`text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none mb-1 ${lang === 'km' ? 'khmer-text text-[11px]' : ''}`}>
-                                        {tr(t.gamesSection.startingFrom, lang)}
-                                    </span>
-                                    <div className="text-xl font-black text-purple-400 italic tracking-tighter drop-shadow-md">
-                                        ${startingPrice > 0 ? startingPrice.toFixed(2) : "0.99"}
-                                    </div>
-                                </div>
-                            ) : (
-                                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-800/50 border border-slate-700/50">
-                                    <div className="w-1 h-1 rounded-full bg-slate-600" />
-                                    <span className={`text-[9px] font-black text-slate-600 uppercase tracking-widest ${lang === 'km' ? 'khmer-text' : ''}`}>{tr(t.gamesSection.comingSoon, lang)}</span>
-                                </div>
-                            )} */}
                         </div>
 
                         {/* Interactive underline */}
