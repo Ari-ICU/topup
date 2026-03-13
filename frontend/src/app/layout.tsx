@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import { Inter, Rajdhani, Noto_Sans_Khmer } from "next/font/google";
+import { Inter, Rajdhani } from "next/font/google";
 import "./globals.css";
-import { LangProvider } from "@/context/lang-context";
 import { AuthProvider } from "@/context/auth-context";
 import { TabPolish } from "@/components/ui/tab-polish";
 import { SupportHub } from "@/components/ui/support-hub";
@@ -19,27 +18,20 @@ const rajdhani = Rajdhani({
   display: "swap",
 });
 
-const notoSansKhmer = Noto_Sans_Khmer({
-  weight: ["400", "500", "600", "700", "800", "900"],
-  subsets: ["khmer"],
-  variable: "--font-khmer-var",
-  display: "swap",
-});
-
 export const metadata: Metadata = {
-  title: "DAI-GAME | បញ្ចូលហ្គេមភ្លាមៗ · Instant Game Credits",
+  title: "DAI-GAME | Instant Game Credits",
   description:
-    "បញ្ចូលហ្គេមភ្លាមៗ — Mobile Legends, Free Fire, PUBG និង ហ្គេម 50+ ទៀត។ ការទូទាត់តាម KHQR / ABA · Get instant game credits. Secure, lightning-fast delivery.",
-  keywords: "game top up, mobile legends diamonds, free fire diamonds, pubg uc, instant game credits, ហ្គេម, បញ្ចូលហ្គេម",
+    "Get instant game credits — Mobile Legends, Free Fire, PUBG and 50+ more games. Pay via KHQR / ABA. Secure, lightning-fast delivery.",
+  keywords: "game top up, mobile legends diamonds, free fire diamonds, pubg uc, instant game credits",
   icons: {
     icon: "/package-logo.png?v=2",
     shortcut: "/package-logo.png?v=2",
     apple: "/package-logo.png?v=2",
   },
   openGraph: {
-    title: "DAI-GAME | បញ្ចូលហ្គេមភ្លាមៗ · Instant Game Credits",
-    description: "បញ្ចូលហ្គេមភ្លាមៗ — Mobile Legends, Free Fire, PUBG និង ហ្គេម 50+ ទៀត។ ការទូទាត់តាម KHQR / ABA",
-    url: "https://topup-sable.vercel.app",
+    title: "DAI-GAME | Instant Game Credits",
+    description: "Get instant game credits — Mobile Legends, Free Fire, PUBG and 50+ more games. Pay via KHQR / ABA.",
+    url: "https://daigamestopup.com",
     siteName: "DAI-GAME",
     images: [
       {
@@ -49,12 +41,12 @@ export const metadata: Metadata = {
         alt: "DAI-GAME Top up center",
       },
     ],
-    locale: "km_KH",
+    locale: "en_US",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "DAI-GAME | បញ្ចូលហ្គេមភ្លាមៗ",
+    title: "DAI-GAME | Instant Game Credits",
     description: "Get instant game credits. Secure, lightning-fast delivery. KHQR supported.",
     images: ["/package-logo.png"],
   },
@@ -73,7 +65,7 @@ export const metadata: Metadata = {
     },
   },
   alternates: {
-    canonical: "https://topup-sable.vercel.app",
+    canonical: "https://daigamestopup.com",
   },
 };
 
@@ -83,14 +75,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="km" suppressHydrationWarning>
-      <body className={`${inter.variable} ${rajdhani.variable} ${notoSansKhmer.variable} antialiased`} suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${inter.variable} ${rajdhani.variable} antialiased`} suppressHydrationWarning>
         <AuthProvider>
-          <LangProvider>
-            <TabPolish />
-            <SupportHub />
-            {children}
-          </LangProvider>
+          <TabPolish />
+          <SupportHub />
+          {children}
         </AuthProvider>
       </body>
     </html>

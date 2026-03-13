@@ -7,7 +7,7 @@ import { useParams } from "next/navigation";
 import {
     ArrowLeft, Zap, Shield, Lock, HeadphonesIcon,
     CheckCircle, CreditCard, User, Hash, Loader2, AlertCircle, Check,
-    Gamepad2, Package, ChevronRight, History, ArrowRight
+    Gamepad2, Package, ChevronRight, History, ArrowRight, CheckCircle2
 } from "lucide-react";
 
 import { apiRequest, getAssetUrl } from "@/lib/api";
@@ -15,14 +15,12 @@ import { useGame, useVerifyAccount, useTransaction } from "@/hooks/topup";
 import { PAYMENT_METHODS } from "@/constants/topup";
 import { TopupPageLoader, TopupPageError } from "@/components/topup/page-states";
 import { KhqrModal } from "@/components/topup/khqr-modal";
-import { useLang } from "@/context/lang-context";
-import { t, tr, Lang } from "@/lib/i18n";
-import { LangSwitcher } from "@/components/ui/lang-switcher";
+import { t } from "@/lib/i18n";
 import { TransactionHistory } from "@/components/topup/transaction-history";
 import confetti from "canvas-confetti";
 
 // ─── Step Header ─────────────────────────────────────────────────────────────
-function StepHeader({ step, title, subtitle, lang }: { step: number; title: string; subtitle: string; lang: Lang }) {
+function StepHeader({ step, title, subtitle }: { step: number; title: string; subtitle: string }) {
     return (
         <div className="flex items-center gap-5 mb-8">
             <div className="relative group/step">
@@ -38,10 +36,10 @@ function StepHeader({ step, title, subtitle, lang }: { step: number; title: stri
                 </div>
             </div>
             <div>
-                <h2 className={`font-display text-lg md:text-2xl font-black text-white tracking-tight uppercase italic ${lang === 'km' ? 'khmer-text' : ''}`}>
+                <h2 className="font-display text-lg md:text-2xl font-black text-white tracking-tight uppercase italic">
                     {title}
                 </h2>
-                <p className={`text-[10px] md:text-xs text-slate-500 font-bold uppercase tracking-[0.2em] mt-1 opacity-70 ${lang === 'km' ? 'khmer-text' : ''}`}>
+                <p className="text-[10px] md:text-xs text-slate-500 font-bold uppercase tracking-[0.2em] mt-1 opacity-70">
                     {subtitle}
                 </p>
             </div>
@@ -51,12 +49,11 @@ function StepHeader({ step, title, subtitle, lang }: { step: number; title: stri
 
 // ─── Verify Banner ────────────────────────────────────────────────────────────
 function VerifyBanner({
-    status, verifiedName, verifyError, lang
+    status, verifiedName, verifyError
 }: {
     status: "idle" | "success" | "format-ok" | "error";
     verifiedName: string | null;
     verifyError: string | null;
-    lang: Lang;
 }) {
     if (status === "idle") return null;
 
@@ -75,21 +72,21 @@ function VerifyBanner({
                 {status === "success" && (
                     <>
                         <div className="font-bold text-white tracking-tight">{verifiedName}</div>
-                        <div className={`text-xs font-normal mt-0.5 text-emerald-400/80 ${lang === 'km' ? 'khmer-text' : ''}`}>{tr(t.topup.verifySuccess, lang)}</div>
+                        <div className="text-xs font-normal mt-0.5 text-emerald-400/80">{t.topup.verifySuccess}</div>
                     </>
                 )}
                 {status === "format-ok" && (
                     <>
-                        <div className={`text-amber-200 font-bold ${lang === 'km' ? 'khmer-text' : ''}`}>{tr(t.topup.verifyFormat, lang)}</div>
-                        <div className={`text-xs text-amber-500 font-normal mt-0.5 ${lang === 'km' ? 'khmer-text' : ''}`}>
-                            {tr(t.topup.verifyFormatHint, lang)}
+                        <div className="text-amber-200 font-bold">{t.topup.verifyFormat}</div>
+                        <div className="text-xs text-amber-500 font-normal mt-0.5">
+                            {t.topup.verifyFormatHint}
                         </div>
                     </>
                 )}
                 {status === "error" && (
                     <>
-                        <div className={`text-red-200 font-bold ${lang === 'km' ? 'khmer-text' : ''}`}>{tr(t.topup.verifyInvalid, lang)}</div>
-                        <div className={`text-xs text-red-400 font-normal mt-0.5 ${lang === 'km' ? 'khmer-text' : ''}`}>{verifyError}</div>
+                        <div className="text-red-200 font-bold">{t.topup.verifyInvalid}</div>
+                        <div className="text-xs text-red-400 font-normal mt-0.5">{verifyError}</div>
                     </>
                 )}
             </div>
@@ -106,39 +103,31 @@ function formatPackageName(name: string) {
 }
 
 // ─── How To Use Section ────────────────────────────────────────────────────────
-function HowToUseSection({ lang }: { lang: Lang }) {
+function HowToUseSection() {
     const steps = [
         {
             icon: Gamepad2,
             step: "01",
-            title: lang === 'km' ? 'ជ្រើសរើសហ្គេម' : 'Select Game',
-            desc: lang === 'km'
-                ? 'ជ្រើសរើសហ្គេមដែលអ្នកចង់បញ្ចូល ពីបញ្ជីហ្គេមល្បីៗជាច្រើនប្រភេទ។'
-                : 'Pick your favorite game from our premium collection of top titles.',
+            title: 'Select Game',
+            desc: 'Pick your favorite game from our premium collection of top titles.',
         },
         {
             icon: User,
             step: "02",
-            title: lang === 'km' ? 'បញ្ចូល Player ID' : 'Enter Player ID',
-            desc: lang === 'km'
-                ? 'បញ្ចូល Player ID និង Zone ID របស់អ្នកឱ្យបានត្រឹមត្រូវ ដើម្បីការពារកំហុស។'
-                : 'Enter your Player ID and Zone ID securely to ensure 100% accuracy.',
+            title: 'Enter Player ID',
+            desc: 'Enter your Player ID and Zone ID securely to ensure 100% accuracy.',
         },
         {
             icon: Package,
             step: "03",
-            title: lang === 'km' ? 'ជ្រើសរើសកញ្ចប់' : 'Choose Package',
-            desc: lang === 'km'
-                ? 'ជ្រើសរើសកញ្ចប់ពេជ្រដែលអ្នកចង់បាន ក្នុងតម្លៃពិសេស និងសមរម្យបំផុត។'
-                : 'Choose the diamond package that best fits your gaming needs and budget.',
+            title: 'Choose Package',
+            desc: 'Choose the diamond package that best fits your gaming needs and budget.',
         },
         {
             icon: Zap,
             step: "04",
-            title: lang === 'km' ? 'បង់ប្រាក់ & ទទួល' : 'Pay & Enjoy',
-            desc: lang === 'km'
-                ? 'បង់ប្រាក់តាមវិធីដែលងាយស្រួល និងទទួលពេជ្រចូលគណនីភ្លាមៗ ២៤/៧។'
-                : 'Complete your payment securely and watch your diamonds arrive instantly!',
+            title: 'Pay & Enjoy',
+            desc: 'Complete your payment securely and watch your diamonds arrive instantly!',
         }
     ];
 
@@ -148,13 +137,11 @@ function HowToUseSection({ lang }: { lang: Lang }) {
             <div className="flex flex-col items-center justify-center mb-12">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800/60 border border-slate-700/50 text-[10px] md:text-xs font-bold text-slate-300 tracking-wider mb-4">
                     <ChevronRight className="w-3.5 h-3.5 text-purple-400" />
-                    <span>{lang === 'km' ? 'ដំណើរការងាយស្រួល' : 'SIMPLE PROCESS'}</span>
+                    <span>SIMPLE PROCESS</span>
                 </div>
-                <h2 className={`text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-center ${lang === 'km' ? 'khmer-text !leading-[1.4]' : ''}`}>
-                    <span className="text-white">{lang === 'km' ? 'របៀប ' : 'HOW TO '}</span>
-                    <span className="text-purple-400">
-                        {lang === 'km' ? 'ប្រើប្រាស់' : 'USE'}
-                    </span>
+                <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-center">
+                    <span className="text-white">HOW TO </span>
+                    <span className="text-purple-400">USE</span>
                 </h2>
             </div>
 
@@ -178,10 +165,10 @@ function HowToUseSection({ lang }: { lang: Lang }) {
                         <div className="text-[11px] font-bold text-slate-500 tracking-[0.2em] uppercase mb-4">
                             STEP {item.step}
                         </div>
-                        <h3 className={`text-lg font-bold text-white mb-3 ${lang === 'km' ? 'khmer-text' : ''}`}>
+                        <h3 className="text-lg font-bold text-white mb-3">
                             {item.title}
                         </h3>
-                        <p className={`text-sm text-slate-400 leading-relaxed ${lang === 'km' ? 'khmer-text' : ''}`}>
+                        <p className="text-sm text-slate-400 leading-relaxed">
                             {item.desc}
                         </p>
                     </div>
@@ -193,7 +180,6 @@ function HowToUseSection({ lang }: { lang: Lang }) {
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function TopupPage() {
-    const { lang } = useLang();
     const { gameId } = useParams();
 
     // Recent Accounts state
@@ -333,7 +319,6 @@ export default function TopupPage() {
             const timer = setTimeout(() => {
                 // We keep the COMPLETED status visible for a bit so they see the success checkmark
                 // but we clear the inputs in the background or just before they click NEW
-                // Actually, the user wants it cleared. Let's just clear the input values.
                 setUserId("");
                 setZoneId("");
                 setSelectedPackage(null);
@@ -381,9 +366,8 @@ export default function TopupPage() {
                         className="hidden md:flex items-center gap-2 text-sm font-black text-slate-400 hover:text-white transition-all uppercase tracking-widest group"
                     >
                         <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-                        {tr(t.nav.backToGames, lang)}
+                        {t.nav.backToGames}
                     </Link>
-                    <LangSwitcher />
                 </div>
             </nav>
 
@@ -431,22 +415,22 @@ export default function TopupPage() {
 
                         {/* Game Meta */}
                         <div className="flex-1 min-w-0 text-center md:text-left space-y-4 md:space-y-5">
-                            <div className={`inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[10px] md:text-[11px] font-black text-emerald-400 uppercase tracking-[0.25em] ${lang === 'km' ? 'khmer-text text-[12px]' : ''}`}>
+                            <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[10px] md:text-[11px] font-black text-emerald-400 uppercase tracking-[0.25em]">
                                 <div className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
-                                {tr(t.topup.instantEnabled, lang)}
+                                {t.topup.instantEnabled}
                             </div>
                             <h1 className="text-5xl sm:text-7xl md:text-7xl lg:text-8xl font-black text-white italic tracking-tighter drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)] leading-[0.9] select-none break-words">
                                 {game.name.toUpperCase()}
                             </h1>
 
-                            {/* ── Arrow Trust Badges (like screenshot) ── */}
+                            {/* ── Arrow Trust Badges ── */}
                             <div className="flex flex-wrap justify-center md:justify-start items-center gap-2 mt-2">
                                 {/* Instant Delivery badge */}
                                 <div className="relative flex items-center">
                                     <div className="flex items-center gap-2 bg-[#22c55e] px-5 py-2 pr-7 -skew-x-12 shadow-[0_4px_20px_rgba(34,197,94,0.4)]">
                                         <Zap className="w-4 h-4 text-black skew-x-12 fill-black shrink-0" />
                                         <span className="font-black text-[11px] text-black uppercase tracking-widest skew-x-12 whitespace-nowrap">
-                                            {lang === 'km' ? 'ចែកជូនភ្លាមៗ' : 'INSTANT DELIVERY'}
+                                            INSTANT DELIVERY
                                         </span>
                                     </div>
                                     {/* Arrow tip */}
@@ -457,7 +441,7 @@ export default function TopupPage() {
                                     <div className="flex items-center gap-2 bg-[#22c55e] px-5 py-2 pr-7 -skew-x-12 shadow-[0_4px_20px_rgba(34,197,94,0.4)]">
                                         <Shield className="w-4 h-4 text-black skew-x-12 shrink-0" />
                                         <span className="font-black text-[11px] text-black uppercase tracking-widest skew-x-12 whitespace-nowrap">
-                                            {lang === 'km' ? 'អ្នកចែកចាយផ្លូវការ' : 'OFFICIAL DISTRIBUTOR'}
+                                            OFFICIAL DISTRIBUTOR
                                         </span>
                                     </div>
                                     <div className="w-0 h-0 border-t-[19px] border-b-[19px] border-l-[14px] border-t-transparent border-b-transparent border-l-[#22c55e] -ml-0.5" />
@@ -465,20 +449,10 @@ export default function TopupPage() {
                             </div>
 
                             {/* ── Game Description ── */}
-                            <p className={`max-w-xl text-sm md:text-base text-slate-300 leading-relaxed font-medium ${lang === 'km' ? 'khmer-text' : ''}`}>
-                                {lang === 'km' ? (
-                                    <>
-                                        រីករាយជាមួយសេវាកម្មបញ្ចូលទឹកប្រាក់ <strong className="text-white font-black">{game.name}</strong> ដែលមានល្បឿនលឿន សុវត្ថិភាព និងងាយស្រួលបំផុត!
-                                        {' '}គ្រាន់តែបញ្ចូល <strong className="text-[#22c55e]">ID</strong>, ជ្រើសរើសកញ្ចប់ និងបង់ប្រាក់ — ពេជ្រនឹងចូលក្នុងគណនីរបស់អ្នក <strong className="text-[#22c55e]">ភ្លាមៗ</strong> ដោយស្វ័យប្រវត្តិ។
-                                        {' '}<strong className="text-white">DAI GAME</strong> ជាដៃគូផ្លូវការដែលអ្នកលេងហ្គេមរាប់ពាន់នាក់ជឿទុកចិត្ត!
-                                    </>
-                                ) : (
-                                    <>
-                                        Experience the fastest and most secure way to top up <strong className="text-white font-black">{game.name}</strong>.
-                                        {' '}Simply enter your <strong className="text-[#22c55e]">Player ID</strong>, choose your package, and pay — diamonds are credited to your account <strong className="text-[#22c55e]">instantly</strong>.
-                                        {' '}Join thousands of gamers who trust <strong className="text-white">DAI GAME</strong> for their daily top-ups!
-                                    </>
-                                )}
+                            <p className="max-w-xl text-sm md:text-base text-slate-300 leading-relaxed font-medium">
+                                Experience the fastest and most secure way to top up <strong className="text-white font-black">{game.name}</strong>.
+                                {' '}Simply enter your <strong className="text-[#22c55e]">Player ID</strong>, choose your package, and pay — diamonds are credited to your account <strong className="text-[#22c55e]">instantly</strong>.
+                                {' '}Join thousands of gamers who trust <strong className="text-white">DAI GAME</strong> for their daily top-ups!
                             </p>
 
                             {/* Divider */}
@@ -503,8 +477,8 @@ export default function TopupPage() {
                                 <div className="h-10 w-10 flex-shrink-0 flex items-center justify-center bg-purple-700/50 rounded-xl border border-white/20 overflow-hidden shadow-inner group-hover/header:rotate-12 transition-transform">
                                     <User className="w-5 h-5 text-white" />
                                 </div>
-                                <h2 className={`font-display text-white font-black tracking-tight uppercase italic ${lang === 'km' ? 'khmer-text text-xs md:text-xl' : 'text-xs md:text-xl'}`}>
-                                    1. {tr(t.topup.step1title, lang)}
+                                <h2 className="font-display text-white font-black tracking-tight uppercase italic text-xs md:text-xl">
+                                    1. {t.topup.step1title}
                                 </h2>
                             </div>
 
@@ -512,7 +486,7 @@ export default function TopupPage() {
                                 <div className={`space-y-3 md:space-y-4 ${game.inputConfig?.zoneId ? 'col-span-3' : ''}`}>
                                     <label className="flex items-center gap-2 text-[10px] font-black text-slate-500 uppercase tracking-[0.25em] ml-2">
                                         <Hash className="w-4 h-4 text-purple-500" />
-                                        {tr(t.topup.playerIdLabel, lang)}
+                                        {t.topup.playerIdLabel}
                                     </label>
                                     <div className="relative group/input">
                                         <div className="absolute inset-0 bg-purple-500/10 blur-xl opacity-0 group-focus-within/input:opacity-100 transition-opacity" />
@@ -529,7 +503,7 @@ export default function TopupPage() {
                                     <div className="space-y-3 md:space-y-4 col-span-2">
                                         <label className="flex items-center gap-2 text-[10px] font-black text-slate-500 uppercase tracking-[0.25em] ml-2">
                                             <Hash className="w-4 h-4 text-purple-500" />
-                                            {tr(t.topup.zoneIdLabel, lang)}
+                                            {t.topup.zoneIdLabel}
                                         </label>
                                         <div className="relative group/input">
                                             <div className="absolute inset-0 bg-purple-500/10 blur-xl opacity-0 group-focus-within/input:opacity-100 transition-opacity" />
@@ -550,7 +524,7 @@ export default function TopupPage() {
                                 <div className="mt-6 animate-in fade-in slide-in-from-top-2 duration-500">
                                     <div className="flex items-center gap-2 mb-3">
                                         <History className="w-3.5 h-3.5 text-purple-500" />
-                                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">{lang === 'km' ? 'អត្តសញ្ញាណដែលប្រើថ្មីៗ' : 'Recently Used'}</label>
+                                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Recently Used</label>
                                     </div>
                                     <div className="flex flex-wrap gap-2 md:gap-3">
                                         {recentAccounts.map((acc, idx) => (
@@ -585,12 +559,12 @@ export default function TopupPage() {
                                     className="w-fit px-5 py-2 md:py-5 rounded-3xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-black text-xs uppercase tracking-[0.2em] shadow-[0_20px_40px_rgba(124,58,237,0.3)] hover:shadow-purple-500/50 transition-all active:scale-95 disabled:opacity-20 flex items-center justify-center gap-3"
                                 >
                                     {isVerifying ? <Loader2 className="w-5 h-5 animate-spin" /> : <Shield className="w-5 h-5" />}
-                                    {isVerifying ? tr(t.topup.verifyingBtn, lang) : tr(t.topup.verifyBtn, lang)}
+                                    {isVerifying ? t.topup.verifyingBtn : t.topup.verifyBtn}
                                 </button>
-                                <p className="text-[8px] md:text-[12px] text-slate-500 font-bold uppercase tracking-widest text-center sm:text-left">{tr(t.topup.verifyHint, lang)}</p>
+                                <p className="text-[8px] md:text-[12px] text-slate-500 font-bold uppercase tracking-widest text-center sm:text-left">{t.topup.verifyHint}</p>
                             </div>
 
-                            <VerifyBanner status={verifyStatus} verifiedName={verifiedName} verifyError={verifyError} lang={lang} />
+                            <VerifyBanner status={verifyStatus} verifiedName={verifiedName} verifyError={verifyError} />
                         </div>
 
                         {/* Step 2: Package Selection */}
@@ -602,8 +576,8 @@ export default function TopupPage() {
                                     <div className="h-10 w-10 flex-shrink-0 flex items-center justify-center bg-indigo-700/50 rounded-xl border border-white/20 overflow-hidden shadow-inner">
                                         <Image src="/package-logo.png" alt="" width={28} height={28} className="object-contain" />
                                     </div>
-                                    <h2 className={`font-display text-white font-black tracking-tight uppercase italic ${lang === 'km' ? 'khmer-text md:text-xl text-xs' : 'md:text-xl text-xs'}`}>
-                                        2. {lang === 'km' ? 'ជ្រើសរើសកញ្ចប់ ពេជ្រ' : tr(t.topup.step2title, lang)}
+                                    <h2 className="font-display text-white font-black tracking-tight uppercase italic md:text-xl text-xs">
+                                        2. {t.topup.step2title}
                                     </h2>
                                 </div>
                             </div>
@@ -613,11 +587,11 @@ export default function TopupPage() {
                                     <div className="h-20 w-20 rounded-full bg-purple-500/10 flex items-center justify-center mb-6 border border-purple-500/20">
                                         <Package className="w-10 h-10 text-purple-400 opacity-20" />
                                     </div>
-                                    <h3 className={`text-xl font-bold text-white mb-2 ${lang === 'km' ? 'khmer-text' : ''}`}>
-                                        {tr(t.topup.noPackagesTitle, lang)}
+                                    <h3 className="text-xl font-bold text-white mb-2">
+                                        {t.topup.noPackagesTitle}
                                     </h3>
-                                    <p className={`text-sm text-slate-400 max-w-sm leading-relaxed ${lang === 'km' ? 'khmer-text' : ''}`}>
-                                        {tr(t.topup.noPackagesDesc, lang)}
+                                    <p className="text-sm text-slate-400 max-w-sm leading-relaxed">
+                                        {t.topup.noPackagesDesc}
                                     </p>
                                 </div>
                             ) : (
@@ -645,7 +619,7 @@ export default function TopupPage() {
                                                 <div className="absolute -top-4 -right-1 z-30 animate-float-gentle">
                                                     <div className="relative">
                                                         <div className="bg-gradient-to-r from-[#eb1c24] to-[#ff4d4d] text-white text-[7px] md:text-[9px] font-black px-2 py-0.5 md:py-1 rounded-md shadow-[0_5px_15px_rgba(235,28,36,0.4)] -skew-x-6 border border-white/30 whitespace-nowrap italic tracking-tighter">
-                                                            {pkg.badgeText ? pkg.badgeText : (lang === 'km' ? 'ចំណេញ: 455%' : 'REBATE: 455%')}
+                                                            {pkg.badgeText ? pkg.badgeText : 'REBATE: 455%'}
                                                         </div>
                                                         {/* Speech Bubble Tail */}
                                                         <div className="absolute -bottom-1 left-4 w-2 h-2 bg-[#eb1c24] rotate-45 -z-10" />
@@ -658,8 +632,8 @@ export default function TopupPage() {
                                                 <div className="absolute -top-3 -left-1 z-30">
                                                     <div className="bg-gradient-to-r from-amber-500 to-orange-600 text-white text-[7px] md:text-[8px] font-black px-2 py-0.5 rounded-md shadow-lg border border-white/20 skew-x-[-12deg] tracking-tighter uppercase whitespace-nowrap">
                                                         {formattedPkgName.toLowerCase().includes('first top-up') 
-                                                            ? (lang === 'km' ? 'ប្រូម៉ូសិនដំបូង' : 'FIRST TOP-UP') 
-                                                            : (lang === 'km' ? 'បន្ថែមពិសេស' : 'BONUS')}
+                                                            ? 'FIRST TOP-UP' 
+                                                            : 'BONUS'}
                                                     </div>
                                                 </div>
                                             )}
@@ -668,7 +642,7 @@ export default function TopupPage() {
                                             {soldOut && (
                                                 <div className="absolute inset-0 z-20 flex items-center justify-center rounded-3xl bg-black/40 backdrop-blur-[2px]">
                                                     <span className="px-2 py-1 rounded-lg bg-red-600/90 text-white text-[8px] md:text-[10px] font-black uppercase tracking-widest border border-red-400/30 shadow-lg">
-                                                        {lang === 'km' ? 'អស់ស្តុក' : 'SOLD OUT'}
+                                                        SOLD OUT
                                                     </span>
                                                 </div>
                                             )}
@@ -703,7 +677,7 @@ export default function TopupPage() {
                                                         <span className="text-[14px] md:text-xl">{Number(pkg.price).toFixed(2)}</span>
                                                     </div>
                                                 )}
-                                                <div className={`text-[8px] md:text-xs font-black text-gray-50 leading-none italic tracking-tighter mt-1 w-full flex items-center justify-center gap-0.5 ${lang === 'km' ? 'khmer-text' : ''}`}>
+                                                <div className="text-[8px] md:text-xs font-black text-gray-50 leading-none italic tracking-tighter mt-1 w-full flex items-center justify-center gap-0.5">
                                                     <span className="max-w-full text-[7px] md:text-xs">{formattedPkgName}</span>
                                                     <span className="shrink-0 text-[7px] md:text-xs">{formattedPkgName.toLowerCase().includes('pass') ? '🎟️' : '💎'}</span>
                                                 </div>
@@ -727,8 +701,8 @@ export default function TopupPage() {
                                 <div className="h-10 w-10 flex items-center justify-center bg-emerald-700/50 rounded-xl border border-white/20 overflow-hidden shadow-inner group-hover/header:scale-110 transition-transform">
                                     <CreditCard className="w-5 h-5 text-white" />
                                 </div>
-                                <h2 className={`font-display text-white font-black tracking-tight uppercase italic ${lang === 'km' ? 'khmer-text md:text-xl text-xs' : 'md:text-xl text-xs'}`}>
-                                    3. {tr(t.topup.step3title, lang)}
+                                <h2 className="font-display text-white font-black tracking-tight uppercase italic md:text-xl text-xs">
+                                    3. {t.topup.step3title}
                                 </h2>
                             </div>
 
@@ -790,19 +764,19 @@ export default function TopupPage() {
                                         <CreditCard className="w-6 h-6 text-white" />
                                     </div>
                                 </div>
-                                <h2 className="font-display text-lg md:text-xl font-black text-white tracking-widest uppercase italic">{tr(t.topup.orderSummary, lang)}</h2>
+                                <h2 className="font-display text-lg md:text-xl font-black text-white tracking-widest uppercase italic">{t.topup.orderSummary}</h2>
                             </div>
 
                             {status === "IDLE" || status === "FAILED" ? (
                                 <div className="space-y-8">
                                     <div className="space-y-4">
                                         {[
-                                            { label: tr(t.topup.game, lang), value: game.name },
-                                            { label: tr(t.topup.playerId, lang), value: userId || "—" },
-                                            ...(game.inputConfig?.zoneId ? [{ label: tr(t.topup.zoneIdLabel, lang), value: zoneId || "—" }] : []),
+                                            { label: t.topup.game, value: game.name },
+                                            { label: t.topup.playerId, value: userId || "—" },
+                                            ...(game.inputConfig?.zoneId ? [{ label: t.topup.zoneIdLabel, value: zoneId || "—" }] : []),
                                             ...(verifiedName ? [{ label: "Receiver", value: verifiedName }] : []),
-                                            ...(selectedPkg ? [{ label: tr(t.topup.package, lang), value: formatPackageName(selectedPkg.name) }] : []),
-                                            { label: tr(t.topup.payment, lang), value: PAYMENT_METHODS.find(p => p.id === selectedPayment)?.name || "—" },
+                                            ...(selectedPkg ? [{ label: t.topup.package, value: formatPackageName(selectedPkg.name) }] : []),
+                                            { label: t.topup.payment, value: PAYMENT_METHODS.find(p => p.id === selectedPayment)?.name || "—" },
                                         ].map(({ label, value }) => (
                                             <div key={label} className="flex justify-between items-end gap-4 group">
                                                 <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest group-hover:text-slate-400 transition-colors shrink-0">{label}</span>
@@ -813,10 +787,9 @@ export default function TopupPage() {
                                     </div>
 
                                     <div className="space-y-6 pt-6 border-t border-white/10">
-                                        {/* Reference Image Layout: Terms & Condition */}
                                         <div className="space-y-3">
                                             <h3 className="text-sm font-black text-white tracking-widest uppercase italic">
-                                                {tr(t.topup.termsTitle, lang)}
+                                                {t.topup.termsTitle}
                                             </h3>
                                             <label className="flex items-center gap-3 cursor-pointer group select-none">
                                                 <div className="relative w-8 h-8 shrink-0">
@@ -834,8 +807,8 @@ export default function TopupPage() {
                                                         {agreedToTerms && <Check className="w-5 h-5 text-white" strokeWidth={4} />}
                                                     </div>
                                                 </div>
-                                                <span className={`text-md font-black italic tracking-tight ${lang === 'km' ? 'khmer-text' : ''}`}>
-                                                    {tr(t.topup.agreeToTerms, lang)} <span className="text-[#22c55e] underline underline-offset-4 decoration-2">{lang === 'km' ? 'លក្ខខណ្ឌ' : 'Terms'}</span>
+                                                <span className="text-md font-black italic tracking-tight">
+                                                    I agree to the terms and privacy policy <span className="text-[#22c55e] underline underline-offset-4 decoration-2">Terms</span>
                                                 </span>
                                             </label>
                                         </div>
@@ -890,7 +863,7 @@ export default function TopupPage() {
                                                     ) : (
                                                         <>
                                                             <span className="font-display font-black text-2xl md:text-3xl italic tracking-tighter text-[#050505] drop-shadow-sm select-none">
-                                                                {lang === 'km' ? tr(t.topup.buyNow, lang) : 'BUY NOW'}
+                                                                BUY NOW
                                                             </span>
                                                             {isFormValid && (
                                                                 <div className="bg-[#050505] p-1.5 rounded-lg -skew-x-6 group-hover/btn:rotate-12 transition-transform">
@@ -905,15 +878,15 @@ export default function TopupPage() {
 
                                         {!isFormFilled ? (
                                             <p className="text-center text-[10px] text-slate-600 font-black uppercase tracking-[0.15em] animate-pulse">
-                                                {tr(t.topup.completeSteps, lang)}
+                                                {t.topup.completeSteps}
                                             </p>
                                         ) : !isVerified ? (
                                             <p className="text-center text-[10px] text-amber-500 font-black uppercase tracking-[0.15em] animate-pulse">
-                                                {lang === 'km' ? 'សូមធ្វើការផ្ទៀងផ្ទាត់គណនីរបស់អ្នកសិន' : 'PLEASE VERIFY YOUR ACCOUNT TO PROCEED'}
+                                                PLEASE VERIFY YOUR ACCOUNT TO PROCEED
                                             </p>
                                         ) : !agreedToTerms ? (
                                             <p className="text-center text-[10px] text-blue-500 font-black uppercase tracking-[0.15em] animate-pulse">
-                                                {lang === 'km' ? 'សូមយល់ព្រមតាមលក្ខខណ្ឌសិន' : 'PLEASE AGREE TO TERMS TO PROCEED'}
+                                                PLEASE AGREE TO TERMS TO PROCEED
                                             </p>
                                         ) : null}
                                     </div>
@@ -927,7 +900,7 @@ export default function TopupPage() {
                                         {status === "PENDING" && (
                                             <div className="flex flex-col items-center gap-3 py-2">
                                                 <Loader2 className="w-8 h-8 animate-spin text-purple-400" />
-                                                <span className="font-black text-[10px] uppercase tracking-widest">{tr(t.topup.creating, lang)}</span>
+                                                <span className="font-black text-[10px] uppercase tracking-widest">{t.topup.creating}</span>
                                             </div>
                                         )}
                                         {status === "PROCESSING" && (
@@ -936,13 +909,13 @@ export default function TopupPage() {
                                                     <Loader2 className="w-8 h-8 animate-spin text-purple-400" />
                                                     <div className="absolute inset-0 bg-purple-400/20 blur-xl animate-pulse" />
                                                 </div>
-                                                <span className="font-black text-[10px] uppercase tracking-widest">{tr(t.topup.awaiting, lang)}</span>
+                                                <span className="font-black text-[10px] uppercase tracking-widest">{t.topup.awaiting}</span>
                                             </div>
                                         )}
                                         {status === "COMPLETED" && (
                                             <div className="flex flex-col items-center gap-3 py-2">
-                                                <CheckCircle className="w-10 h-10 text-emerald-400 drop-shadow-[0_0_10px_rgba(52,211,153,0.5)]" />
-                                                <span className="font-black text-[10px] uppercase tracking-widest">{tr(t.topup.success, lang)}</span>
+                                                <CheckCircle2 className="w-10 h-10 text-emerald-400 drop-shadow-[0_0_10px_rgba(52,211,153,0.5)]" />
+                                                <span className="font-black text-[10px] uppercase tracking-widest">{t.topup.success}</span>
                                             </div>
                                         )}
                                     </div>
@@ -952,7 +925,7 @@ export default function TopupPage() {
                                             onClick={handleNewTransaction}
                                             className="w-full h-14 rounded-3xl bg-slate-900 border border-white/5 text-[10px] font-black text-purple-400 uppercase tracking-[0.2em] hover:bg-slate-800 transition-all active:scale-95 flex items-center justify-center gap-2"
                                         >
-                                            {tr(t.topup.newTx, lang)}
+                                            {t.topup.newTx}
                                         </button>
                                     )}
                                 </div>
@@ -963,11 +936,11 @@ export default function TopupPage() {
                                 <div className="flex flex-wrap items-center justify-center gap-5 text-[10px] text-slate-600 font-black uppercase tracking-[0.2em]">
                                     <div className="flex items-center gap-2">
                                         <Lock className="w-3.5 h-3.5" />
-                                        {tr(t.topup.sslEncrypted, lang)}
+                                        {t.topup.sslEncrypted}
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <Shield className="w-3.5 h-3.5" />
-                                        {tr(t.topup.sec5, lang)}
+                                        {t.topup.sec5}
                                     </div>
                                 </div>
                             </div>
@@ -979,7 +952,7 @@ export default function TopupPage() {
                                 onClick={() => document.getElementById('order-summary')?.scrollIntoView({ behavior: 'smooth' })}
                                 className="lg:hidden w-full h-14 rounded-3xl bg-purple-600/10 border border-purple-500/30 text-[10px] font-black text-purple-400 uppercase tracking-[0.2em] hover:bg-purple-600/20 transition-all"
                             >
-                                {tr(t.topup.viewSummary, lang)}
+                                {t.topup.viewSummary}
                             </button>
                         )}
 
@@ -999,7 +972,7 @@ export default function TopupPage() {
                 </div>
             </main>
 
-            <HowToUseSection lang={lang} />
+            <HowToUseSection />
 
             {/* History Floating UI */}
             <TransactionHistory />
