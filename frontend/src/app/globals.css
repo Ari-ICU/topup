@@ -11,7 +11,6 @@
   --color-danger: #ef4444;
   --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-display: 'Rajdhani', sans-serif;
-  --font-khmer: var(--font-khmer-var), 'Noto Sans Khmer', sans-serif;
 }
 
 :root {
@@ -68,15 +67,7 @@ body {
   font-family: var(--font-display);
 }
 
-/* Khmer script — apply to any element containing Khmer text */
-.khmer-text,
-[lang="km"] .khmer-auto {
-  font-family: var(--font-khmer);
-  line-height: 1.9;
-  /* Khmer has tall ascenders/descenders */
-  letter-spacing: 0;
-  /* Khmer doesn't use letter-spacing */
-}
+
 
 /* =================== ANIMATE FADE IN =================== */
 @keyframes fadeIn {
