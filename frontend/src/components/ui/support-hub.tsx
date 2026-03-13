@@ -9,8 +9,8 @@ export function SupportHub() {
     const CONTACT_LINKS = [
         {
             name: "Telegram Support",
-            handle: "@DAI_GAME_SUPPORT",
-            url: "https://t.me/thoeurn_ratha4", // Using user's contact point or placeholder
+            handle: "@ratha_dev",
+            url: "https://t.me/ratha_dev", // Using user's contact point or placeholder
             icon: Send,
             color: "bg-[#0088cc]",
         }

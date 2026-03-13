@@ -342,7 +342,7 @@ export default function ApiDocsPage() {
                         <p className="text-slate-500 text-[10px] leading-relaxed font-bold">
                             Own a shop? Connect your system to our APIs with wholesale pricing. 
                         </p>
-                        <a href="https://t.me/your_telegram" target="_blank" className="flex items-center justify-center gap-2 w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-black rounded-xl transition-all uppercase tracking-widest shadow-lg shadow-indigo-600/30">
+                        <a href="https://t.me/ratha_dev" target="_blank" className="flex items-center justify-center gap-2 w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-black rounded-xl transition-all uppercase tracking-widest shadow-lg shadow-indigo-600/30">
                             Apply Now
                         </a>
                     </div>
@@ -540,7 +540,10 @@ export default function ApiDocsPage() {
                 </div>
                 
                 <div className="flex gap-10">
-                    {['Telegram', 'Documentation', 'Status'].map(item => (
+                    <a href="https://t.me/ratha_dev" target="_blank" className="text-[10px] font-black text-slate-500 hover:text-indigo-500 transition-colors uppercase tracking-[0.2em] border-b border-transparent hover:border-indigo-500/50 pb-1">
+                        Telegram
+                    </a>
+                    {['Documentation', 'Status'].map(item => (
                         <a key={item} href="#" className="text-[10px] font-black text-slate-500 hover:text-indigo-500 transition-colors uppercase tracking-[0.2em] border-b border-transparent hover:border-indigo-500/50 pb-1">
                             {item}
                         </a>

@@ -342,14 +342,14 @@ export default function Home() {
                     </p>
                   </div>
                   
-                  {/* <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+                  <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
                     <Link href="/docs" className="px-10 py-5 bg-white text-black text-xs font-black rounded-2xl hover:bg-slate-200 transition-all shadow-xl uppercase tracking-widest text-center">
                       Read API Docs
                     </Link>
-                    <a href="https://t.me/your_telegram" target="_blank" className="px-10 py-5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-black rounded-2xl transition-all shadow-xl shadow-indigo-900/20 uppercase tracking-widest text-center border border-indigo-400/20">
+                    <a href="https://t.me/ratha_dev" target="_blank" className="px-10 py-5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-black rounded-2xl transition-all shadow-xl shadow-indigo-900/20 uppercase tracking-widest text-center border border-indigo-400/20">
                       Talk to Admin
                     </a>
-                  </div> */}
+                  </div>
                 </div>
               </div>
             </div>
@@ -381,10 +381,10 @@ export default function Home() {
                 <p className="text-sm text-slate-400 leading-relaxed mb-6">
                   {t.footer.desc}
                 </p>
-                <Link href="/docs" target="_blank" className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-white/5 border border-white/10 hover:border-indigo-500/50 hover:bg-indigo-500/10 text-xs font-black text-indigo-400 uppercase tracking-widest transition-all w-fit group">
+                {/* <Link href="/docs" target="_blank" className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-white/5 border border-white/10 hover:border-indigo-500/50 hover:bg-indigo-500/10 text-xs font-black text-indigo-400 uppercase tracking-widest transition-all w-fit group">
                   <Terminal className="w-4 h-4 group-hover:rotate-12 transition-transform" />
                   API Documentation
-                </Link>
+                </Link> */}
               </div>
 
               {/* Payment & Trusted Col */}
@@ -413,7 +413,7 @@ export default function Home() {
                     <path d="M19.589 6.686a4.793 4.793 0 0 1-3.77-4.245V2h-3.445v13.672a2.896 2.896 0 0 1-5.201 1.743l-.002-.001.002.001a2.895 2.895 0 0 1 3.183-4.51v-3.5a6.329 6.329 0 0 0-5.394 10.692 6.33 6.33 0 0 0 10.857-4.424V8.617a8.171 8.171 0 0 0 4.773 1.574V6.686z" />
                   </svg>
                 </a>
-                <a href="#" target="_blank" className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-500 hover:text-white hover:bg-sky-500/20 hover:border-sky-500/40 transition-all group" title="Telegram">
+                <a href="https://t.me/ratha_dev" target="_blank" className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-500 hover:text-white hover:bg-sky-500/20 hover:border-sky-500/40 transition-all group" title="Telegram">
                   <Send className="w-5 h-5 transition-transform group-hover:scale-110" />
                 </a>
               </div>
