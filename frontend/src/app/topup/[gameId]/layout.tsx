@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
                 images: [game.iconUrl],
                 url: `https://daigamestopup.com/topup/${gameId}`,
                 siteName: "DAI-GAME",
-                locale: "km_KH",
+                locale: "en_US",  
                 type: "website",
             },
             twitter: {
