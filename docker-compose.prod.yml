@@ -21,6 +21,22 @@ services:
       retries: 5
 
   # ─────────────────────────────────────────────────────────────────
+  # Redis — Cache & Rate Limiting
+  # ─────────────────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    restart: always
+    volumes:
+      - redis_data:/data
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─────────────────────────────────────────────────────────────────
   # Backend — Express API (production build)
   # ─────────────────────────────────────────────────────────────────
   backend:
@@ -42,10 +58,13 @@ services:
       TOPUP_PROVIDER_URL: ${TOPUP_PROVIDER_URL}
       TOPUP_PROVIDER_KEY: ${TOPUP_PROVIDER_KEY}
       TOPUP_PROVIDER_SECRET: ${TOPUP_PROVIDER_SECRET}
+      REDIS_URL: redis://redis:6379
     volumes:
       - uploads_data:/app/public/uploads
     depends_on:
       db:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     networks:
       - internal
@@ -120,6 +139,8 @@ networks:
 
 volumes:
   postgres_data:
+    driver: local
+  redis_data:
     driver: local
   uploads_data:
     driver: local
