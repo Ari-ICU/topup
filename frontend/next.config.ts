@@ -21,11 +21,11 @@ const nextConfig: NextConfig = {
             key: "Content-Security-Policy",
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval'", // Next.js requires unsafe-eval in dev; tighten in prod if needed
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://static.cloudflareinsights.com",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
               "img-src 'self' data: blob: https: http: *",
-              "connect-src 'self' http://localhost:4000 https://*.codashop.com *",
+              "connect-src 'self' https://daigamestopup.com http://localhost:4000 https://static.cloudflareinsights.com https://cloudflareinsights.com https://*.cloudflareinsights.com https://*.codashop.com *",
               "frame-ancestors 'none'",
             ].join("; "),
           },
