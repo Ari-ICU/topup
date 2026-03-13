@@ -458,7 +458,7 @@ export default function AdminApiKeyPage() {
                                             <span className="text-[10px] font-black uppercase tracking-widest">Base URL</span>
                                         </div>
                                         <code className="text-slate-500 text-[10px] block truncate">
-                                            {typeof window !== 'undefined' ? `${window.location.protocol}//${window.location.host}/api` : 'https://yourdomain.com/api'}
+                                            {typeof window !== 'undefined' ? `${window.location.protocol}//${window.location.host}/api` : 'https://daigamestopup.com/api'}
                                         </code>
                                     </div>
                                 </div>

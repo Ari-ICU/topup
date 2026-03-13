@@ -3,7 +3,7 @@ import { apiRequest } from '@/lib/api';
 import { Game } from '@/types';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-    const baseUrl = 'https://topup-sable.vercel.app';
+    const baseUrl = 'https://daigamestopup.com';
 
     const staticRoutes: MetadataRoute.Sitemap = [
         {

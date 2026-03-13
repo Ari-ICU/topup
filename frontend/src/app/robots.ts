@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
             allow: '/',
             disallow: ['/admin/', '/api/'],
         },
-        sitemap: 'https://topup-sable.vercel.app/sitemap.xml', // Replace with your actual domain when deploying
+        sitemap: 'https://daigamestopup.com/sitemap.xml',
     };
 }

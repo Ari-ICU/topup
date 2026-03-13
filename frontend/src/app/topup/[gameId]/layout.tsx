@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
                 title,
                 description,
                 images: [game.iconUrl],
-                url: `https://topup-sable.vercel.app/topup/${gameId}`,
+                url: `https://daigamestopup.com/topup/${gameId}`,
                 siteName: "DAI-GAME",
                 locale: "km_KH",
                 type: "website",
@@ -34,7 +34,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
                 images: [game.iconUrl],
             },
             alternates: {
-                canonical: `https://topup-sable.vercel.app/topup/${gameId}`,
+                canonical: `https://daigamestopup.com/topup/${gameId}`,
             },
         };
     } catch (error) {
@@ -85,7 +85,7 @@ export default async function GameLayout({
                     "priceCurrency": "USD",
                     "offerCount": packages.length,
                     "availability": "https://schema.org/InStock",
-                    "url": `https://topup-sable.vercel.app/topup/${gameId}`
+                    "url": `https://daigamestopup.com/topup/${gameId}`
                 }
             };
         }

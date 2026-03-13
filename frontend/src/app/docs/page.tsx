@@ -372,7 +372,7 @@ export default function ApiDocsPage() {
                         </div>
                         <div>
                             <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest block mb-1">Production Host</span>
-                            <code className="text-xs text-white font-mono bg-white/[0.02] px-2 py-1 rounded-md">api.yourdomain.com/v1</code>
+                            <code className="text-xs text-white font-mono bg-white/[0.02] px-2 py-1 rounded-md">api.daigamestopup.com/v1</code>
                         </div>
                     </div>
                 </div>

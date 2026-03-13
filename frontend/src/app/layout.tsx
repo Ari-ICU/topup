@@ -19,6 +19,7 @@ const rajdhani = Rajdhani({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://daigamestopup.com"),
   title: "DAI-GAME | Instant Game Credits",
   description:
     "Get instant game credits — Mobile Legends, Free Fire, PUBG and 50+ more games. Pay via KHQR / ABA. Secure, lightning-fast delivery.",
