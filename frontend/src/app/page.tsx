@@ -348,14 +348,14 @@ export default function Home() {
                     </p>
                   </div>
                   
-                  <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+                  {/* <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
                     <Link href="/docs" className="px-10 py-5 bg-white text-black text-xs font-black rounded-2xl hover:bg-slate-200 transition-all shadow-xl uppercase tracking-widest text-center">
                       Read API Docs
                     </Link>
                     <a href="https://t.me/your_telegram" target="_blank" className="px-10 py-5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-black rounded-2xl transition-all shadow-xl shadow-indigo-900/20 uppercase tracking-widest text-center border border-indigo-400/20">
                       Talk to Admin
                     </a>
-                  </div>
+                  </div> */}
                 </div>
               </div>
             </div>
