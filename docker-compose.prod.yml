@@ -116,7 +116,6 @@ services:
         condition: service_healthy
     networks:
       - internal
-      - external
 
   # ─────────────────────────────────────────────────────────────────
   # Cloudflare Tunnel — Secure Edge Connection
